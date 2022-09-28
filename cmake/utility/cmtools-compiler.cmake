@@ -31,10 +31,205 @@ include(${CMAKE_CURRENT_LIST_DIR}/cmtools-args.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/cmtools-dev.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/cmtools-env.cmake)
 
+include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/cotire.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/ucm.cmake)
+
 # Functions summary:
+# - cmt_add_compile_options
+# - cmt_set_compile_options
+# - cmt_add_link_options
+# - cmt_set_link_options
 # - cmt_target_enable_all_warnings
 # - cmt_target_enable_all_warnings
 # - cmt_target_enable_generation_header_dependencies
+# - cmt_enable_all_warnings
+# - cmt_enable_all_warnings
+# - cmt_enable_generation_header_dependencies
+
+# ! cmt_add_compile_options Add flags to the compiler depending on the specific configuration
+#
+# cmt_add_compile_options(
+#   CXX|C
+#   [COMPILER <compiler>]
+#   [CONFIG <config> <config>...]
+#    <flags>...
+# )
+#
+macro(cmt_add_compile_options)
+    cmake_parse_arguments(_UCM_AF "C;CXX;CLEAR_OLD" "" "CONFIG" ${ARGN})
+    if (DEFINED _UCM_AF_CONFIG)
+        cmt_choice_arguments(FUNCTION cmt_add_compile_options PREFIX _UCM_AF CHOICE CONFIG OPTIONS "Debug" "Release" "RelWithDebInfo" "MinSizeRel" )
+    endif()
+
+    if (DEFINED _UCM_AF_COMPILER)
+        cmt_define_compiler()
+        if (NOT ${CMT_COMPILER} STREQUAL ${_UCM_AF_COMPILER})
+            return()
+        endif()
+    endif()
+
+    ucm_add_flags(${ARGN})
+endmacro()
+
+macro(cmt_add_debug_flags)
+    cmt_add_compile_options(${ARGN} CONFIG Debug)
+endmacro()
+
+macro(cmt_add_release_flags)
+    cmt_add_compile_options(${ARGN} CONFIG Release)
+endmacro()
+
+# ! cmt_add_compile_options Add flags to the compiler depending on the language
+#
+# cmt_set_compile_options(
+#   CXX|C
+#   [CONFIG <config> <config>...]
+#   [COMPILER <compiler>]
+#    <flags>...
+# )
+#
+macro(cmt_set_compile_options)
+    cmt_add_compile_options(CLEAR_OLD ${ARGN})
+endmacro()
+
+macro(cmt_set_debug_flags)
+    cmt_set_compile_options(${ARGN} CONFIG Debug)
+endmacro()
+
+macro(cmt_set_release_flags)
+    cmt_set_compile_options(${ARGN} CONFIG Release)
+endmacro()
+
+# ! cmt_add_link_options Add flags to the compiler depending on the specific configuration
+#
+# cmt_add_link_options(
+#   EXE|MODULE|SHARED|STATIC
+#   [COMPILER <compiler>]
+#   [CONFIG <config> <config>...]
+#    <flags>...
+# )
+#
+macro(cmt_add_link_options)
+    cmake_parse_arguments(_UCM_ALF "CLEAR_OLD;EXE;MODULE;SHARED;STATIC" "" "CONFIG" ${ARGN})
+    if (DEFINED _UCM_AF_CONFIG)
+        cmt_choice_arguments(FUNCTION cmt_add_compile_options PREFIX _UCM_ALF CHOICE CONFIG OPTIONS "Debug" "Release" "RelWithDebInfo" "MinSizeRel")
+    endif()
+
+    if (DEFINED _UCM_ALF_COMPILER)
+        cmt_define_compiler()
+        if (NOT ${CMT_COMPILER} STREQUAL ${_UCM_ALF_COMPILER})
+            return()
+        endif()
+    endif()
+
+    ucm_add_linker_flags(${ARGN})
+endmacro()
+
+macro(cmt_set_debug_linker_flags)
+    cmt_add_link_options(${ARGN} CONFIG Debug)
+endmacro()
+
+macro(cmt_set_release_linker_flags)
+    cmt_add_link_options(${ARGN} CONFIG Release)
+endmacro()
+
+# ! cmt_set_link_options Set the flags to the compiler depending on the language
+#
+# cmt_set_link_options(
+#   EXE|MODULE|SHARED|STATIC
+#   [COMPILER <compiler>]
+#   [CONFIG <config> <config>...]
+#    <flags>...
+# )
+#
+macro(cmt_set_link_options)
+    cmt_add_link_options(CLEAR_OLD ${ARGN})
+endmacro()
+
+macro(cmt_set_debug_linker_flags)
+    cmt_set_link_options(${ARGN} CONFIG Debug)
+endmacro()
+
+macro(cmt_set_release_linker_flags)
+    cmt_set_link_options(${ARGN} CONFIG Release)
+endmacro()
+
+# ! cmt_set_runtime Sets the runtime (static/dynamic) for msvc/gcc
+#
+# cmt_set_runtime(
+#   STATIC|DYNAMIC
+# )
+#
+function(cmt_set_runtime)
+    ucm_set_runtime(${ARGN})
+endfunction()
+
+# ! cmt_print_flags Prints all compiler flags for all configurations
+#
+# cmt_print_flags()
+#
+function(cmt_print_flags)
+    ucm_print_flags(${ARGN})
+endfunction()
+
+
+# ! cmt_target_enable_all_warnings Enable all warnings for the major compilers in the target
+#
+# cmt_enable_all_warnings()
+#
+function(cmt_enable_all_warnings)
+    cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
+    cmt_required_arguments(FUNCTION cmt_target_enable_all_warnings PREFIX ARGS FIELDS TARGET)
+    cmt_ensure_targets(FUNCTION cmt_target_enable_all_warnings TARGETS ${ARGS_TARGET}) 
+
+    cmt_define_compiler()
+    if (CMT_COMPILER MATCHES "CLANG")
+        cmt_add_compile_options(-Wall -Wextra -Wpedantic -Werror)
+    elseif (CMT_COMPILER MATCHES "GNU")
+        cmt_add_compile_options(-Wall -Wextra -Wpedantic -Werror)
+    elseif (CMT_COMPILER MATCHES "MSVC")
+        cmt_add_compile_options(/W4 /WX)
+    endif()
+endfunction()
+
+# ! cmt_enable_effective_cxx_warnings Enable all warnings for the major compilers in the target
+#
+# cmt_enable_effective_cxx_warnings()
+#
+function(cmt_enable_effective_cxx_warnings)
+    cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
+    cmt_required_arguments(FUNCTION cmt_target_enable_effective_cxx_warnings PREFIX ARGS FIELDS TARGET)
+    cmt_ensure_targets(FUNCTION cmt_target_enable_effective_cxx_warnings TARGETS ${ARGS_TARGET}) 
+
+    cmt_define_compiler()
+    if (${CMT_COMPILER} STREQUAL "CLANG")
+        cmt_add_compile_options(-Weffc++)
+    elseif (${CMT_COMPILER}  STREQUAL "GNU")
+        cmt_add_compile_options(-Weffc++)
+    else()
+        message(WARNING "Cannot enable effective c++ check on non gnu/clang compiler.")
+    endif()
+endfunction()
+
+# ! cmt_enable_generation_header_dependencies Generates .d files with header dependencies
+#
+# cmt_enable_generation_header_dependencies()
+#
+function(cmt_enable_generation_header_dependencies)
+    cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
+    cmt_required_arguments(FUNCTION cmt_target_enable_generation_header_dependencies PREFIX ARGS FIELDS TARGET)
+    cmt_ensure_targets(FUNCTION cmt_target_enable_generation_header_dependencies TARGETS ${ARGS_TARGET}) 
+
+    cmt_define_compiler()
+    if (${CMT_COMPILER}  STREQUAL "CLANG")
+        cmt_add_compile_options(-MD)
+    elseif (${CMT_COMPILER}  STREQUAL "GNU")
+        cmt_add_compile_options(-MD)
+    else()
+        message(WARNING "Cannot generate header dependency on non GCC/Clang compilers.")
+    endif()
+endfunction()
+
 
 # ! cmt_target_enable_all_warnings Enable all warnings for the major compilers in the target
 #
@@ -50,7 +245,7 @@ function(cmt_target_enable_all_warnings)
     cmt_ensure_targets(FUNCTION cmt_target_enable_all_warnings TARGETS ${ARGS_TARGET}) 
 
     cmt_define_compiler()
-    if (CMT_COMPILER MATCHES "Clang")
+    if (CMT_COMPILER MATCHES "CLANG")
         target_compile_options(${ARGS_TARGET} PRIVATE -Wall -Wextra -Wpedantic -Werror)
     elseif (CMT_COMPILER MATCHES "GNU")
         target_compile_options(${ARGS_TARGET} PRIVATE -Wall -Wextra -Wpedantic -Werror)
