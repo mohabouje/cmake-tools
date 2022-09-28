@@ -115,3 +115,4 @@ upgrade_github_main conformism cmake-utils  Modules/Lizard.cmake "${CURRENT_DIRE
 upgrade_github_main conformism cmake-utils  Modules/Sanitizers.cmake "${CURRENT_DIRECTORY}/cmake/third_party/sanitizers.cmake"
 upgrade_github_main StableCoder cmake-scripts code-coverage.cmake "${CURRENT_DIRECTORY}/cmake/third_party/coverage.cmake"
 upgrade_github_main StableCoder cmake-scripts dependency-graph.cmake "${CURRENT_DIRECTORY}/cmake/third_party/dependency-graph.cmake"
+upgrade_github_main StableCoder cmake-scripts link-time-optimization.cmake "${CURRENT_DIRECTORY}/cmake/third_party/link-time-optimization.cmake"

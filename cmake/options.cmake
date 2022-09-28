@@ -10,4 +10,5 @@ option(CMTOOLS_ENABLE_CPPLINT               "Enable the integration of cppcheck 
 option(CMTOOLS_ENABLE_DEPENDENCY_GRAPH      "Enable the integration of dependency-graphs into the build system"     ON)
 option(CMTOOLS_ENABLE_IWYU                  "Enable the integration of include-what-you-use into the build system"  ON)
 option(CMTOOLS_ENABLE_LIZARD                "Enable the integration of lizard into the build system"                ON)
+option(CMTOOLS_ENABLE_LTO                   "Enable the integration of lto into the build system"                   ON)
 option(CMTOOLS_ENABLE_SANITIZERS            "Enable the integration of sanitizers into the build system"            ON)

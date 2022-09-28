@@ -45,3 +45,6 @@ cmtools_target_enable_cotire(TARGET integration)
 
 # Integration with dependency graph
 cmtools_project_dependency_graph()
+
+# Integration with lto
+cmtools_target_enable_lto(TARGET integration)

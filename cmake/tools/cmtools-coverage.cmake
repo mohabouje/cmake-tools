@@ -63,12 +63,10 @@ endfunction()
 
 # ! cmtools_project_coverage Generate code coverage for all the targets.
 #
-function(cmtools_project_coverage)
-    if (NOT CMTOOLS_ENABLE_COVERAGE)
-        return()
+macro(cmtools_project_coverage)
+    if (CMTOOLS_ENABLE_COVERAGE)
+        set(CODE_COVERAGE ON)
+        add_code_coverage_all_targets()
+        message(STATUS "[cmtools] Generating a code-coverage report for the project ${PROJECT_NAME}")
     endif()
-
-    set(CODE_COVERAGE ON)
-    add_code_coverage_all_targets()
-     message(STATUS "[cmtools] Generating a code-coverage report for the project ${PROJECT_NAME}")
-endfunction()
+endmacro()

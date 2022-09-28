@@ -22,36 +22,48 @@
 # SOFTWARE.                                                                      #
 ##################################################################################
 
-if(CMTOOLS_DEPENDENCY_GRAPH_INCLUDED)
+if(CMTOOLS_LTO_INCLUDED)
 	return()
 endif()
-set(CMTOOLS_DEPENDENCY_GRAPH_INCLUDED ON)
+set(CMTOOLS_LTO_INCLUDED ON)
 
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-args.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
 
 set(MESSAGE_QUIET ON)
-include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/dependency-graph.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/link-time-optimization.cmake)
 unset(MESSAGE_QUIET)
 
 # Functions summary:
-# - cmtools_project_dependency_graph
+# - cmtools_target_enable_lto
+# - cmtools_project_lto
 
-# ! cmtools_project_dependency_graph Builds a dependency graph of the active code targets using the `dot` application
+# ! cmtools_target_enable_lto Enables link-time-optimization for the target.
 #
-# cmtools_project_dependency_graph(
-#   [OUTPUT_DIR <output>] # Default: ${CMAKE_CURRENT_BINARY_DIR} 
+# cmtools_target_enable_lto(
+#   [TARGET <target>]
 # )
 #
-# \param:OUTPUT_DIR OUTPUT_DIR The output directory where the generated files will be stored.
+# \param:TARGET TARGET The target to configure
 #
-macro(cmtools_project_dependency_graph)
-    cmake_parse_arguments(_PDG_ARGS "" "OUTPUT_DIR" "" ${ARGN})
-    cmtools_default_argument(FUNCTION cmtools_generate_project_dependency_graph PREFIX _PDG_ARGS FIELDS OUTPUT VALUE ${CMAKE_CURRENT_BINARY_DIR})
-    if (NOT CMTOOLS_ENABLE_DEPENDENCY_GRAPH)
-        set(BUILD_DEP_GRAPH ON)
-        cmtools_find_program(NAME DOT_PROGRAM PROGRAM dot)
-        gen_dep_graph("png" TARGET_NAME dependency-graph-${PROJECT_NAME}  OUTPUT_DIR ${_PDG_ARGS_OUTPUT_DIR} ADD_TO_DEP_GRAPH)
-        message(STATUS "[cmtools] Generating a dependency graph for the project ${PROJECT_NAME}")
+function(cmtools_target_enable_lto)
+    cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
+    cmtools_required_arguments(FUNCTION cmtools_target_enable_lto PREFIX ARGS FIELDS TARGET)
+
+    if (NOT CMTOOLS_ENABLE_LTO)
+        return()
+    endif()
+
+    target_link_time_optimization(${ARGS_TARGET} REQUIRED)
+    message(STATUS "[cmtools] Target ${ARGS_TARGET}: enabling link-time-optimization")
+endfunction()
+
+
+# ! cmtools_project_lto Generate code lto for all the targets.
+#
+macro(cmtools_project_lto)
+    if (NOT CMTOOLS_ENABLE_LTO)
+        link_time_optimization()
+        message(STATUS "[cmtools] Generating a code-lto report for the project ${PROJECT_NAME}")
     endif()
 endmacro()
