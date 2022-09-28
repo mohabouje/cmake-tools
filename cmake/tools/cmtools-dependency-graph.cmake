@@ -22,63 +22,38 @@
 # SOFTWARE.                                                                      #
 ##################################################################################
 
-if(CMTOOLS_CPPCHECK_INCLUDED)
+if(CMTOOLS_DEPENDENCY_GRAPH_INCLUDED)
 	return()
 endif()
-set(CMTOOLS_CPPCHECK_INCLUDED ON)
+set(CMTOOLS_DEPENDENCY_GRAPH_INCLUDED ON)
 
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-args.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
 
 set(MESSAGE_QUIET ON)
-include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/cppcheck.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/dependency-graph.cmake)
 unset(MESSAGE_QUIET)
 
 # Functions summary:
-# - cmtools_target_generate_cppcheck
+# - cmtools_project_dependency_graph
 
-# ! cmtools_target_generate_cppcheck Generate a cppcheck target for the target.
-# The generated target lanch cppcheck on all the target sources in the specified working directory.
+# ! cmtools_project_dependency_graph Builds a dependency graph of the active code targets using the `dot` application
 #
-# cmtools_target_generate_cppcheck(
-#   [TARGET <target>]
+# cmtools_project_dependency_graph(
+#   [OUTPUT_DIR <output>] # Default: ${CMAKE_CURRENT_BINARY_DIR} 
 # )
 #
-# \param:TARGET TARGET The target to configure
+# \param:OUTPUT_DIR OUTPUT_DIR The output directory where the generated files will be stored.
 #
-function(cmtools_target_generate_cppcheck)
-    cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
-    cmtools_required_arguments(FUNCTION cmtools_target_generate_cppcheck PREFIX ARGS FIELDS TARGET)
-
-    if (NOT CMTOOLS_ENABLE_CPPCHECK)
+function(cmtools_project_dependency_graph)
+    cmake_parse_arguments(ARGS "" "OUTPUT_DIR" "" ${ARGN})
+    cmtools_default_argument(FUNCTION cmtools_generate_project_dependency_graph PREFIX ARGS FIELDS OUTPUT VALUE ${CMAKE_CURRENT_BINARY_DIR})
+    if (NOT CMTOOLS_ENABLE_DEPENDENCY_GRAPH)
         return()
     endif()
 
-    cmtools_find_program(NAME CPPCHECK_PROGRAM PROGRAM cppcheck)
-    cppcheck(TARGET ${ARGS_TARGET})
-    message(STATUS "[cmtools] Target ${ARGS_TARGET}: generate target to run cppcheck")
-endfunction()
-
-
-# ! cmtools_target_enable_cppcheck Enable include-what-you-use checks on the given target
-#
-# cmtools_target_enable_cppcheck(
-#   [TARGET <target>]
-# )
-#
-# \param:TARGET TARGET The target to configure
-#
-function(cmtools_target_enable_cppcheck)
-    cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
-    cmtools_required_arguments(FUNCTION cmtools_target_enable_cppcheck PREFIX ARGS FIELDS TARGET)
-    cmtools_ensure_targets(FUNCTION cmtools_target_enable_cppcheck TARGETS ${ARGS_TARGET}) 
-
-    if (NOT CMTOOLS_ENABLE_CPPCHECK)
-        return()
-    endif()
-
-    cmtools_find_program(NAME CPPCHECK_PROGRAM PROGRAM cppcheck)
-    set_property(TARGET ${ARGS_TARGET} PROPERTY CMAKE_CXX_CPPCHECK ${CPPCHECK_PROGRAM})
-    set_property(TARGET ${ARGS_TARGET} PROPERTY CMAKE_C_CPPCHECK ${CPPCHECK_PROGRAM})
-    message(STATUS "[cmtools] Target ${ARGS_TARGET}: enabling extension cppcheck")
+    set(BUILD_DEP_GRAPH ON)
+    cmtools_find_program(NAME DOT_PROGRAM PROGRAM dot)
+    gen_dep_graph("png" TARGET_NAME dependency-graph-${PROJECT_NAME}  OUTPUT_DIR ${ARGS_OUTPUT_DIR} ADD_TO_DEP_GRAPH)
+    message(STATUS "[cmtools] Generating a dependency graph for the project ${PROJECT_NAME}")
 endfunction()

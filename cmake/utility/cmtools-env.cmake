@@ -180,3 +180,59 @@ macro(cmtools_find_program)
     endif()
 
 endmacro()
+
+#! cmtools_set_cpp_standard Sets the C++ standard for the current project
+# The C++ standard is set to the value of the variable CMTOOLS_CPP_STANDARD.
+#
+# The value of the standard is set to one of the following values:
+# - 98
+# - 11
+# - 14
+# - 17
+# - 20
+# - 23
+#
+# cmtools_set_cpp_standard(
+#   [STANDARD <standard>]
+#   [REQUIRED <required>] (Default: ON)
+#   [EXTENSIONS <extensions>] (Default: OFF)
+# )
+macro(cmtools_set_cpp_standard)
+    cmake_parse_arguments(_CPP_FP_CHECK "" "STANDARD;REQUIRED;EXTENSIONS" "" ${ARGN})
+	cmtools_required_arguments(FUNCTION cmtools_set_cpp_standard PREFIX _CPP_FP_CHECK FIELDS NAME STANDARD)
+    cmtools_choice_arguments(FUNCTION cmtools_set_cpp_standard PREFIX _CPP_FP_CHECK CHOICE STANDARD OPTIONS 98 11 14 17 20 23)
+	cmtools_default_argument(FUNCTION cmtools_set_cpp_standard PREFIX _CPP_FP_CHECK FIELD EXTENSION VALUE OFF)
+	cmtools_default_argument(FUNCTION cmtools_set_cpp_standard PREFIX _CPP_FP_CHECK FIELD REQUIRED VALUE ON)
+
+	set(CMTOOLS_CPP_STANDARD ${_CPP_FP_CHECK_STANDARD} CACHE STRING "The C++ standard to use" FORCE)
+	set(CMAKE_CXX_STANDARD ${_CPP_FP_CHECK_STANDARD} CACHE STRING "Set the C++ standard to use." FORCE)
+	set(CMAKE_CXX_STANDARD_REQUIRED ${_CPP_FP_CHECK_REQUIRED} CACHE BOOL "Set the C++ standard to required." FORCE)
+	set(CMAKE_CXX_EXTENSIONS ${_CPP_FP_CHECK_EXTENSIONS} CACHE BOOL "Set the C++ standard to use extensions." FORCE)
+endmacro()
+
+#! cmtools_set_c_standard Sets the C standard for the current project
+# The C++ standard is set to the value of the variable CMTOOLS_C_STANDARD.
+#
+# The value of the standard is set to one of the following values:
+# - 98
+# - 11
+# - 17
+# - 23
+#
+# cmtools_set_c_standard(
+#   [STANDARD <standard>]
+#   [REQUIRED <required>] (Default: ON)
+#   [EXTENSIONS <extensions>] (Default: OFF)
+# )
+macro(cmtools_set_c_standard)
+    cmake_parse_arguments(_C_FP_CHECK "" "STANDARD;REQUIRED;EXTENSIONS" "" ${ARGN})
+	cmtools_required_arguments(FUNCTION cmtools_set_cpp_standard PREFIX _C_FP_CHECK FIELDS NAME STANDARD)
+    cmtools_choice_arguments(FUNCTION cmtools_set_cpp_standard PREFIX _C_FP_CHECK CHOICE STANDARD OPTIONS 98 11 17 23)
+	cmtools_default_argument(FUNCTION cmtools_set_cpp_standard PREFIX _C_FP_CHECK FIELD EXTENSION VALUE OFF)
+	cmtools_default_argument(FUNCTION cmtools_set_cpp_standard PREFIX _C_FP_CHECK FIELD REQUIRED VALUE ON)
+
+	set(CMTOOLS_CPP_STANDARD ${_C_FP_CHECK_STANDARD} CACHE STRING "The C++ standard to use" FORCE)
+	set(CMAKE_CXX_STANDARD ${_C_FP_CHECK_STANDARD} CACHE STRING "Set the C++ standard to use." FORCE)
+	set(CMAKE_CXX_STANDARD_REQUIRED ${_C_FP_CHECK_REQUIRED} CACHE BOOL "Set the C++ standard to required." FORCE)
+	set(CMAKE_CXX_EXTENSIONS ${_C_FP_CHECK_EXTENSIONS} CACHE BOOL "Set the C++ standard to use extensions." FORCE)
+endmacro()

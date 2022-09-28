@@ -36,6 +36,7 @@ unset(MESSAGE_QUIET)
 
 # Functions summary:
 # - cmtools_target_generate_coverage
+# - cmtools_project_coverage
 
 # ! cmtools_target_generate_coverage Generate a code coverage report for the target.
 # The generated target lanch lcov on all the target sources in the specified working directory.
@@ -54,18 +55,20 @@ function(cmtools_target_generate_coverage)
         return()
     endif()
 
-    coverage(TARGET_TO_RUN ${ARGS_TARGET} TARGETS_TO_COVER ${ARGS_DEPENDENCIES})
+    set(CODE_COVERAGE ON)
+    target_code_coverage(${ARGS_TARGET} OBJECTS ${ARGS_DEPENDENCIES} AUTO ALL)
     message(STATUS "[cmtools] Target ${ARGS_TARGET}: generating coverage for dependencies: ${ARGS_DEPENDENCIES}")
 endfunction()
 
 
-# ! cmtools_coverage_all Generate code coverage for all the targets.
+# ! cmtools_project_coverage Generate code coverage for all the targets.
 #
-function(cmtools_coverage_all)
+function(cmtools_project_coverage)
     if (NOT CMTOOLS_ENABLE_COVERAGE)
         return()
     endif()
 
-    coverage_global()
-    message(STATUS "[cmtools] Generating coverage for all targets")
+    set(CODE_COVERAGE ON)
+    add_code_coverage_all_targets()
+     message(STATUS "[cmtools] Generating a code-coverage report for the project ${PROJECT_NAME}")
 endfunction()
