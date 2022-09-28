@@ -111,7 +111,7 @@ endmacro()
 #
 function(cmtools_join_list)
     cmake_parse_arguments(ARGS "" "NAME;SEPARATOR" "LIST" ${ARGN})
-    cmtools_required_arguments(FUNCTION cmtools_filter_list PREFIX ARGS FIELDS NAME SEPARATOR LIST)
+    cmtools_required_arguments(FUNCTION cmtools_join_list PREFIX ARGS FIELDS NAME SEPARATOR LIST)
 
 
 	set(TEMPORAL_OUTPUT)

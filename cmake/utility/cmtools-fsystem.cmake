@@ -49,7 +49,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/cmtools-lists.cmake)
 #
 function(cmtools_directory_is_empty)
     cmake_parse_arguments(ARGS "" "NAME;DIRECTORY" "" ${ARGN})
-    cmtools_required_arguments(FUNCTION cmtools_filter_list PREFIX ARGS FIELDS NAME DIRECTORY)
+    cmtools_required_arguments(FUNCTION cmtools_directory_is_empty PREFIX ARGS FIELDS NAME DIRECTORY)
 
 
 	set(TEMPORAL_OUTPUT false)
@@ -86,7 +86,7 @@ endfunction()
 #
 function(cmtools_get_files output)
     cmake_parse_arguments(ARGS "RECURSIVE" "NAME;DIRECTORY" "EXTENSIONS" ${ARGN})
-    cmtools_required_arguments(FUNCTION cmtools_filter_list PREFIX ARGS FIELDS NAME DIRECTORY EXTENSIONS)
+    cmtools_required_arguments(FUNCTION cmtools_get_files PREFIX ARGS FIELDS NAME DIRECTORY EXTENSIONS)
 	if (ARGS_RECURSIVE)
 		set(GLOB_COMMAND GLOB_RECURSE)
 	else()

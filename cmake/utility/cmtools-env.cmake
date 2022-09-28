@@ -153,3 +153,28 @@ macro(cmtools_define_os)
 		set(CMTOOLS_OS_UNKNOW "UNKNOWN")
 	endif()
 endmacro()
+
+#! cmtools_find_program Check if a program exists and set the variable to the path
+#
+# cmtools_find_program(
+#   [NAME <name>]
+#   [PROGRAM <program>]
+#   [ALIAS <alias1> <alias2> ...]
+# )
+#
+macro(cmtools_find_program)
+
+    cmake_parse_arguments(CHECK "" "NAME;PROGRAM" "ALIAS" ${ARGN})
+	cmtools_required_arguments(FUNCTION cmtools_find_program PREFIX ARGS FIELDS NAME PROGRAM)
+
+	if (ARGS_ALIAS)
+		find_program(${ARGS_NAME} ${ARGS_PROGRAM} NAMES ${ARGS_ALIAS})
+	else()
+		find_program(${ARGS_NAME} ${ARGS_PROGRAM})
+	endif()
+
+    if(NOT ${ARGS_NAME})
+        message(FATAL_ERROR "Could not find the program ${ARGS_PROGRAM}")
+    endif()
+
+endmacro()
