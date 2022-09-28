@@ -165,15 +165,15 @@ endmacro()
 macro(cmtools_find_program)
 
     cmake_parse_arguments(CHECK "" "NAME;PROGRAM" "ALIAS" ${ARGN})
-	cmtools_required_arguments(FUNCTION cmtools_find_program PREFIX ARGS FIELDS NAME PROGRAM)
+	cmtools_required_arguments(FUNCTION cmtools_find_program PREFIX CHECK FIELDS NAME PROGRAM)
 
 	if (ARGS_ALIAS)
-		find_program(${ARGS_NAME} ${ARGS_PROGRAM} NAMES ${ARGS_ALIAS})
+		find_program(${CHECK_NAME} ${CHECK_PROGRAM} NAMES ${ARGS_ALIAS})
 	else()
-		find_program(${ARGS_NAME} ${ARGS_PROGRAM})
+		find_program(${CHECK_NAME} ${CHECK_PROGRAM})
 	endif()
 
-    if(NOT ${ARGS_NAME})
+    if(NOT ${CHECK_NAME})
         message(FATAL_ERROR "Could not find the program ${ARGS_PROGRAM}")
     endif()
 

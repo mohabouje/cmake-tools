@@ -84,8 +84,8 @@ endfunction()
 # \param:RECURSIVE RECURSIVE If present, search is recursive
 # \param:EXTENSIONS EXTENSIONS Extensions of files to get
 #
-function(cmtools_get_files output)
-    cmake_parse_arguments(ARGS "RECURSIVE" "NAME;DIRECTORY" "EXTENSIONS" ${ARGN})
+function(cmtools_get_files)
+	cmake_parse_arguments(ARGS "RECURSIVE" "NAME;DIRECTORY" "EXTENSIONS" ${ARGN})
     cmtools_required_arguments(FUNCTION cmtools_get_files PREFIX ARGS FIELDS NAME DIRECTORY EXTENSIONS)
 	if (ARGS_RECURSIVE)
 		set(GLOB_COMMAND GLOB_RECURSE)
@@ -117,7 +117,7 @@ endfunction()
 # \param:DIRECTORY DIRECTORY Directory to check.
 # \param:RECURSIVE RECURSIVE If present, search is recursive
 #
-macro(cmtools_get_sources output)
+macro(cmtools_get_sources)
 	cmtools_get_files(${ARGN} EXTENSIONS .c .C .c++ .cc .cpp .cxx .h .hh .h++ .hpp .hxx .tpp .txx .tcc)
 endmacro()
 

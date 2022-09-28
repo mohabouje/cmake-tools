@@ -27,7 +27,7 @@ if(CMTOOLS_CCACHE_INCLUDED)
 endif()
 set(CMTOOLS_CCACHE_INCLUDED ON)
 
-include(${CMAKE_CURRENT_LIST_DIR}/cmtools-env.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-env.cmake)
 
 
 # Functions summary:
@@ -42,10 +42,11 @@ include(${CMAKE_CURRENT_LIST_DIR}/cmtools-env.cmake)
 #
 # \param:TARGET TARGET The target to configure
 #
-function(cmtools_target_use_ccache target)
+function(cmtools_target_use_ccache)
     cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
-    cmtools_required_arguments(FUNCTION cmtools_target_use_ccache PREFIX ARGS FIELDS TARGET PROPERTY PROPERTIES)
-	cmtools_define_compiler()
+    cmtools_required_arguments(FUNCTION cmtools_target_use_ccache PREFIX ARGS FIELDS TARGET)
+    cmtools_ensure_targets(FUNCTION cmtools_target_use_ccache TARGETS ${ARGS_TARGET}) 
+    cmtools_define_compiler()
     if ("${CMTOOLS_COMPILER}" MATCHES "^(CLANG|GCC)$") 
         cmtools_find_program(NAME CCACHE_PROGRAM PROGRAM ccache)
         set_target_properties(${ARGS_TARGET} PROPERTIES C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
