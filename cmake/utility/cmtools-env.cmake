@@ -170,6 +170,10 @@ macro(cmtools_find_program)
     cmake_parse_arguments(_FP_CHECK "" "NAME;PROGRAM" "ALIAS;COMPONENTS" ${ARGN})
 	cmtools_required_arguments(FUNCTION cmtools_find_program PREFIX _FP_CHECK FIELDS NAME PROGRAM)
 
+	if (${_FP_CHECK_NAME})
+		return()
+	endif()
+
 	find_program(${_FP_CHECK_NAME} ${_FP_CHECK_PROGRAM} NAMES ${_FP_CHECK_ALIAS} COMPONENTS ${_FP_CHECK_COMPONENTS})
     if(NOT ${_FP_CHECK_NAME})
         message(FATAL_ERROR "Could not find the program ${_FP_CHECK_PROGRAM}")

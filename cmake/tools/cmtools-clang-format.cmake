@@ -22,7 +22,7 @@
 # SOFTWARE.                                                                      #
 ##################################################################################
 
-if(CMTOOLS_CLANG_FORMAT_INCLUDED)
+if (CMTOOLS_CLANG_FORMAT_INCLUDED)
 	return()
 endif()
 set(CMTOOLS_CLANG_FORMAT_INCLUDED ON)
@@ -56,6 +56,9 @@ function(cmtools_target_generate_clang_format)
     cmtools_default_argument(FUNCTION cmtools_target_generate_clang_format PREFIX ARGS FIELDS STYLE VALUE "file")
     cmtools_default_argument(FUNCTION cmtools_target_generate_clang_format PREFIX ARGS FIELDS WORKING_DIRECTORY VALUE ${CMAKE_CURRENT_SOURCE_DIR})
 
+	if (NOT CMTOOLS_ENABLE_CLANG_FORMAT)
+    	return()
+	endif()
 
 	set(FORMAT_TARGET "clang-format-${ARGS_TARGET}")
 	if (TARGET ${FORMAT_TARGET})

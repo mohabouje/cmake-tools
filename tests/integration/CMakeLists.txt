@@ -31,7 +31,7 @@ cmtools_target_generate_cppcheck(TARGET integration)
 cmtools_target_enable_cpplint(TARGET integration)
 
 # Integration with codechecker
-cmtools_target_generate_codechecker(TARGET integration)
+# cmtools_target_generate_codechecker(TARGET integration)
 
 # Integration with code coverage tools
 cmtools_target_generate_coverage(TARGET integration DEPENDENCIES integration)

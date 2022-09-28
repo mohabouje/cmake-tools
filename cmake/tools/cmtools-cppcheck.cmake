@@ -29,7 +29,10 @@ set(CMTOOLS_CPPCHECK_INCLUDED ON)
 
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-args.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
+
+set(MESSAGE_QUIET ON)
 include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/cppcheck.cmake)
+unset(MESSAGE_QUIET)
 
 # Functions summary:
 # - cmtools_target_generate_cppcheck
@@ -46,6 +49,12 @@ include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/cppcheck.cmake)
 function(cmtools_target_generate_cppcheck)
     cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
     cmtools_required_arguments(FUNCTION cmtools_target_generate_cppcheck PREFIX ARGS FIELDS TARGET)
+
+    if (NOT CMTOOLS_ENABLE_CPPCHECK)
+        return()
+    endif()
+
+    cmtools_find_program(NAME CPPCHECK_PROGRAM PROGRAM cppcheck)
     cppcheck(TARGET ${ARGS_TARGET})
     message(STATUS "[cmtools] Target ${ARGS_TARGET}: generate target to run cppcheck")
 endfunction()
@@ -63,8 +72,13 @@ function(cmtools_target_enable_cppcheck)
     cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
     cmtools_required_arguments(FUNCTION cmtools_target_enable_cppcheck PREFIX ARGS FIELDS TARGET)
     cmtools_ensure_targets(FUNCTION cmtools_target_enable_cppcheck TARGETS ${ARGS_TARGET}) 
+
+    if (NOT CMTOOLS_ENABLE_CPPCHECK)
+        return()
+    endif()
+
     cmtools_find_program(NAME CPPCHECK_PROGRAM PROGRAM cppcheck)
-    set(CMAKE_CXX_CPPCHECK ${CPPCHECK_PROGRAM})
-    set(CMAKE_C_CPPCHECK ${CPPCHECK_PROGRAM})
-    message(STATUS "[cmtools] Target ${ARGS_TARGET}: enabled cppcheck")
+    set_property(TARGETS ${ARGS_TARGET} PROPERTY CMAKE_CXX_CPPCHECK ${CPPCHECK_PROGRAM})
+    set_property(TARGETS ${ARGS_TARGET} PROPERTY CMAKE_C_CPPCHECK ${CPPCHECK_PROGRAM})
+    message(STATUS "[cmtools] Target ${ARGS_TARGET}: enabling extension cppcheck")
 endfunction()

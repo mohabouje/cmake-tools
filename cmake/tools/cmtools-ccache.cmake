@@ -22,30 +22,39 @@
 # SOFTWARE.                                                                      #
 ##################################################################################
 
-if(CMTOOLS_LIZARD_INCLUDED)
+if(CMTOOLS_CCACHE_INCLUDED)
 	return()
 endif()
-set(CMTOOLS_LIZARD_INCLUDED ON)
+set(CMTOOLS_CCACHE_INCLUDED ON)
 
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-args.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/lizard.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
+
 
 # Functions summary:
-# - cmtools_target_generate_lizard
+# - cmtools_target_use_ccache
 
-# ! cmtools_target_generate_lizard Generate a lizard target for the target.
-# The generated target lanch lizard on all the target sources in the specified working directory.
+
+# ! cmtools_target_use_ccache Enable ccache use on the given target
 #
-# cmtools_target_generate_lizard(
+# cmtools_target_use_ccache(
 #   [TARGET <target>]
 # )
 #
 # \param:TARGET TARGET The target to configure
 #
-function(cmtools_target_generate_lizard)
+function(cmtools_target_enable_ccache)
     cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
-    cmtools_required_arguments(FUNCTION cmtools_target_generate_lizard PREFIX ARGS FIELDS TARGET)
-    lizard(TARGET ${ARGS_TARGET})
-    message(STATUS "[cmtools] Target ${ARGS_TARGET}: generate target to run lizard")
+    cmtools_required_arguments(FUNCTION cmtools_target_use_ccache PREFIX ARGS FIELDS TARGET)
+    cmtools_ensure_targets(FUNCTION cmtools_target_use_ccache TARGETS ${ARGS_TARGET}) 
+    
+    if (NOT CMTOOLS_ENABLE_CCACHE)
+        return()
+    endif()
+    
+    cmtools_find_program(NAME CCACHE_PROGRAM PROGRAM ccache)
+    set_target_properties(${ARGS_TARGET} PROPERTIES C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+    set_target_properties(${ARGS_TARGET} PROPERTIES CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+    message(STATUS "[cmtools] Target ${ARGS_TARGET}: enabling extension ccache")
 endfunction()

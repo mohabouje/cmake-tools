@@ -22,38 +22,64 @@
 # SOFTWARE.                                                                      #
 ##################################################################################
 
-if(CMTOOLS_COVERAGE_INCLUDED)
+if(CMTOOLS_CLANG_TIDY_INCLUDED)
 	return()
 endif()
-set(CMTOOLS_COVERAGE_INCLUDED ON)
+set(CMTOOLS_CLANG_TIDY_INCLUDED ON)
 
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-args.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/coverage.cmake)
+
+set(MESSAGE_QUIET ON)
+include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/clang-tidy.cmake)
+unset(MESSAGE_QUIET)
 
 # Functions summary:
-# - cmtools_target_generate_coverage
+# - cmtools_target_generate_clang_tidy
+# - cmtools_target_enable_clang_tidy
 
-# ! cmtools_target_generate_coverage Generate a code coverage report for the target.
-# The generated target lanch lcov on all the target sources in the specified working directory.
+# ! cmtools_target_generate_clang_tidy Generate a clang-tidy target for the target.
+# The generated target lanch clang-tidy on all the target sources in the specified working directory.
 #
-# cmtools_target_generate_coverage(
+# cmtools_target_generate_clang_tidy(
 #   [TARGET <target>]
 # )
 #
 # \param:TARGET TARGET The target to configure
 #
-function(cmtools_target_generate_coverage)
-    cmake_parse_arguments(ARGS "" "TARGET" "DEPENDENCIES" ${ARGN})
-    cmtools_required_arguments(FUNCTION cmtools_target_generate_coverage PREFIX ARGS FIELDS TARGET DEPENDENCIES)
-    coverage(TARGET_TO_RUN ${ARGS_TARGET} TARGETS_TO_COVER ${ARGS_DEPENDENCIES})
-    message(STATUS "[cmtools] Target ${ARGS_TARGET}: generating coverage for dependencies: ${ARGS_DEPENDENCIES}")
+function(cmtools_target_generate_clang_tidy)
+    cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
+    cmtools_required_arguments(FUNCTION cmtools_target_generate_clang_tidy PREFIX ARGS FIELDS TARGET)
+
+    if (NOT CMTOOLS_ENABLE_CLANG_TIDY)
+        return()
+    endif()
+
+    cmtools_find_program(NAME CLANG_TIDY_PROGRAM PROGRAM clang-tidy)
+    clang_tidy(TARGET ${ARGS_TARGET})
+    message(STATUS "[cmtools] Target ${ARGS_TARGET}: generate target to run clang-tidy")
 endfunction()
 
 
-# ! cmtools_coverage_all Generate code coverage for all the targets.
+# ! cmtools_target_enable_clang_tidy Enable clang-tidy checks on the given target
 #
-function(cmtools_coverage_all)
-    coverage_global()
-    message(STATUS "[cmtools] Generating coverage for all targets")
+# cmtools_target_use_clang_tidy(
+#   [TARGET <target>]
+# )
+#
+# \param:TARGET TARGET The target to configure
+#
+function(cmtools_target_enable_clang_tidy)
+    cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
+    cmtools_required_arguments(FUNCTION cmtools_target_use_clang_tidy PREFIX ARGS FIELDS TARGET)
+    cmtools_ensure_targets(FUNCTION cmtools_target_use_clang_tidy TARGETS ${ARGS_TARGET}) 
+
+    if (NOT CMTOOLS_ENABLE_CLANG_TIDY)
+        return()
+    endif()
+
+    cmtools_find_program(NAME CLANG_TIDY_PROGRAM PROGRAM clang-tidy)
+    set_property(TARGETS ${ARGS_TARGET} PROPERTY CMAKE_CXX_INCLUDE_CLANG_TIDY ${CLANG_TIDY_PROGRAM})
+    set_property(TARGETS ${ARGS_TARGET} PROPERTY CMAKE_C_INCLUDE_CLANG_TIDY ${CLANG_TIDY_PROGRAM})
+    message(STATUS "[cmtools] Target ${ARGS_TARGET}: enabling extension clang-tidy")
 endfunction()
