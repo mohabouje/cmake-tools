@@ -45,7 +45,7 @@ macro(cmtools_disable_in_sources_build)
 
 	set(CMAKE_DISABLE_SOURCE_CHANGES ON)
 	set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
-	message(STATUS "[cmtools] Disabled in-sources build")
+	message(STATUS "[cmtools] Target Disabled in-sources build")
 endmacro()
 
 # ! cmtools_set_classic_output_folders
@@ -80,5 +80,5 @@ macro(cmtools_set_output_folders)
 	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELWITHDEBINFO ${ARGS_FOLDER}/lib)
 	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${ARGS_FOLDER}/lib)
 
-	message(STATUS "[cmtools] Set output folders to ${ARGS_FOLDER}")
+	message(STATUS "[cmtools] Target Set output folders to ${ARGS_FOLDER}")
 endmacro()

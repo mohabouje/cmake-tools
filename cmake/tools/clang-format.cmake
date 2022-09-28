@@ -73,5 +73,5 @@ function(cmtools_target_generate_clang_format)
 
     # TODO: verify if this is required
     # cmtools_target_set_ide_folder(${FORMAT_TARGET} "format")
-	message(STATUS "[cmtools] ${ARGS_TARGET}: generated target to run clang-format")
+	message(STATUS "[cmtools] Target ${ARGS_TARGET}: generated target to run clang-format")
 endfunction()

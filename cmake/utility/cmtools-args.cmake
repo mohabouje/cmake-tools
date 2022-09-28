@@ -141,7 +141,7 @@ function(cmtools_choice_arguments)
     set(CHOICE_FOUND OFF)
 
     foreach(arg ${CHECK_OPTIONS})
-        if(${${CHECK_CHOICE}} STREQUAL ${arg})
+        if(${${CHECK_PREFIX}_${CHECK_CHOICE}} STREQUAL ${arg})
             set(CHOICE_FOUND ON)
         endif()
     endforeach()

@@ -22,31 +22,31 @@
 # SOFTWARE.                                                                      #
 ##################################################################################
 
-if(CMTOOLS_CLANG_BUILD_ANALYZER_INCLUDED)
+if(CMTOOLS_COTIRE_INCLUDED)
 	return()
 endif()
-set(CMTOOLS_CLANG_BUILD_ANALYZER_INCLUDED ON)
+set(CMTOOLS_COTIRE_INCLUDED ON)
 
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-args.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/clang-build-analyzer.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/cotire.cmake)
 
 # Functions summary:
-# - cmtools_target_enable_clang_build_analyzer
+# - cmtools_target_enable_cotire
 
-
-# ! cmtools_target_enable_clang_build_analyzer Enable clang-build-analyzer checks on the given target
+# ! cmtools_target_enable_cotire Enable cotire compilation boost on the given target
 #
-# cmtools_target_enable_clang_build_analyzer(
+# cmtools_target_enable_cotire(
 #   [TARGET <target>]
 # )
 #
 # \param:TARGET TARGET The target to configure
 #
-function(cmtools_target_enable_clang_build_analyzer)
+function(cmtools_target_enable_cotire)
     cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
-    cmtools_required_arguments(FUNCTION cmtools_target_use_CLANG_BUILD_ANALYZER PREFIX ARGS FIELDS TARGET)
-    cmtools_ensure_targets(FUNCTION cmtools_target_use_CLANG_BUILD_ANALYZER TARGETS ${ARGS_TARGET}) 
-    enable_clang_build_analyzer(TARGET ${ARGS_TARGET})
-    message(STATUS "[cmtools] Target ${ARGS_TARGET}: enabled clang-build-analyzer")
+    cmtools_required_arguments(FUNCTION cmtools_target_generate_cotire PREFIX ARGS FIELDS TARGET)
+    cmtools_ensure_targets(FUNCTION cmtools_target_generate_cotire TARGETS ${ARGS_TARGET}) 
+    cotire(${ARGS_TARGET})
+    message(STATUS "[cmtools] Target ${ARGS_TARGET}: enabled cotire")
 endfunction()
+

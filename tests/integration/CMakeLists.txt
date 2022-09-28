@@ -33,3 +33,12 @@ cmtools_target_enable_cpplint(TARGET integration)
 # Integration with codechecker
 cmtools_target_generate_codechecker(TARGET integration)
 
+# Integration with code coverage tools
+cmtools_target_generate_coverage(TARGET integration DEPENDENCIES integration)
+cmtools_coverage_all()
+
+# Integration with sanitizers
+cmtools_target_enable_sanitizer(TARGET integration SANITIZER TSAN)
+
+# Integration with cotire
+cmtools_target_enable_cotire(TARGET integration)

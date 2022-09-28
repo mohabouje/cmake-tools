@@ -43,6 +43,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/cmtools-args.cmake)
 # - Release
 # - RelWithDebInfo
 # - MinSizeRel
+# - Coverage
 #
 # cmtools_set_default_build_type(
 #   [CONFIG <config>]
@@ -53,7 +54,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/cmtools-args.cmake)
 function(cmtools_set_default_build_type)
     cmake_parse_arguments(CHECK "" "CONFIG" "" ${ARGN})
 	cmtools_required_arguments(FUNCTION cmtools_set_build_type PREFIX ARGS FIELDS CONFIG)
-    cmtools_choice_arguments(FUNCTION cmtools_set_build_type PREFIX ARGS CHOICE ARGS_CONFIG OPTIONS Debug Release RelWithDebInfo MinSizeRel)
+    cmtools_choice_arguments(FUNCTION cmtools_set_build_type PREFIX ARGS CHOICE CONFIG OPTIONS Debug Release RelWithDebInfo MinSizeRel Coverage)
 	set(CMTOOLS_DEFAULT_BUILD_TYPE ${ARGS_CONFIG} CACHE STRING "Set the default build type." FORCE PARENT_SCOPE)
 endfunction()
 
@@ -63,6 +64,7 @@ endfunction()
 # - Release
 # - RelWithDebInfo
 # - MinSizeRel
+# - Coverage
 #
 # cmtools_set_build_type(
 #   [CONFIG <config>]
