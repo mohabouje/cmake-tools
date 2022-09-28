@@ -160,21 +160,17 @@ endmacro()
 #   [NAME <name>]
 #   [PROGRAM <program>]
 #   [ALIAS <alias1> <alias2> ...]
+#   [COMPONENTS <component1> <component2> ...]
 # )
 #
 macro(cmtools_find_program)
 
-    cmake_parse_arguments(CHECK "" "NAME;PROGRAM" "ALIAS" ${ARGN})
-	cmtools_required_arguments(FUNCTION cmtools_find_program PREFIX CHECK FIELDS NAME PROGRAM)
+    cmake_parse_arguments(_FP_CHECK "" "NAME;PROGRAM" "ALIAS;COMPONENTS" ${ARGN})
+	cmtools_required_arguments(FUNCTION cmtools_find_program PREFIX _FP_CHECK FIELDS NAME PROGRAM)
 
-	if (ARGS_ALIAS)
-		find_program(${CHECK_NAME} ${CHECK_PROGRAM} NAMES ${ARGS_ALIAS})
-	else()
-		find_program(${CHECK_NAME} ${CHECK_PROGRAM})
-	endif()
-
-    if(NOT ${CHECK_NAME})
-        message(FATAL_ERROR "Could not find the program ${ARGS_PROGRAM}")
+	find_program(${_FP_CHECK_NAME} ${_FP_CHECK_PROGRAM} NAMES ${_FP_CHECK_ALIAS} COMPONENTS ${_FP_CHECK_COMPONENTS})
+    if(NOT ${_FP_CHECK_NAME})
+        message(FATAL_ERROR "Could not find the program ${_FP_CHECK_PROGRAM}")
     endif()
 
 endmacro()

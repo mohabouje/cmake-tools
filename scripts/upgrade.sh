@@ -89,6 +89,28 @@ function upgrade_github_master {
     upgrade_github "${user}" "${project}" "master" "${file}" "${path}"
 }
 
+# Function to download a file from github [master branch] into an specific path
+# $1: github user
+# $2: github project
+# $3: file to download
+# $4: path to download the file
+function upgrade_github_main {
+    local user=$1
+    local project=$2
+    local file=$3
+    local path=$4
+    upgrade_github "${user}" "${project}" "main" "${file}" "${path}"
+}
+
 upgrade_github_master onqtam ucm  cmake/ucm.cmake "${CURRENT_DIRECTORY}/cmake/third_party/ucm.cmake"
 upgrade_github_master sakra cotire  CMake/cotire.cmake "${CURRENT_DIRECTORY}/cmake/third_party/cotire.cmake"
 upgrade_github_master sbellus json-cmake  JSONParser.cmake "${CURRENT_DIRECTORY}/cmake/third_party/json-parse.cmake"
+upgrade_github_main conformism cmake-utils  Modules/Doxygen.cmake "${CURRENT_DIRECTORY}/cmake/third_party/doxygen.cmake"
+upgrade_github_main conformism cmake-utils  Modules/Cppcheck.cmake "${CURRENT_DIRECTORY}/cmake/third_party/cppcheck.cmake"
+upgrade_github_main conformism cmake-utils  Modules/Coverage.cmake "${CURRENT_DIRECTORY}/cmake/third_party/coverage.cmake"
+upgrade_github_main conformism cmake-utils  Modules/IncludeWhatYouUse.cmake "${CURRENT_DIRECTORY}/cmake/third_party/iwyu.cmake"
+upgrade_github_main conformism cmake-utils  Modules/ClangTidy.cmake "${CURRENT_DIRECTORY}/cmake/third_party/clang-tidy.cmake"
+upgrade_github_main conformism cmake-utils  Modules/ClangBuildAnalyzer.cmake "${CURRENT_DIRECTORY}/cmake/third_party/clang-build-analyzer.cmake"
+upgrade_github_main conformism cmake-utils  Modules/CodeChecker.cmake "${CURRENT_DIRECTORY}/cmake/third_party/code-checker.cmake"
+upgrade_github_main conformism cmake-utils  Modules/Lizar.cmake "${CURRENT_DIRECTORY}/cmake/third_party/lizar.cmake"
+upgrade_github_main conformism cmake-utils  Modules/Sanitizers.cmake "${CURRENT_DIRECTORY}/cmake/third_party/sanitizers.cmake"
