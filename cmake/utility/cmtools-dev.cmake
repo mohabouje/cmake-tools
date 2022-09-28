@@ -34,8 +34,9 @@ include(${CMAKE_CURRENT_LIST_DIR}/cmtools-args.cmake)
 # - cmtools_append_to_target_property
 
 
-
-# cmtools_choice_arguments(
+# ! cmtools_choice_arguments Append arguments to a target property
+#
+# cmtools_append_to_target_property(
 #   [TARGET <target>]
 #   [PROPERTY <property>]
 #   [PROPERTIES <appen1> <append2> ...]
@@ -47,7 +48,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/cmtools-args.cmake)
 #
 function(cmtools_append_to_target_property)
     cmake_parse_arguments(ARGS "" "TARGET;PROPERTY" "PROPERTIES" ${ARGN})
-    cmake_required_arguments(FUNCTION cxx_import_libraries PREFIX ARGS FIELDS TARGET PROPERTY PROPERTIES)
+    cmtools_required_arguments(FUNCTION cmtools_append_to_target_property PREFIX ARGS FIELDS TARGET PROPERTY PROPERTIES)
 
 	get_target_property(EXISTING_PROPERTIES ${ARGS_TARGET} ${ARGS_PROPERTY})
 	if (EXISTING_PROPERTIES)
