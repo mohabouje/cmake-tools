@@ -91,5 +91,4 @@ function upgrade_github_master {
 
 upgrade_github_master onqtam ucm  cmake/ucm.cmake "${CURRENT_DIRECTORY}/cmake/third_party/ucm.cmake"
 upgrade_github_master sakra cotire  CMake/cotire.cmake "${CURRENT_DIRECTORY}/cmake/third_party/cotire.cmake"
-
-
+upgrade_github_master sbellus json-cmake  JSONParser.cmake "${CURRENT_DIRECTORY}/cmake/third_party/json-parse.cmake"
