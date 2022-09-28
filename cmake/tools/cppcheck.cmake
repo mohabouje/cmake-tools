@@ -22,35 +22,49 @@
 # SOFTWARE.                                                                      #
 ##################################################################################
 
-if(CMTOOLS_CCACHE_INCLUDED)
+if(CMTOOLS_CPPCHECK_INCLUDED)
 	return()
 endif()
-set(CMTOOLS_CCACHE_INCLUDED ON)
+set(CMTOOLS_CPPCHECK_INCLUDED ON)
 
-include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-env.cmake)
-
+include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-args.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/cppcheck.cmake)
 
 # Functions summary:
-# - cmtools_target_use_ccache(target)
+# - cmtools_target_generate_cppcheck
 
-
-# ! cmtools_target_use_ccache Enable ccache use on the given target if the compiler is gcc or clang.
+# ! cmtools_target_generate_cppcheck Generate a cppcheck target for the target.
+# The generated target lanch cppcheck on all the target sources in the specified working directory.
 #
-# cmtools_target_use_ccache(
+# cmtools_target_generate_cppcheck(
 #   [TARGET <target>]
 # )
 #
 # \param:TARGET TARGET The target to configure
 #
-function(cmtools_target_use_ccache)
+function(cmtools_target_generate_cppcheck)
     cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
-    cmtools_required_arguments(FUNCTION cmtools_target_use_ccache PREFIX ARGS FIELDS TARGET)
-    cmtools_ensure_targets(FUNCTION cmtools_target_use_ccache TARGETS ${ARGS_TARGET}) 
-    cmtools_define_compiler()
-    if ("${CMTOOLS_COMPILER}" MATCHES "^(CLANG|GCC)$") 
-        cmtools_find_program(NAME CCACHE_PROGRAM PROGRAM ccache)
-        set_target_properties(${ARGS_TARGET} PROPERTIES C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
-        set_target_properties(${ARGS_TARGET} PROPERTIES CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
-        message(STATUS "[cmtools] ${ARGS_TARGET}: enabled ccache use")
-    endif()
+    cmtools_required_arguments(FUNCTION cmtools_target_generate_cppcheck PREFIX ARGS FIELDS TARGET)
+    cppcheck(TARGET ${ARGS_TARGET})
+    message(STATUS "[cmtools] ${ARGS_TARGET}: generate target to run cppcheck")
+endfunction()
+
+
+# ! cmtools_target_enable_cppcheck Enable include-what-you-use checks on the given target
+#
+# cmtools_target_enable_cppcheck(
+#   [TARGET <target>]
+# )
+#
+# \param:TARGET TARGET The target to configure
+#
+function(cmtools_target_enable_cppcheck)
+    cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
+    cmtools_required_arguments(FUNCTION cmtools_target_enable_cppcheck PREFIX ARGS FIELDS TARGET)
+    cmtools_ensure_targets(FUNCTION cmtools_target_enable_cppcheck TARGETS ${ARGS_TARGET}) 
+    cmtools_find_program(NAME CPPCHECK_PROGRAM PROGRAM cppcheck)
+    set(CMAKE_CXX_CPPCHECK ${CPPCHECK_PROGRAM})
+    set(CMAKE_C_CPPCHECK ${CPPCHECK_PROGRAM})
+    message(STATUS "[cmtools] ${ARGS_TARGET}: enabled cppcheck")
 endfunction()

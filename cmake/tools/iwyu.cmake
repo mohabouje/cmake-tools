@@ -22,25 +22,50 @@
 # SOFTWARE.                                                                      #
 ##################################################################################
 
-if(CMTOOLS_SETUP_INCLUDED)
+if(CMTOOLS_IWYU_INCLUDED)
 	return()
 endif()
-set(CMTOOLS_SETUP_INCLUDED ON)
+set(CMTOOLS_IWYU_INCLUDED ON)
 
-include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-args.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-config.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-dev.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-env.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-fsystem.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-lists.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-targets.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-args.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/iwyu.cmake)
 
-include(${CMAKE_CURRENT_LIST_DIR}/tools/ccache.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/tools/clang-format.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/tools/clang-tidy.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/tools/clang-build-analyzer.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/tools/iwyu.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/tools/lizard.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/tools/codechecker.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/tools/cppcheck.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/tools/cpplint.cmake)
+# Functions summary:
+# - cmtools_target_generate_iwyu
+# - cmtools_target_enable_iwyu
+
+# ! cmtools_target_generate_iwyu Generate a include-what-you-use target for the target.
+# The generated target lanch include-what-you-use on all the target sources in the specified working directory.
+#
+# cmtools_target_generate_iwyu(
+#   [TARGET <target>]
+# )
+#
+# \param:TARGET TARGET The target to configure
+#
+function(cmtools_target_generate_iwyu)
+    cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
+    cmtools_required_arguments(FUNCTION cmtools_target_generate_iwyu PREFIX ARGS FIELDS TARGET)
+    iwyu(TARGET ${ARGS_TARGET})
+    message(STATUS "[cmtools] ${ARGS_TARGET}: generate target to run include-what-you-use")
+endfunction()
+
+
+# ! cmtools_target_enable_iwyu Enable include-what-you-use checks on the given target
+#
+# cmtools_target_use_iwyu(
+#   [TARGET <target>]
+# )
+#
+# \param:TARGET TARGET The target to configure
+#
+function(cmtools_target_enable_iwyu)
+    cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
+    cmtools_required_arguments(FUNCTION cmtools_target_use_iwyu PREFIX ARGS FIELDS TARGET)
+    cmtools_ensure_targets(FUNCTION cmtools_target_use_iwyu TARGETS ${ARGS_TARGET}) 
+    cmtools_find_program(NAME IWYU_PROGRAM PROGRAM include-what-you-use ALIAS iwyu)
+    set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE ${IWYU_PROGRAM})
+    set(CMAKE_C_INCLUDE_WHAT_YOU_USE ${IWYU_PROGRAM})
+    message(STATUS "[cmtools] ${ARGS_TARGET}: enabled include-what-you-use")
+endfunction()

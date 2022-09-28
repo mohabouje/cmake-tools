@@ -111,6 +111,6 @@ upgrade_github_main conformism cmake-utils  Modules/Coverage.cmake "${CURRENT_DI
 upgrade_github_main conformism cmake-utils  Modules/IncludeWhatYouUse.cmake "${CURRENT_DIRECTORY}/cmake/third_party/iwyu.cmake"
 upgrade_github_main conformism cmake-utils  Modules/ClangTidy.cmake "${CURRENT_DIRECTORY}/cmake/third_party/clang-tidy.cmake"
 upgrade_github_main conformism cmake-utils  Modules/ClangBuildAnalyzer.cmake "${CURRENT_DIRECTORY}/cmake/third_party/clang-build-analyzer.cmake"
-upgrade_github_main conformism cmake-utils  Modules/CodeChecker.cmake "${CURRENT_DIRECTORY}/cmake/third_party/code-checker.cmake"
-upgrade_github_main conformism cmake-utils  Modules/Lizar.cmake "${CURRENT_DIRECTORY}/cmake/third_party/lizar.cmake"
+upgrade_github_main conformism cmake-utils  Modules/CodeChecker.cmake "${CURRENT_DIRECTORY}/cmake/third_party/codechecker.cmake"
+upgrade_github_main conformism cmake-utils  Modules/Lizard.cmake "${CURRENT_DIRECTORY}/cmake/third_party/lizard.cmake"
 upgrade_github_main conformism cmake-utils  Modules/Sanitizers.cmake "${CURRENT_DIRECTORY}/cmake/third_party/sanitizers.cmake"

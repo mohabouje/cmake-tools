@@ -22,25 +22,30 @@
 # SOFTWARE.                                                                      #
 ##################################################################################
 
-if(CMTOOLS_SETUP_INCLUDED)
+if(CMTOOLS_LIZARD_INCLUDED)
 	return()
 endif()
-set(CMTOOLS_SETUP_INCLUDED ON)
+set(CMTOOLS_LIZARD_INCLUDED ON)
 
-include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-args.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-config.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-dev.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-env.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-fsystem.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-lists.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-targets.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-args.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/lizard.cmake)
 
-include(${CMAKE_CURRENT_LIST_DIR}/tools/ccache.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/tools/clang-format.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/tools/clang-tidy.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/tools/clang-build-analyzer.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/tools/iwyu.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/tools/lizard.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/tools/codechecker.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/tools/cppcheck.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/tools/cpplint.cmake)
+# Functions summary:
+# - cmtools_target_generate_lizard
+
+# ! cmtools_target_generate_lizard Generate a lizard target for the target.
+# The generated target lanch lizard on all the target sources in the specified working directory.
+#
+# cmtools_target_generate_lizard(
+#   [TARGET <target>]
+# )
+#
+# \param:TARGET TARGET The target to configure
+#
+function(cmtools_target_generate_lizard)
+    cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
+    cmtools_required_arguments(FUNCTION cmtools_target_generate_lizard PREFIX ARGS FIELDS TARGET)
+    lizard(TARGET ${ARGS_TARGET})
+    message(STATUS "[cmtools] ${ARGS_TARGET}: generate target to run lizard")
+endfunction()

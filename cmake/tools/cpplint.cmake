@@ -22,25 +22,28 @@
 # SOFTWARE.                                                                      #
 ##################################################################################
 
-if(CMTOOLS_SETUP_INCLUDED)
+if(CMTOOLS_CPPLINT_INCLUDED)
 	return()
 endif()
-set(CMTOOLS_SETUP_INCLUDED ON)
+set(CMTOOLS_CPPLINT_INCLUDED ON)
 
-include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-args.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-config.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-dev.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-env.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-fsystem.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-lists.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-targets.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-args.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
 
-include(${CMAKE_CURRENT_LIST_DIR}/tools/ccache.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/tools/clang-format.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/tools/clang-tidy.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/tools/clang-build-analyzer.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/tools/iwyu.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/tools/lizard.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/tools/codechecker.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/tools/cppcheck.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/tools/cpplint.cmake)
+# ! cmtools_target_enable_cpplint Enable include-what-you-use checks on the given target
+#
+# cmtools_target_enable_cpplint(
+#   [TARGET <target>]
+# )
+#
+# \param:TARGET TARGET The target to configure
+#
+function(cmtools_target_enable_cpplint)
+    cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
+    cmtools_required_arguments(FUNCTION cmtools_target_enable_cpplint PREFIX ARGS FIELDS TARGET)
+    cmtools_ensure_targets(FUNCTION cmtools_target_enable_cpplint TARGETS ${ARGS_TARGET}) 
+    cmtools_find_program(NAME CPPLINT_PROGRAM PROGRAM cpplint)
+    set(CMAKE_CXX_CPPLINT ${CPPLINT_PROGRAM})
+    set(CMAKE_C_CPPLINT ${CPPLINT_PROGRAM})
+    message(STATUS "[cmtools] ${ARGS_TARGET}: enabled cpplint")
+endfunction()
