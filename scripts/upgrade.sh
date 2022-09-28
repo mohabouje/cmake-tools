@@ -7,9 +7,10 @@
 
 # the directory of the script
 CURRENT_DIRECTORY="$(git rev-parse --show-toplevel)"
-WORKING_DIRECTORY=`mktemp -d`
-if [[ ! "$WORKING_DIRECTORY" || ! -d "$WORKING_DIRECTORY" ]]; then
-  echo "Could not create temp dir"
+WORKING_DIRECTORY="${CURRENT_DIRECTORY}/.$(date '+%Y-%m-%d')"
+mkdir -p "${WORKING_DIRECTORY}"
+if [ ! -d "${WORKING_DIRECTORY}" ]; then
+  echo "ERROR: Could not create temporal directory: ${WORKING_DIRECTORY}"
   exit 1
 fi
 
@@ -35,7 +36,7 @@ function download {
 # or if the file has a different checksum
 # $1: URL to download
 # $2: Destination file
-function upgrade_file() {
+function upgrade_file {
     if [ ! -f "${2}" ]
     then
         echo "File not found. Downloading ${1} to ${2}"
