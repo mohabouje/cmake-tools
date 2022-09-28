@@ -6,7 +6,7 @@
 #
 
 # the directory of the script
-CURRENT_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+CURRENT_DIRECTORY="$(git rev-parse --show-toplevel)"
 WORKING_DIRECTORY=`mktemp -d`
 if [[ ! "$WORKING_DIRECTORY" || ! -d "$WORKING_DIRECTORY" ]]; then
   echo "Could not create temp dir"
@@ -15,7 +15,7 @@ fi
 
 function cleanup {      
   rm -rf "$WORKING_DIRECTORY"
-  echo "Clean up of all temporal files $WORKING_DIRECTORY"
+  echo "Clean up of all temporal files"
 }
 
 trap cleanup EXIT
@@ -38,6 +38,7 @@ function download {
 function upgrade_file() {
     if [ ! -f "${2}" ]
     then
+        echo "File not found. Downloading ${1} to ${2}"
         download "${1}" "${2}"
         return
     fi
@@ -52,6 +53,7 @@ function upgrade_file() {
         echo "Upgrade required. Downloading ${1} to ${2}"
         mv "${temporal_file}" "${2}"
     else
+        echo "No upgrade required. ${2} is already up to date"
         rm "${temporal_file}"
     fi
 }
@@ -86,7 +88,7 @@ function upgrade_github_master {
     upgrade_github "${user}" "${project}" "master" "${file}" "${path}"
 }
 
-upgrade_github_master onqtam ucm  cmake/ucm.cmake cmake/third_party/ucm.cmake
-upgrade_github_master sakra cotire  CMake/cotire.cmake cmake/third_party/cotire.cmake
+upgrade_github_master onqtam ucm  cmake/ucm.cmake "${CURRENT_DIRECTORY}/cmake/third_party/ucm.cmake"
+upgrade_github_master sakra cotire  CMake/cotire.cmake "${CURRENT_DIRECTORY}/cmake/third_party/cotire.cmake"
 
 

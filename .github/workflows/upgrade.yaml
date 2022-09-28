@@ -1,0 +1,24 @@
+on:
+  push:
+    branches:
+      - main
+
+name: Upgrade third party dependencies
+jobs:
+  build:
+    name: Dependency upgrade
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Downloading latest version of third party dependencies
+        run: sh .github/scripts/upgrade.sh
+      - name: Commit changes if required
+        uses: stefanzweifel/git-auto-commit-action@v4
+        if: steps.auto-commit-action.outputs.changes_detected == 'true'
+        with:
+          commit_message: Upgrading third-party dependencies
+          commit_user_name: github-actions
+          commit_user_email: github-actions@no-reply.com
+          commit_author: Github Actions <github-actions@no-reply.com>
+          commit_options: "--no-verify"
