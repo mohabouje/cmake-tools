@@ -1,0 +1,7 @@
+default_language_version:
+  python: python3.9
+repos:
+  - repo: https://github.com/jorisroovers/gitlint
+    rev: "v0.17.0"
+    hooks:
+      - id: gitlint
