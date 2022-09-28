@@ -22,25 +22,25 @@
 # SOFTWARE.                                                                      #
 ##################################################################################
 
-if(CMTOOLS_LISTS_INCLUDED)
+if(CMT_LISTS_INCLUDED)
 	return()
 endif()
-set(CMTOOLS_LISTS_INCLUDED ON)
+set(CMT_LISTS_INCLUDED ON)
 
 include(${CMAKE_CURRENT_LIST_DIR}/cmtools-args.cmake)
 
 
 # Functions summary:
-# - cmtools_filter_list
-# - cmtools_filter_out
-# - cmtools_filter_in
-# - cmtools_join_list
+# - cmt_filter_list
+# - cmt_filter_out
+# - cmt_filter_in
+# - cmt_join_list
 
 
-# ! cmtools_filter_list Filters a list based on a regex pattern.
+# ! cmt_filter_list Filters a list based on a regex pattern.
 # It will include or exclude the elements that match the pattern.
 #
-# cmtools_append_to_target_property(
+# cmt_append_to_target_property(
 #   [INCLUDE OR EXCLUDE]
 #   [REFEX <regex>]
 #   [LIST <list> ]
@@ -50,10 +50,10 @@ include(${CMAKE_CURRENT_LIST_DIR}/cmtools-args.cmake)
 # \param:REFEX REGEX Regular expression to filter the list
 # \param:LIST LIST List to filter
 #
-function(cmtools_filter_list)
+function(cmt_filter_list)
     cmake_parse_arguments(ARGS "INCLUDE;EXCLUDE" "REGEX;LIST" "" ${ARGN})
-    cmtools_required_arguments(FUNCTION cmtools_filter_list PREFIX ARGS FIELDS REGEX LIST)
-    cmtools_one_of_arguments(FUNCTION cmtools_filter_list PREFIX ARGS FIELDS INCLUDE EXCLUDE)
+    cmt_required_arguments(FUNCTION cmt_filter_list PREFIX ARGS FIELDS REGEX LIST)
+    cmt_one_of_arguments(FUNCTION cmt_filter_list PREFIX ARGS FIELDS INCLUDE EXCLUDE)
 
 
 	set(TEMPORAL_LIST)
@@ -70,9 +70,9 @@ function(cmtools_filter_list)
 	set(${ARGS_LIST} ${TEMPORAL_LIST} PARENT_SCOPE)
 endfunction()
 
-# ! cmtools_filter_out Filters out a list based on a regex pattern.
+# ! cmt_filter_out Filters out a list based on a regex pattern.
 #
-# cmtools_filter_out(
+# cmt_filter_out(
 #   [REFEX <regex>]
 #   [LIST <list> ]
 # )
@@ -80,13 +80,13 @@ endfunction()
 # \param:REFEX REGEX Regular expression to filter the list
 # \param:LIST LIST List to filter
 #
-macro(cmtools_filter_out)
-	cmtools_filter_list(EXCLUDE ${ARGN})
+macro(cmt_filter_out)
+	cmt_filter_list(EXCLUDE ${ARGN})
 endmacro()
 
-# ! cmtools_filter_in Filters in a list based on a regex pattern.
+# ! cmt_filter_in Filters in a list based on a regex pattern.
 #
-# cmtools_filter_in(
+# cmt_filter_in(
 #   [REFEX <regex>]
 #   [LIST <list> ]
 # )
@@ -94,13 +94,13 @@ endmacro()
 # \param:REFEX REGEX Regular expression to filter the list
 # \param:LIST LIST List to filter
 #
-macro(cmtools_filter_in)
-	cmtools_filter_list(INCLUDE ${ARGN})
+macro(cmt_filter_in)
+	cmt_filter_list(INCLUDE ${ARGN})
 endmacro()
 
-# ! cmtools_join_list Join items with a separator into a variable.
+# ! cmt_join_list Join items with a separator into a variable.
 #
-# cmtools_join_list(
+# cmt_join_list(
 #   [NAME <name>]
 #   [SEPARATOR <separator>]
 #   [LIST <list> ]
@@ -109,9 +109,9 @@ endmacro()
 # \param:REFEX REGEX Regular expression to filter the list
 # \param:LIST LIST List to filter
 #
-function(cmtools_join_list)
+function(cmt_join_list)
     cmake_parse_arguments(ARGS "" "NAME;SEPARATOR" "LIST" ${ARGN})
-    cmtools_required_arguments(FUNCTION cmtools_join_list PREFIX ARGS FIELDS NAME SEPARATOR LIST)
+    cmt_required_arguments(FUNCTION cmt_join_list PREFIX ARGS FIELDS NAME SEPARATOR LIST)
 
 
 	set(TEMPORAL_OUTPUT)

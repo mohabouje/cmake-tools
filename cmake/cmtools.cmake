@@ -22,10 +22,10 @@
 # SOFTWARE.                                                                      #
 ##################################################################################
 
-if(CMTOOLS_SETUP_INCLUDED)
+if(CMT_SETUP_INCLUDED)
 	return()
 endif()
-set(CMTOOLS_SETUP_INCLUDED ON)
+set(CMT_SETUP_INCLUDED ON)
 
 function(message)
     if (NOT MESSAGE_QUIET)
@@ -42,6 +42,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-env.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-fsystem.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-lists.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-targets.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-compiler.cmake)
 
 include(${CMAKE_CURRENT_LIST_DIR}/tools/cmtools-ccache.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/tools/cmtools-clang-format.cmake)

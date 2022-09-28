@@ -22,10 +22,10 @@
 # SOFTWARE.                                                                      #
 ##################################################################################
 
-if(CMTOOLS_TARGET_INCLUDED)
+if(CMT_TARGET_INCLUDED)
 	return()
 endif()
-set(CMTOOLS_TARGET_INCLUDED ON)
+set(CMT_TARGET_INCLUDED ON)
 
 include(${CMAKE_CURRENT_LIST_DIR}/cmtools-env.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/cmtools-dev.cmake)

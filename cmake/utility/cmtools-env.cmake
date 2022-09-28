@@ -22,22 +22,22 @@
 # SOFTWARE.                                                                      #
 ##################################################################################
 
-if(CMTOOLS_ENVIRONMENT_INCLUDED)
+if(CMT_ENVIRONMENT_INCLUDED)
 	return()
 endif()
-set(CMTOOLS_ENVIRONMENT_INCLUDED ON)
+set(CMT_ENVIRONMENT_INCLUDED ON)
 
 include(${CMAKE_CURRENT_LIST_DIR}/cmtools-args.cmake)
 
 
 # Functions summary:
-# - cmtools_set_default_build_type
-# - cmtools_set_build_type
-# - cmtools_define_archichecture
-# - cmtools_define_os
-# - cmtools_define_compiler
+# - cmt_set_default_build_type
+# - cmt_set_build_type
+# - cmt_define_archichecture
+# - cmt_define_os
+# - cmt_define_compiler
 
-# ! cmtools_set_default_build_type Sets the default build type for the current project
+# ! cmt_set_default_build_type Sets the default build type for the current project
 # It makes sure that the build type is set to one of the following values:
 # - Debug
 # - Release
@@ -45,20 +45,20 @@ include(${CMAKE_CURRENT_LIST_DIR}/cmtools-args.cmake)
 # - MinSizeRel
 # - Coverage
 #
-# cmtools_set_default_build_type(
+# cmt_set_default_build_type(
 #   [CONFIG <config>]
 # )
 #
 # \param:CONFIG CONFIG The configuration to be used.
 #
-function(cmtools_set_default_build_type)
+function(cmt_set_default_build_type)
     cmake_parse_arguments(CHECK "" "CONFIG" "" ${ARGN})
-	cmtools_required_arguments(FUNCTION cmtools_set_build_type PREFIX ARGS FIELDS CONFIG)
-    cmtools_choice_arguments(FUNCTION cmtools_set_build_type PREFIX ARGS CHOICE CONFIG OPTIONS Debug Release RelWithDebInfo MinSizeRel Coverage)
-	set(CMTOOLS_DEFAULT_BUILD_TYPE ${ARGS_CONFIG} CACHE STRING "Set the default build type." FORCE PARENT_SCOPE)
+	cmt_required_arguments(FUNCTION cmt_set_build_type PREFIX ARGS FIELDS CONFIG)
+    cmt_choice_arguments(FUNCTION cmt_set_build_type PREFIX ARGS CHOICE CONFIG OPTIONS Debug Release RelWithDebInfo MinSizeRel Coverage)
+	set(CMT_DEFAULT_BUILD_TYPE ${ARGS_CONFIG} CACHE STRING "Set the default build type." FORCE PARENT_SCOPE)
 endfunction()
 
-# ! cmtools_set_build_type Sets the build type for the current project
+# ! cmt_set_build_type Sets the build type for the current project
 # It makes sure that the build type is set to one of the following values:
 # - Debug
 # - Release
@@ -66,61 +66,61 @@ endfunction()
 # - MinSizeRel
 # - Coverage
 #
-# cmtools_set_build_type(
+# cmt_set_build_type(
 #   [CONFIG <config>]
 # )
 #
 # \param:CONFIG CONFIG The configuration to be used.
 #
-function(cmtools_set_build_type)
-	cmtools_define_build_type(${ARGN})
+function(cmt_set_build_type)
+	cmt_define_build_type(${ARGN})
 	if(NOT CMAKE_BUILD_TYPE)
-		set(CMAKE_BUILD_TYPE ${CMTOOLS_DEFAULT_BUILD_TYPE} CACHE STRING "Choose the type of build." FORCE PARENT_SCOPE)
+		set(CMAKE_BUILD_TYPE ${CMT_DEFAULT_BUILD_TYPE} CACHE STRING "Choose the type of build." FORCE PARENT_SCOPE)
 	endif()
 endfunction()
 
 
-#! cmtools_define_archichecture Defines the architecture variables
-# It defines the variable CMTOOLS_ARCHITECTURE to one of the following values:
+#! cmt_define_archichecture Defines the architecture variables
+# It defines the variable CMT_ARCHITECTURE to one of the following values:
 # - 32BIT
 # - 64BIT
 # - UNKNOWN
 #
-# cmtools_define_archichecture()
+# cmt_define_archichecture()
 #
-macro(cmtools_define_archichecture)	
+macro(cmt_define_archichecture)	
 	if(${CMAKE_SIZEOF_VOID_P} EQUAL 4)
-		set(CMTOOLS_ARCHITECTURE "32BIT")
+		set(CMT_ARCHITECTURE "32BIT")
 	elseif(${CMAKE_SIZEOF_VOID_P} EQUAL 8)
-		set(CMTOOLS_ARCHITECTURE "64BIT")
+		set(CMT_ARCHITECTURE "64BIT")
 	else()
-		set(CMTOOLS_ARCHITECTURE "UNKNOWN")
+		set(CMT_ARCHITECTURE "UNKNOWN")
 	endif()
 endmacro()
 
-#! cmtools_define_compiler Defines the compiler variables
-# It defines the variable CMTOOLS_COMPILER to one of the following values:
+#! cmt_define_compiler Defines the compiler variables
+# It defines the variable CMT_COMPILER to one of the following values:
 # - CLANG
 # - GCC
 # - MSVC
 # - UNKNOWN
 #
-# cmtools_define_compiler()
+# cmt_define_compiler()
 #
-macro(cmtools_define_compiler)
+macro(cmt_define_compiler)
 	if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-		set(CMTOOLS_COMPILER "CLANG")
+		set(CMT_COMPILER "CLANG")
 	elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-		set(CMTOOLS_COMPILER "GCC")
+		set(CMT_COMPILER "GCC")
 	elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-		set(CMTOOLS_COMPILER "MSVC")
+		set(CMT_COMPILER "MSVC")
 	else()
-		set(CMTOOLS_COMPILER "UNKNOWN")
+		set(CMT_COMPILER "UNKNOWN")
 	endif()
 endmacro()
 
-#! cmtools_define_compiler Defines the OS variables
-# It defines the variable CMTOOLS_OS to one of the following values:
+#! cmt_define_compiler Defines the OS variables
+# It defines the variable CMT_OS to one of the following values:
 # - UNIX
 # - WINDOWS
 # - MACOS
@@ -130,45 +130,45 @@ endmacro()
 # - CUNKNOWN
 # Each variable is set to ON if the architecture is the same as the variable name.
 #
-# cmtools_define_compiler()
+# cmt_define_compiler()
 #
-macro(cmtools_define_os)
+macro(cmt_define_os)
 	if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
-		set(CMTOOLS_OS ON "WINDOWS")
+		set(CMT_OS ON "WINDOWS")
 	elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 		if(ANDROID)
-			set(CMTOOLS_OS "ANDROID")
+			set(CMT_OS "ANDROID")
 		else()
-			set(CMTOOLS_OS "LINUX")
+			set(CMT_OS "LINUX")
 		endif()
 	elseif(CMAKE_SYSTEM_NAME MATCHES "^k?FreeBSD$")
-		set(CMTOOLS_OS_FREEBSD "FREEBSD")
+		set(CMT_OS_FREEBSD "FREEBSD")
 	elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 		if(IOS)
-			set(CMTOOLS_OS_IOS "IOS")
+			set(CMT_OS_IOS "IOS")
 		else()
-			set(CMTOOLS_OS_MACOSX "MACOS")
+			set(CMT_OS_MACOSX "MACOS")
 		endif()
 	elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Android")
-		set(CMTOOLS_OS_ANDROID "ANDROID")
+		set(CMT_OS_ANDROID "ANDROID")
 	else()
-		set(CMTOOLS_OS_UNKNOW "UNKNOWN")
+		set(CMT_OS_UNKNOW "UNKNOWN")
 	endif()
 endmacro()
 
-#! cmtools_find_program Check if a program exists and set the variable to the path
+#! cmt_find_program Check if a program exists and set the variable to the path
 #
-# cmtools_find_program(
+# cmt_find_program(
 #   [NAME <name>]
 #   [PROGRAM <program>]
 #   [ALIAS <alias1> <alias2> ...]
 #   [COMPONENTS <component1> <component2> ...]
 # )
 #
-macro(cmtools_find_program)
+macro(cmt_find_program)
 
     cmake_parse_arguments(_FP_CHECK "" "NAME;PROGRAM" "ALIAS;COMPONENTS" ${ARGN})
-	cmtools_required_arguments(FUNCTION cmtools_find_program PREFIX _FP_CHECK FIELDS NAME PROGRAM)
+	cmt_required_arguments(FUNCTION cmt_find_program PREFIX _FP_CHECK FIELDS NAME PROGRAM)
 
 	if (${_FP_CHECK_NAME})
 		return()
@@ -181,8 +181,8 @@ macro(cmtools_find_program)
 
 endmacro()
 
-#! cmtools_set_cpp_standard Sets the C++ standard for the current project
-# The C++ standard is set to the value of the variable CMTOOLS_CPP_STANDARD.
+#! cmt_set_cpp_standard Sets the C++ standard for the current project
+# The C++ standard is set to the value of the variable CMT_CPP_STANDARD.
 #
 # The value of the standard is set to one of the following values:
 # - 98
@@ -192,26 +192,26 @@ endmacro()
 # - 20
 # - 23
 #
-# cmtools_set_cpp_standard(
+# cmt_set_cpp_standard(
 #   [STANDARD <standard>]
 #   [REQUIRED <required>] (Default: ON)
 #   [EXTENSIONS <extensions>] (Default: OFF)
 # )
-macro(cmtools_set_cpp_standard)
+macro(cmt_set_cpp_standard)
     cmake_parse_arguments(_CPP_FP_CHECK "" "STANDARD;REQUIRED;EXTENSIONS" "" ${ARGN})
-	cmtools_required_arguments(FUNCTION cmtools_set_cpp_standard PREFIX _CPP_FP_CHECK FIELDS NAME STANDARD)
-    cmtools_choice_arguments(FUNCTION cmtools_set_cpp_standard PREFIX _CPP_FP_CHECK CHOICE STANDARD OPTIONS 98 11 14 17 20 23)
-	cmtools_default_argument(FUNCTION cmtools_set_cpp_standard PREFIX _CPP_FP_CHECK FIELD EXTENSION VALUE OFF)
-	cmtools_default_argument(FUNCTION cmtools_set_cpp_standard PREFIX _CPP_FP_CHECK FIELD REQUIRED VALUE ON)
+	cmt_required_arguments(FUNCTION cmt_set_cpp_standard PREFIX _CPP_FP_CHECK FIELDS NAME STANDARD)
+    cmt_choice_arguments(FUNCTION cmt_set_cpp_standard PREFIX _CPP_FP_CHECK CHOICE STANDARD OPTIONS 98 11 14 17 20 23)
+	cmt_default_argument(FUNCTION cmt_set_cpp_standard PREFIX _CPP_FP_CHECK FIELD EXTENSION VALUE OFF)
+	cmt_default_argument(FUNCTION cmt_set_cpp_standard PREFIX _CPP_FP_CHECK FIELD REQUIRED VALUE ON)
 
-	set(CMTOOLS_CPP_STANDARD ${_CPP_FP_CHECK_STANDARD} CACHE STRING "The C++ standard to use" FORCE)
+	set(CMT_CPP_STANDARD ${_CPP_FP_CHECK_STANDARD} CACHE STRING "The C++ standard to use" FORCE)
 	set(CMAKE_CXX_STANDARD ${_CPP_FP_CHECK_STANDARD} CACHE STRING "Set the C++ standard to use." FORCE)
 	set(CMAKE_CXX_STANDARD_REQUIRED ${_CPP_FP_CHECK_REQUIRED} CACHE BOOL "Set the C++ standard to required." FORCE)
 	set(CMAKE_CXX_EXTENSIONS ${_CPP_FP_CHECK_EXTENSIONS} CACHE BOOL "Set the C++ standard to use extensions." FORCE)
 endmacro()
 
-#! cmtools_set_c_standard Sets the C standard for the current project
-# The C++ standard is set to the value of the variable CMTOOLS_C_STANDARD.
+#! cmt_set_c_standard Sets the C standard for the current project
+# The C++ standard is set to the value of the variable CMT_C_STANDARD.
 #
 # The value of the standard is set to one of the following values:
 # - 98
@@ -219,19 +219,19 @@ endmacro()
 # - 17
 # - 23
 #
-# cmtools_set_c_standard(
+# cmt_set_c_standard(
 #   [STANDARD <standard>]
 #   [REQUIRED <required>] (Default: ON)
 #   [EXTENSIONS <extensions>] (Default: OFF)
 # )
-macro(cmtools_set_c_standard)
+macro(cmt_set_c_standard)
     cmake_parse_arguments(_C_FP_CHECK "" "STANDARD;REQUIRED;EXTENSIONS" "" ${ARGN})
-	cmtools_required_arguments(FUNCTION cmtools_set_cpp_standard PREFIX _C_FP_CHECK FIELDS NAME STANDARD)
-    cmtools_choice_arguments(FUNCTION cmtools_set_cpp_standard PREFIX _C_FP_CHECK CHOICE STANDARD OPTIONS 98 11 17 23)
-	cmtools_default_argument(FUNCTION cmtools_set_cpp_standard PREFIX _C_FP_CHECK FIELD EXTENSION VALUE OFF)
-	cmtools_default_argument(FUNCTION cmtools_set_cpp_standard PREFIX _C_FP_CHECK FIELD REQUIRED VALUE ON)
+	cmt_required_arguments(FUNCTION cmt_set_cpp_standard PREFIX _C_FP_CHECK FIELDS NAME STANDARD)
+    cmt_choice_arguments(FUNCTION cmt_set_cpp_standard PREFIX _C_FP_CHECK CHOICE STANDARD OPTIONS 98 11 17 23)
+	cmt_default_argument(FUNCTION cmt_set_cpp_standard PREFIX _C_FP_CHECK FIELD EXTENSION VALUE OFF)
+	cmt_default_argument(FUNCTION cmt_set_cpp_standard PREFIX _C_FP_CHECK FIELD REQUIRED VALUE ON)
 
-	set(CMTOOLS_CPP_STANDARD ${_C_FP_CHECK_STANDARD} CACHE STRING "The C++ standard to use" FORCE)
+	set(CMT_CPP_STANDARD ${_C_FP_CHECK_STANDARD} CACHE STRING "The C++ standard to use" FORCE)
 	set(CMAKE_CXX_STANDARD ${_C_FP_CHECK_STANDARD} CACHE STRING "Set the C++ standard to use." FORCE)
 	set(CMAKE_CXX_STANDARD_REQUIRED ${_C_FP_CHECK_REQUIRED} CACHE BOOL "Set the C++ standard to required." FORCE)
 	set(CMAKE_CXX_EXTENSIONS ${_C_FP_CHECK_EXTENSIONS} CACHE BOOL "Set the C++ standard to use extensions." FORCE)

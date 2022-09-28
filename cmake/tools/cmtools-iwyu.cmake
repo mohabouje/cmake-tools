@@ -22,10 +22,10 @@
 # SOFTWARE.                                                                      #
 ##################################################################################
 
-if(CMTOOLS_IWYU_INCLUDED)
+if(CMT_IWYU_INCLUDED)
 	return()
 endif()
-set(CMTOOLS_IWYU_INCLUDED ON)
+set(CMT_IWYU_INCLUDED ON)
 
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-args.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
@@ -35,50 +35,50 @@ include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/iwyu.cmake)
 unset(MESSAGE_QUIET)
 
 # Functions summary:
-# - cmtools_target_generate_iwyu
-# - cmtools_target_enable_iwyu
+# - cmt_target_generate_iwyu
+# - cmt_target_enable_iwyu
 
-# ! cmtools_target_generate_iwyu Generate a include-what-you-use target for the target.
+# ! cmt_target_generate_iwyu Generate a include-what-you-use target for the target.
 # The generated target lanch include-what-you-use on all the target sources in the specified working directory.
 #
-# cmtools_target_generate_iwyu(
+# cmt_target_generate_iwyu(
 #   [TARGET <target>]
 # )
 #
 # \param:TARGET TARGET The target to configure
 #
-function(cmtools_target_generate_iwyu)
+function(cmt_target_generate_iwyu)
     cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
-    cmtools_required_arguments(FUNCTION cmtools_target_generate_iwyu PREFIX ARGS FIELDS TARGET)
+    cmt_required_arguments(FUNCTION cmt_target_generate_iwyu PREFIX ARGS FIELDS TARGET)
 
-    if (NOT CMTOOLS_ENABLE_IWYU)
+    if (NOT CMT_ENABLE_IWYU)
         return()
     endif()
 
-    cmtools_find_program(NAME IWYU_PROGRAM PROGRAM include-what-you-use ALIAS iwyu)
+    cmt_find_program(NAME IWYU_PROGRAM PROGRAM include-what-you-use ALIAS iwyu)
     iwyu(TARGET ${ARGS_TARGET})
     message(STATUS "[cmtools] Target ${ARGS_TARGET}: generate target to run include-what-you-use")
 endfunction()
 
 
-# ! cmtools_target_enable_iwyu Enable include-what-you-use checks on the given target
+# ! cmt_target_enable_iwyu Enable include-what-you-use checks on the given target
 #
-# cmtools_target_use_iwyu(
+# cmt_target_use_iwyu(
 #   [TARGET <target>]
 # )
 #
 # \param:TARGET TARGET The target to configure
 #
-function(cmtools_target_enable_iwyu)
+function(cmt_target_enable_iwyu)
     cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
-    cmtools_required_arguments(FUNCTION cmtools_target_use_iwyu PREFIX ARGS FIELDS TARGET)
-    cmtools_ensure_targets(FUNCTION cmtools_target_use_iwyu TARGETS ${ARGS_TARGET}) 
+    cmt_required_arguments(FUNCTION cmt_target_use_iwyu PREFIX ARGS FIELDS TARGET)
+    cmt_ensure_targets(FUNCTION cmt_target_use_iwyu TARGETS ${ARGS_TARGET}) 
 
-    if (NOT CMTOOLS_ENABLE_IWYU)
+    if (NOT CMT_ENABLE_IWYU)
         return()
     endif()
 
-    cmtools_find_program(NAME IWYU_PROGRAM PROGRAM include-what-you-use ALIAS iwyu)
+    cmt_find_program(NAME IWYU_PROGRAM PROGRAM include-what-you-use ALIAS iwyu)
     set_property(TARGET ${ARGS_TARGET} PROPERTY CMAKE_CXX_INCLUDE_WHAT_YOU_USE ${IWYU_PROGRAM})
     set_property(TARGET ${ARGS_TARGET} PROPERTY CMAKE_C_INCLUDE_WHAT_YOU_USE ${IWYU_PROGRAM})
     message(STATUS "[cmtools] Target ${ARGS_TARGET}: enabling extension include-what-you-use")

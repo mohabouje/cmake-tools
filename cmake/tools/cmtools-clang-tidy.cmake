@@ -22,10 +22,10 @@
 # SOFTWARE.                                                                      #
 ##################################################################################
 
-if(CMTOOLS_CLANG_TIDY_INCLUDED)
+if(CMT_CLANG_TIDY_INCLUDED)
 	return()
 endif()
-set(CMTOOLS_CLANG_TIDY_INCLUDED ON)
+set(CMT_CLANG_TIDY_INCLUDED ON)
 
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-args.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
@@ -35,50 +35,50 @@ include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/clang-tidy.cmake)
 unset(MESSAGE_QUIET)
 
 # Functions summary:
-# - cmtools_target_generate_clang_tidy
-# - cmtools_target_enable_clang_tidy
+# - cmt_target_generate_clang_tidy
+# - cmt_target_enable_clang_tidy
 
-# ! cmtools_target_generate_clang_tidy Generate a clang-tidy target for the target.
+# ! cmt_target_generate_clang_tidy Generate a clang-tidy target for the target.
 # The generated target lanch clang-tidy on all the target sources in the specified working directory.
 #
-# cmtools_target_generate_clang_tidy(
+# cmt_target_generate_clang_tidy(
 #   [TARGET <target>]
 # )
 #
 # \param:TARGET TARGET The target to configure
 #
-function(cmtools_target_generate_clang_tidy)
+function(cmt_target_generate_clang_tidy)
     cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
-    cmtools_required_arguments(FUNCTION cmtools_target_generate_clang_tidy PREFIX ARGS FIELDS TARGET)
+    cmt_required_arguments(FUNCTION cmt_target_generate_clang_tidy PREFIX ARGS FIELDS TARGET)
 
-    if (NOT CMTOOLS_ENABLE_CLANG_TIDY)
+    if (NOT CMT_ENABLE_CLANG_TIDY)
         return()
     endif()
 
-    cmtools_find_program(NAME CLANG_TIDY_PROGRAM PROGRAM clang-tidy)
+    cmt_find_program(NAME CLANG_TIDY_PROGRAM PROGRAM clang-tidy)
     clang_tidy(TARGET ${ARGS_TARGET})
     message(STATUS "[cmtools] Target ${ARGS_TARGET}: generate target to run clang-tidy")
 endfunction()
 
 
-# ! cmtools_target_enable_clang_tidy Enable clang-tidy checks on the given target
+# ! cmt_target_enable_clang_tidy Enable clang-tidy checks on the given target
 #
-# cmtools_target_use_clang_tidy(
+# cmt_target_use_clang_tidy(
 #   [TARGET <target>]
 # )
 #
 # \param:TARGET TARGET The target to configure
 #
-function(cmtools_target_enable_clang_tidy)
+function(cmt_target_enable_clang_tidy)
     cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
-    cmtools_required_arguments(FUNCTION cmtools_target_use_clang_tidy PREFIX ARGS FIELDS TARGET)
-    cmtools_ensure_targets(FUNCTION cmtools_target_use_clang_tidy TARGETS ${ARGS_TARGET}) 
+    cmt_required_arguments(FUNCTION cmt_target_use_clang_tidy PREFIX ARGS FIELDS TARGET)
+    cmt_ensure_targets(FUNCTION cmt_target_use_clang_tidy TARGETS ${ARGS_TARGET}) 
 
-    if (NOT CMTOOLS_ENABLE_CLANG_TIDY)
+    if (NOT CMT_ENABLE_CLANG_TIDY)
         return()
     endif()
 
-    cmtools_find_program(NAME CLANG_TIDY_PROGRAM PROGRAM clang-tidy)
+    cmt_find_program(NAME CLANG_TIDY_PROGRAM PROGRAM clang-tidy)
     set_property(TARGET ${ARGS_TARGET} PROPERTY CMAKE_CXX_INCLUDE_CLANG_TIDY ${CLANG_TIDY_PROGRAM})
     set_property(TARGET ${ARGS_TARGET} PROPERTY CMAKE_C_INCLUDE_CLANG_TIDY ${CLANG_TIDY_PROGRAM})
     message(STATUS "[cmtools] Target ${ARGS_TARGET}: enabling extension clang-tidy")

@@ -22,10 +22,10 @@
 # SOFTWARE.                                                                      #
 ##################################################################################
 
-if(CMTOOLS_LTO_INCLUDED)
+if(CMT_LTO_INCLUDED)
 	return()
 endif()
-set(CMTOOLS_LTO_INCLUDED ON)
+set(CMT_LTO_INCLUDED ON)
 
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-args.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
@@ -35,22 +35,22 @@ include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/link-time-optimization.cmake)
 unset(MESSAGE_QUIET)
 
 # Functions summary:
-# - cmtools_target_enable_lto
-# - cmtools_project_lto
+# - cmt_target_enable_lto
+# - cmt_project_lto
 
-# ! cmtools_target_enable_lto Enables link-time-optimization for the target.
+# ! cmt_target_enable_lto Enables link-time-optimization for the target.
 #
-# cmtools_target_enable_lto(
+# cmt_target_enable_lto(
 #   [TARGET <target>]
 # )
 #
 # \param:TARGET TARGET The target to configure
 #
-function(cmtools_target_enable_lto)
+function(cmt_target_enable_lto)
     cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
-    cmtools_required_arguments(FUNCTION cmtools_target_enable_lto PREFIX ARGS FIELDS TARGET)
+    cmt_required_arguments(FUNCTION cmt_target_enable_lto PREFIX ARGS FIELDS TARGET)
 
-    if (NOT CMTOOLS_ENABLE_LTO)
+    if (NOT CMT_ENABLE_LTO)
         return()
     endif()
 
@@ -59,10 +59,10 @@ function(cmtools_target_enable_lto)
 endfunction()
 
 
-# ! cmtools_project_lto Generate code lto for all the targets.
+# ! cmt_project_lto Generate code lto for all the targets.
 #
-macro(cmtools_project_lto)
-    if (NOT CMTOOLS_ENABLE_LTO)
+macro(cmt_project_lto)
+    if (NOT CMT_ENABLE_LTO)
         link_time_optimization()
         message(STATUS "[cmtools] Generating a code-lto report for the project ${PROJECT_NAME}")
     endif()

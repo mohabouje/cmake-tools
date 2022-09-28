@@ -23,20 +23,20 @@
 # SOFTWARE.                                                                      #
 ##################################################################################
 
-if(CMTOOLS_DEVELOPER_INCLUDED)
+if(CMT_DEVELOPER_INCLUDED)
 	return()
 endif()
-set(CMTOOLS_DEVELOPER_INCLUDED ON)
+set(CMT_DEVELOPER_INCLUDED ON)
 
 include(${CMAKE_CURRENT_LIST_DIR}/cmtools-args.cmake)
 
 # Functions summary:
-# - cmtools_append_to_target_property
+# - cmt_append_to_target_property
 
 
-# ! cmtools_choice_arguments Append arguments to a target property
+# ! cmt_choice_arguments Append arguments to a target property
 #
-# cmtools_append_to_target_property(
+# cmt_append_to_target_property(
 #   [TARGET <target>]
 #   [PROPERTY <property>]
 #   [PROPERTIES <appen1> <append2> ...]
@@ -46,9 +46,9 @@ include(${CMAKE_CURRENT_LIST_DIR}/cmtools-args.cmake)
 # \param:PROPERTY PROPERTY Specifies the property to be appended.
 # \param:PROPERTIES PROPERTIES Specifies the values to be appended to the property.
 #
-function(cmtools_append_to_target_property)
+function(cmt_append_to_target_property)
     cmake_parse_arguments(ARGS "" "TARGET;PROPERTY" "PROPERTIES" ${ARGN})
-    cmtools_required_arguments(FUNCTION cmtools_append_to_target_property PREFIX ARGS FIELDS TARGET PROPERTY PROPERTIES)
+    cmt_required_arguments(FUNCTION cmt_append_to_target_property PREFIX ARGS FIELDS TARGET PROPERTY PROPERTIES)
 
 	get_target_property(EXISTING_PROPERTIES ${ARGS_TARGET} ${ARGS_PROPERTY})
 	if (EXISTING_PROPERTIES)

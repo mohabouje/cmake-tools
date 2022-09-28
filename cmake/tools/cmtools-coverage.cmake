@@ -22,10 +22,10 @@
 # SOFTWARE.                                                                      #
 ##################################################################################
 
-if(CMTOOLS_COVERAGE_INCLUDED)
+if(CMT_COVERAGE_INCLUDED)
 	return()
 endif()
-set(CMTOOLS_COVERAGE_INCLUDED ON)
+set(CMT_COVERAGE_INCLUDED ON)
 
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-args.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
@@ -35,23 +35,23 @@ include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/coverage.cmake)
 unset(MESSAGE_QUIET)
 
 # Functions summary:
-# - cmtools_target_generate_coverage
-# - cmtools_project_coverage
+# - cmt_target_generate_coverage
+# - cmt_project_coverage
 
-# ! cmtools_target_generate_coverage Generate a code coverage report for the target.
+# ! cmt_target_generate_coverage Generate a code coverage report for the target.
 # The generated target lanch lcov on all the target sources in the specified working directory.
 #
-# cmtools_target_generate_coverage(
+# cmt_target_generate_coverage(
 #   [TARGET <target>]
 # )
 #
 # \param:TARGET TARGET The target to configure
 #
-function(cmtools_target_generate_coverage)
+function(cmt_target_generate_coverage)
     cmake_parse_arguments(ARGS "" "TARGET" "DEPENDENCIES" ${ARGN})
-    cmtools_required_arguments(FUNCTION cmtools_target_generate_coverage PREFIX ARGS FIELDS TARGET DEPENDENCIES)
+    cmt_required_arguments(FUNCTION cmt_target_generate_coverage PREFIX ARGS FIELDS TARGET DEPENDENCIES)
 
-    if (NOT CMTOOLS_ENABLE_COVERAGE)
+    if (NOT CMT_ENABLE_COVERAGE)
         return()
     endif()
 
@@ -61,10 +61,10 @@ function(cmtools_target_generate_coverage)
 endfunction()
 
 
-# ! cmtools_project_coverage Generate code coverage for all the targets.
+# ! cmt_project_coverage Generate code coverage for all the targets.
 #
-macro(cmtools_project_coverage)
-    if (CMTOOLS_ENABLE_COVERAGE)
+macro(cmt_project_coverage)
+    if (CMT_ENABLE_COVERAGE)
         set(CODE_COVERAGE ON)
         add_code_coverage_all_targets()
         message(STATUS "[cmtools] Generating a code-coverage report for the project ${PROJECT_NAME}")

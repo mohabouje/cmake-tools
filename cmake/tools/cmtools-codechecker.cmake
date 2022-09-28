@@ -22,10 +22,10 @@
 # SOFTWARE.                                                                      #
 ##################################################################################
 
-if(CMTOOLS_CODECHECKER_INCLUDED)
+if(CMT_CODECHECKER_INCLUDED)
 	return()
 endif()
-set(CMTOOLS_CODECHECKER_INCLUDED ON)
+set(CMT_CODECHECKER_INCLUDED ON)
 
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-args.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
@@ -35,26 +35,26 @@ include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/codechecker.cmake)
 unset(MESSAGE_QUIET)
 
 # Functions summary:
-# - cmtools_target_generate_codechecker
+# - cmt_target_generate_codechecker
 
-# ! cmtools_target_generate_codechecker Generate a codechecker target for the target.
+# ! cmt_target_generate_codechecker Generate a codechecker target for the target.
 # The generated target lanch codechecker on all the target sources in the specified working directory.
 #
-# cmtools_target_generate_codechecker(
+# cmt_target_generate_codechecker(
 #   [TARGET <target>]
 # )
 #
 # \param:TARGET TARGET The target to configure
 #
-function(cmtools_target_generate_codechecker)
+function(cmt_target_generate_codechecker)
     cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
-    cmtools_required_arguments(FUNCTION cmtools_target_generate_codechecker PREFIX ARGS FIELDS TARGET)
+    cmt_required_arguments(FUNCTION cmt_target_generate_codechecker PREFIX ARGS FIELDS TARGET)
 
-    if (NOT CMTOOLS_ENABLE_CODECHECKER)
+    if (NOT CMT_ENABLE_CODECHECKER)
         return()
     endif()
 
-    cmtools_find_program(NAME CODECHECKER_PROGRAM PROGRAM codechecker)
+    cmt_find_program(NAME CODECHECKER_PROGRAM PROGRAM codechecker)
     codechecker(TARGET ${ARGS_TARGET})
     message(STATUS "[cmtools] Target ${ARGS_TARGET}: generate target to run codechecker")
 endfunction()

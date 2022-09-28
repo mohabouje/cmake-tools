@@ -22,21 +22,21 @@
 # SOFTWARE.                                                                      #
 ##################################################################################
 
-if(CMTOOLS_ARGUMENTS_INCLUDED)
+if(CMT_ARGUMENTS_INCLUDED)
 	return()
 endif()
-set(CMTOOLS_ARGUMENTS_INCLUDED ON)
+set(CMT_ARGUMENTS_INCLUDED ON)
 
 # Functions summary:
-# - cmtools_required_arguments
-# - cmtools_one_of_arguments
-# - cmtools_choice_arguments
-# - cmtools_default_argument
-# - cmtools_ensure_target
+# - cmt_required_arguments
+# - cmt_one_of_arguments
+# - cmt_choice_arguments
+# - cmt_default_argument
+# - cmt_ensure_target
 
-# ! cmtools_required_arguments : this function check if the parsed arguments contain the required arguments
+# ! cmt_required_arguments : this function check if the parsed arguments contain the required arguments
 #
-# cmtools_required_arguments(
+# cmt_required_arguments(
 #   [FUNCTION <file>]
 #   [PREFIX <prefix>]
 #   [FIELDS <field1> <field2> ...]
@@ -45,19 +45,19 @@ set(CMTOOLS_ARGUMENTS_INCLUDED ON)
 # \param:FUNCTION FUNCTION specify the name of the function that is being checked
 # \param:PREFIX PREFIX specifies the prefix used to parse the arguments
 # \group:FIELDS FIELDS contains the list of required arguments
-function(cmtools_required_arguments)
+function(cmt_required_arguments)
     cmake_parse_arguments(CHECK "" "FUNCTION;PREFIX" "FIELDS" ${ARGN})
 
     if(NOT DEFINED CHECK_FUNCTION)
-        message(FATAL_ERROR "cmtools_required_arguments: 'FUNCTION' argument required.")
+        message(FATAL_ERROR "cmt_required_arguments: 'FUNCTION' argument required.")
     endif()
 
     if(NOT DEFINED CHECK_PREFIX)
-        message(FATAL_ERROR "cmtools_required_arguments: 'PREFIX' argument required.")
+        message(FATAL_ERROR "cmt_required_arguments: 'PREFIX' argument required.")
     endif()
 
     if(NOT DEFINED CHECK_FIELDS)
-        message(FATAL_ERROR "cmtools_required_arguments: 'FIELDS' argument required.")
+        message(FATAL_ERROR "cmt_required_arguments: 'FIELDS' argument required.")
     endif()
 
     foreach(arg ${CHECK_FIELDS})
@@ -67,9 +67,9 @@ function(cmtools_required_arguments)
     endforeach()
 endfunction()
 
-# ! cmtools_one_of_arguments : this function check if the parsed arguments contain at least one of the optional fields
+# ! cmt_one_of_arguments : this function check if the parsed arguments contain at least one of the optional fields
 #
-# cmtools_one_of_arguments(
+# cmt_one_of_arguments(
 #   [FUNCTION <file>]
 #   [PREFIX <prefix>]
 #   [FIELDS <field1> <field2> ...]
@@ -78,19 +78,19 @@ endfunction()
 # \param:FUNCTION FUNCTION specify the name of the function that is being checked
 # \param:PREFIX PREFIX specifies the prefix used to parse the arguments
 # \group:FIELDS FIELDS contains the list of optional arguments
-function(cmtools_one_of_arguments)
+function(cmt_one_of_arguments)
     cmake_parse_arguments(CHECK "" "FUNCTION;PREFIX" "FIELDS" ${ARGN})
 
     if(NOT CHECK_FUNCTION)
-        message(FATAL_ERROR "cmtools_required_arguments: 'FUNCTION' argument required.")
+        message(FATAL_ERROR "cmt_required_arguments: 'FUNCTION' argument required.")
     endif()
 
     if(NOT CHECK_PREFIX)
-        message(FATAL_ERROR "cmtools_required_arguments: 'PREFIX' argument required.")
+        message(FATAL_ERROR "cmt_required_arguments: 'PREFIX' argument required.")
     endif()
 
     if(NOT CHECK_FIELDS)
-        message(FATAL_ERROR "cmtools_required_arguments: 'FIELDS' argument required.")
+        message(FATAL_ERROR "cmt_required_arguments: 'FIELDS' argument required.")
     endif()
 
     set(OPTIONAL_FIELD_FOUND OFF)
@@ -106,9 +106,9 @@ function(cmtools_one_of_arguments)
     endif()
 endfunction()
 
-# ! cmtools_choice_arguments : this function check if the parsed argument contain one of the choices
+# ! cmt_choice_arguments : this function check if the parsed argument contain one of the choices
 #
-# cmtools_choice_arguments(
+# cmt_choice_arguments(
 #   [FUNCTION <file>]
 #   [PREFIX <prefix>]
 #   [CHOICE <prefix>]
@@ -119,23 +119,23 @@ endfunction()
 # \param:PREFIX PREFIX specifies the prefix used to parse the arguments
 # \param:CHOICE CHOICE specifies the choice to check
 # \group:OPTIONS OPTIONS contains the list of optional arguments
-function(cmtools_choice_arguments)
+function(cmt_choice_arguments)
     cmake_parse_arguments(CHECK "" "FUNCTION;PREFIX;CHOICE" "OPTIONS" ${ARGN})
 
     if(NOT CHECK_FUNCTION)
-        message(FATAL_ERROR "cmtools_required_arguments: 'FUNCTION' argument required.")
+        message(FATAL_ERROR "cmt_required_arguments: 'FUNCTION' argument required.")
     endif()
 
     if(NOT CHECK_PREFIX)
-        message(FATAL_ERROR "cmtools_required_arguments: 'PREFIX' argument required.")
+        message(FATAL_ERROR "cmt_required_arguments: 'PREFIX' argument required.")
     endif()
 
     if(NOT CHECK_CHOICE)
-        message(FATAL_ERROR "cmtools_required_arguments: 'CHOICE' argument required.")
+        message(FATAL_ERROR "cmt_required_arguments: 'CHOICE' argument required.")
     endif()
 
     if(NOT CHECK_OPTIONS)
-        message(FATAL_ERROR "cmtools_required_arguments: 'OPTIONS' argument required.")
+        message(FATAL_ERROR "cmt_required_arguments: 'OPTIONS' argument required.")
     endif()
 
     set(CHOICE_FOUND OFF)
@@ -162,9 +162,9 @@ endfunction()
 # \param:PREFIX PREFIX specifies the prefix used to parse the arguments
 # \param:FIELD FIELD Contain the name of the field to check
 # \param:DEFAULT DEFAULT Contain the default value to set
-function(cmtools_default_argument)
+function(cmt_default_argument)
     cmake_parse_arguments(ARG_CHECK "" "PREFIX;FIELD;DEFAULT" "" ${ARGN})
-    # cmtools_required_arguments(FUNCTION cmake_default_argument PREFIX ARG_CHECK FIELDS PREFIX FIELD DEFAULT)
+    # cmt_required_arguments(FUNCTION cmake_default_argument PREFIX ARG_CHECK FIELDS PREFIX FIELD DEFAULT)
 
     if(NOT ${ARG_CHECK_PREFIX}_${ARG_CHECK_FIELD})
         set(${ARG_CHECK_PREFIX}_${ARG_CHECK_FIELD} ${ARG_CHECK_DEFAULT} PARENT_SCOPE)
@@ -172,18 +172,18 @@ function(cmtools_default_argument)
 endfunction()
 
 
-# ! cmtools_ensure_target : Checks if the list of targets exist and are valid
+# ! cmt_ensure_target : Checks if the list of targets exist and are valid
 #
-# cmtools_ensure_targets(
+# cmt_ensure_targets(
 #   [FUNCTION <file>]
 #   [TARGETS <target1> <target2> ...]
 # )
 #
 # \param:FUNCTION FUNCTION specify the name of the function that is being checked
 # \group:TARGETS TARGETS contains the list of optional arguments
-function(cmtools_ensure_targets)
+function(cmt_ensure_targets)
     cmake_parse_arguments(CHECK "" "FUNCTION" "TARGETS" ${ARGN})
-    cmtools_required_arguments(FUNCTION cmtools_ensure_targets PREFIX CHECK FIELDS TARGETS)
+    cmt_required_arguments(FUNCTION cmt_ensure_targets PREFIX CHECK FIELDS TARGETS)
 
     foreach(arg ${CHECK_TARGETS})
         if(NOT TARGET ${arg})

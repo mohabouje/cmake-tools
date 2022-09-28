@@ -22,10 +22,10 @@
 # SOFTWARE.                                                                      #
 ##################################################################################
 
-if(CMTOOLS_COTIRE_INCLUDED)
+if(CMT_COTIRE_INCLUDED)
 	return()
 endif()
-set(CMTOOLS_COTIRE_INCLUDED ON)
+set(CMT_COTIRE_INCLUDED ON)
 
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-args.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
@@ -35,22 +35,22 @@ include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/cotire.cmake)
 unset(MESSAGE_QUIET)
 
 # Functions summary:
-# - cmtools_target_enable_cotire
+# - cmt_target_enable_cotire
 
-# ! cmtools_target_enable_cotire Enable cotire compilation boost on the given target
+# ! cmt_target_enable_cotire Enable cotire compilation boost on the given target
 #
-# cmtools_target_enable_cotire(
+# cmt_target_enable_cotire(
 #   [TARGET <target>]
 # )
 #
 # \param:TARGET TARGET The target to configure
 #
-function(cmtools_target_enable_cotire)
+function(cmt_target_enable_cotire)
     cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
-    cmtools_required_arguments(FUNCTION cmtools_target_generate_cotire PREFIX ARGS FIELDS TARGET)
-    cmtools_ensure_targets(FUNCTION cmtools_target_generate_cotire TARGETS ${ARGS_TARGET})
+    cmt_required_arguments(FUNCTION cmt_target_generate_cotire PREFIX ARGS FIELDS TARGET)
+    cmt_ensure_targets(FUNCTION cmt_target_generate_cotire TARGETS ${ARGS_TARGET})
 
-    if (NOT CMTOOLS_ENABLE_COTIRE)
+    if (NOT CMT_ENABLE_COTIRE)
         return()
     endif()
 

@@ -22,89 +22,86 @@
 # SOFTWARE.                                                                      #
 ##################################################################################
 
-if(CMTOOLS_COMPILER_INCLUDED)
+if(CMT_COMPILER_INCLUDED)
 	return()
 endif()
-set(CMTOOLS_COMPILER_INCLUDED ON)
+set(CMT_COMPILER_INCLUDED ON)
 
 include(${CMAKE_CURRENT_LIST_DIR}/cmtools-args.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/cmtools-dev.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/cmtools-env.cmake)
 
+# Functions summary:
+# - cmt_target_enable_all_warnings
+# - cmt_target_enable_all_warnings
+# - cmt_target_enable_generation_header_dependencies
 
-
-option(ENABLE_ALL_WARNINGS "Compile with all warnings for the major compilers"
-       OFF)
-option(ENABLE_EFFECTIVE_CXX "Enable Effective C++ warnings" OFF)
-option(GENERATE_DEPENDENCY_DATA "Generates .d files with header dependencies"
-       OFF)
-
-# ! cmtools_target_enable_all_warnings Enable all warnings for the major compilers in the target
+# ! cmt_target_enable_all_warnings Enable all warnings for the major compilers in the target
 #
-# cmtools_target_enable_all_warnings(
+# cmt_target_enable_all_warnings(
 #   [TARGET <target>]
 # )
 #
 # \param:TARGET TARGET The target to configure
 #
-function(cmtools_target_enable_all_warnings)
+function(cmt_target_enable_all_warnings)
     cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
-    cmtools_required_arguments(FUNCTION cmtools_target_enable_all_warnings PREFIX ARGS FIELDS TARGET)
-    cmtools_ensure_targets(FUNCTION cmtools_target_enable_all_warnings TARGETS ${ARGS_TARGET}) 
+    cmt_required_arguments(FUNCTION cmt_target_enable_all_warnings PREFIX ARGS FIELDS TARGET)
+    cmt_ensure_targets(FUNCTION cmt_target_enable_all_warnings TARGETS ${ARGS_TARGET}) 
 
-    cmtools_define_compiler()
-    if (CMTOOLS_COMPILER MATCHES "Clang")
-        target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -Werror)
-    elseif (CMTOOLS_COMPILER MATCHES "GNU")
-        target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -Werror)
-    elseif (CMTOOLS_COMPILER MATCHES "MSVC")
-        target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
+    cmt_define_compiler()
+    if (CMT_COMPILER MATCHES "Clang")
+        target_compile_options(${ARGS_TARGET} PRIVATE -Wall -Wextra -Wpedantic -Werror)
+    elseif (CMT_COMPILER MATCHES "GNU")
+        target_compile_options(${ARGS_TARGET} PRIVATE -Wall -Wextra -Wpedantic -Werror)
+    elseif (CMT_COMPILER MATCHES "MSVC")
+        target_compile_options(${ARGS_TARGET} PRIVATE /W4 /WX)
     endif()
-endmacro()
+endfunction()
 
 
-# ! cmtools_target_enable_all_warnings Enable all warnings for the major compilers in the target
+# ! cmt_target_enable_all_warnings Enable all warnings for the major compilers in the target
 #
-# cmtools_target_enable_all_warnings(
+# cmt_target_enable_all_warnings(
 #   [TARGET <target>]
 # )
 #
 # \param:TARGET TARGET The target to configure
 #
-function(cmtools_target_enable_effective_cxx_warnings)
+function(cmt_target_enable_effective_cxx_warnings)
     cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
-    cmtools_required_arguments(FUNCTION cmtools_target_enable_effective_cxx_warnings PREFIX ARGS FIELDS TARGET)
-    cmtools_ensure_targets(FUNCTION cmtools_target_enable_effective_cxx_warnings TARGETS ${ARGS_TARGET}) 
+    cmt_required_arguments(FUNCTION cmt_target_enable_effective_cxx_warnings PREFIX ARGS FIELDS TARGET)
+    cmt_ensure_targets(FUNCTION cmt_target_enable_effective_cxx_warnings TARGETS ${ARGS_TARGET}) 
 
-    cmtools_define_compiler()
-    if (CMTOOLS_COMPILER MATCHES "Clang")
-        target_compile_options(${PROJECT_NAME} PRIVATE -Weffc++)
-    elseif (CMTOOLS_COMPILER MATCHES "GNU")
-        target_compile_options(${PROJECT_NAME} PRIVATE -Weffc++)
+    cmt_define_compiler()
+    if (${CMT_COMPILER} STREQUAL "CLANG")
+        target_compile_options(${ARGS_TARGET} PRIVATE -Weffc++)
+    elseif (${CMT_COMPILER}  STREQUAL "GNU")
+        target_compile_options(${ARGS_TARGET} PRIVATE -Weffc++)
     else()
         message(WARNING "Cannot enable effective c++ check on non gnu/clang compiler.")
     endif()
-endmacro()
+endfunction()
 
-# ! cmtools_target_generate_dependency_data Generates .d files with header dependencies
+# ! cmt_target_enable_generation_header_dependencies Generates .d files with header dependencies
 #
-# cmtools_target_generate_dependency_data(
+# cmt_target_enable_generation_header_dependencies(
 #   [TARGET <target>]
 # )
 #
 # \param:TARGET TARGET The target to configure
 #
-function(cmtools_target_generate_header_dependencies)
+function(cmt_target_enable_generation_header_dependencies)
     cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
-    cmtools_required_arguments(FUNCTION cmtools_target_generate_dependency_data PREFIX ARGS FIELDS TARGET)
-    cmtools_ensure_targets(FUNCTION cmtools_target_generate_dependency_data TARGETS ${ARGS_TARGET}) 
+    cmt_required_arguments(FUNCTION cmt_target_enable_generation_header_dependencies PREFIX ARGS FIELDS TARGET)
+    cmt_ensure_targets(FUNCTION cmt_target_enable_generation_header_dependencies TARGETS ${ARGS_TARGET}) 
 
-    cmtools_define_compiler()
-    if (CMTOOLS_COMPILER MATCHES "Clang")
-        target_compile_options(${PROJECT_NAME} PRIVATE -MD)
-    elseif (CMTOOLS_COMPILER MATCHES "GNU")
-        target_compile_options(${PROJECT_NAME} PRIVATE -MD)
+    cmt_define_compiler()
+    if (${CMT_COMPILER}  STREQUAL "CLANG")
+        target_compile_options(${ARGS_TARGET} PRIVATE -MD)
+    elseif (${CMT_COMPILER}  STREQUAL "GNU")
+        target_compile_options(${ARGS_TARGET} PRIVATE -MD)
     else()
         message(WARNING "Cannot generate header dependency on non GCC/Clang compilers.")
     endif()
-endmacro()
+endfunction()
