@@ -1,0 +1,21 @@
+gitignore:
+    languages:
+        - python
+        - linux
+        - macos
+    workspace:
+        - .vscode
+        - .venv
+
+gitlint:
+    title:
+        regex: '^\[(wip|dev|test|doc|fix|feat|style|refact|error)\]\s[A-Z].*$'
+        ignore: '^Release(.*)'
+        min_length: 10
+        max_length: 80
+        forbidden: ''
+    body:
+        min_length: 10
+        max_length: 512
+    author:
+        email: '[^@]+@gmail.com'
