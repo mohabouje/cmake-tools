@@ -55,6 +55,7 @@ cmt_add_release_compiler_options(OPTIONS -O3 -ggdb)
 cmt_add_release_compiler_options(OPTIONS -funroll-loops -Ofast -ffast-math)
 cmt_add_release_compiler_option(OPTION -mpopcnt)
 
-cmt_print_flags()
+cmt_print_compiler_options(LANG CXX CONFIG Debug Release)
+cmt_print_linker_options(CONFIG Debug Release)
 
 add_subdirectory(integration)

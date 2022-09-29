@@ -1049,3 +1049,63 @@ function(cmt_target_enable_sanitizers)
 		endforeach()
 	endforeach()
 endfunction()
+
+
+
+function(cmt_target_print_compiler_options)
+    cmake_parse_arguments(ARGS "" "TARGET" "CONFIG" ${ARGN})
+	cmt_required_arguments(FUNCTION cmt_add_linker_options PREFIX ARGS FIELDS TARGET)
+	cmt_required_arguments(FUNCTION cmt_target_disable_warnings PREFIX ARGS FIELDS TARGET)
+    cmt_ensure_targets(FUNCTION cmt_target_disable_warnings TARGETS ${ARGS_TARGET})
+
+	cmt_log("Target ${ARGS_TARGET} Compiler Options:")
+
+	macro(cmt_print_list title list)
+		cmt_status("  > ${title}:")
+		foreach(element ${${list}})
+			cmt_log("    - ${element}")
+		endforeach()
+	endmacro()
+
+
+	get_target_property(COMPILE_DEFINITIONS ${ARGS_TARGET} COMPILE_DEFINITIONS)
+	get_target_property(COMPILE_OPTIONS ${ARGS_TARGET} COMPILE_OPTIONS)
+	cmt_print_list("COMPILE_DEFINITIONS" COMPILE_DEFINITIONS)
+	cmt_print_list("COMPILE_OPTIONS" COMPILE_OPTIONS)
+endfunction()
+
+function(cmt_target_print_linker_options)
+    cmake_parse_arguments(ARGS "" "TARGET" "CONFIG" ${ARGN})
+	cmt_required_arguments(FUNCTION cmt_target_disable_warnings PREFIX ARGS FIELDS TARGET)
+    cmt_ensure_targets(FUNCTION cmt_target_disable_warnings TARGETS ${ARGS_TARGET}) 
+
+	cmt_log("Target ${ARGS_TARGET} Linker Options:")
+
+	macro(cmt_print_list title list)
+		if (NOT ${list})
+			return()
+		endif()
+
+		cmt_status("  > ${title}:")
+		foreach(element ${${list}})
+			cmt_log("    - ${element}")
+		endforeach()
+	endmacro()
+
+	get_target_property(LINK_OPTIONS ${ARGS_TARGET} LINK_OPTIONS)
+	get_target_property(LINK_FLAGS ${ARGS_TARGET} LINK_FLAGS)
+	cmt_print_list("LINK_OPTIONS" LINK_OPTIONS)
+	cmt_print_list("LINK_FLAGS" LINK_FLAGS)
+    if(NOT DEFINED ARGS_CONFIG)
+        string(TOUPPER ${CMAKE_BUILD_TYPE} config)
+        get_target_property(LINK_FLAGS_${config} ${ARGS_TARGET} LINK_FLAGS_${config})
+		cmt_print_list("LINK_FLAGS_${config}" LINK_FLAGS_${config})
+    else()
+        foreach(config ${ARGS_CONFIG})
+            cmt_ensure_config(${config})
+            string(TOUPPER ${config} config)
+			get_target_property(LINK_FLAGS_${config} ${ARGS_TARGET} LINK_FLAGS_${config})
+			cmt_print_list("LINK_FLAGS_${config}" LINK_FLAGS_${config})
+        endforeach()
+    endif()
+endfunction()

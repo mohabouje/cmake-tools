@@ -12,3 +12,6 @@ option(CMT_ENABLE_IWYU                  "Enable the integration of include-what-
 option(CMT_ENABLE_LIZARD                "Enable the integration of lizard into the build system"                ON)
 option(CMT_ENABLE_LTO                   "Enable the integration of lto into the build system"                   ON)
 option(CMT_ENABLE_SANITIZERS            "Enable the integration of sanitizers into the build system"            ON)
+
+option(CMT_IGNORE_COMPILER_OPTION_CHECKS    "Disable the compiler option checks"   ON)
+option(CMT_IGNORE_LINKER_OPTION_CHECKS      "Disable the compiler warning checks"  ON)

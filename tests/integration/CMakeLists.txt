@@ -55,3 +55,7 @@ cmt_project_dependency_graph()
 
 # Integration with lto
 cmt_target_enable_lto(TARGET integration)
+
+# Print information about target
+cmt_target_print_compiler_options(TARGET integration CONFIG Debug Release)
+cmt_target_print_linker_options(TARGET integration CONFIG Debug Release)

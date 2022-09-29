@@ -71,7 +71,9 @@ macro(cmt_check_compiler_option result)
         cmt_enable_logger()
     else()
         cmt_warn("Unsuported language: ${ARGS_LANG}, compiler flag ${ARGS_OPTION} not added")
-        return()
+    endif()
+    if (CMT_IGNORE_COMPILER_OPTION_CHECKS)
+        set(has${ARGS_OPTION} ON)
     endif()
 endmacro()
 
@@ -92,7 +94,9 @@ macro(cmt_check_linker_option result)
         cmt_enable_logger()
     else()
         cmt_warn("Unsuported language: ${ARGS_LANG}, compiler flag ${ARGS_OPTION} not added")
-        return()
+    endif()
+    if (CMT_IGNORE_LINKER_OPTION_CHECKS)
+        set(has${ARGS_OPTION} ON)
     endif()
 endmacro()
 
@@ -390,15 +394,6 @@ macro(cmt_set_runtime)
     ucm_set_runtime(${ARGN})
 endmacro()
 
-# ! cmt_print_flags Prints all compiler flags for all configurations
-#
-# cmt_print_flags()
-#
-macro(cmt_print_flags)
-    ucm_print_flags()
-endmacro()
-
-
 # ! cmt_enable_all_warnings Enable all warnings for the major compilers in the target
 #
 # cmt_enable_all_warnings()
@@ -565,3 +560,76 @@ macro(cmt_configure_compiler_options)
 		cmt_warn("Unsupported compiler (${CMAKE_CXX_COMPILER_ID}), compile options not configured")
 	endif()
 endmacro()
+
+function(cmt_print_compiler_options)
+    cmake_parse_arguments(ARGS "" "LANG" "CONFIG" ${ARGN})
+	cmt_required_arguments(FUNCTION cmt_add_linker_options PREFIX ARGS FIELDS LANG)
+    cmt_ensure_lang(${ARGS_LANG})
+
+    cmt_log("Global Compiler Options:")
+
+	macro(cmt_print_list title list)
+		if (NOT ${list})
+			return()
+		endif()
+
+		cmt_status("  > ${title}:")
+		foreach(element {${list}})
+			cmt_log("    - ${element}")
+		endforeach()
+	endmacro()
+
+
+    list(APPEND ${result} CMAKE_${ARGS_LANG}_FLAGS)
+    cmt_print_list("CMAKE_${ARGS_LANG}_FLAGS" CMAKE_${ARGS_LANG}_FLAGS)
+    if(NOT DEFINED ARGS_CONFIG)
+        string(TOUPPER ${CMAKE_BUILD_TYPE} config)
+        cmt_print_list("CMAKE_${ARGS_LANG}_FLAGS_${config}" CMAKE_${ARGS_LANG}_FLAGS_${config})
+    else()
+        foreach(config ${ARGS_CONFIG})
+            cmt_ensure_config(${config})
+            string(TOUPPER ${config} config)
+            cmt_print_list("CMAKE_${ARGS_LANG}_FLAGS_${config}" CMAKE_${ARGS_LANG}_FLAGS_${config})
+        endforeach()
+    endif()
+endfunction()
+
+function(cmt_print_linker_options result)
+    cmake_parse_arguments(ARGS "" "" "CONFIG" ${ARGN})
+
+    cmt_log("Global Linker Options:")
+
+	macro(cmt_print_list title list)
+		if (NOT ${list})
+			return()
+		endif()
+
+		cmt_status("  > ${title}:")
+		foreach(element ${${list}})
+			cmt_log("    - ${element}")
+		endforeach()
+	endmacro()
+
+
+    cmt_print_list("CMAKE_EXE_LINKER_FLAGS" CMAKE_EXE_LINKER_FLAGS)
+    cmt_print_list("CMAKE_SHARED_LINKER_FLAGS" CMAKE_SHARED_LINKER_FLAGS)
+    cmt_print_list("CMAKE_MODULE_LINKER_FLAGS" CMAKE_MODULE_LINKER_FLAGS)
+    cmt_print_list("CMAKE_STATIC_LINKER_FLAGS" CMAKE_STATIC_LINKER_FLAGS)
+
+    if(NOT DEFINED ARGS_CONFIG)
+        string(TOUPPER ${CMAKE_BUILD_TYPE} config)
+        cmt_print_list("CMAKE_EXE_LINKER_FLAGS_${config}" CMAKE_EXE_LINKER_FLAGS_${config})
+        cmt_print_list("CMAKE_SHARED_LINKER_FLAGS_${config}" CMAKE_SHARED_LINKER_FLAGS_${config})
+        cmt_print_list("CMAKE_MODULE_LINKER_FLAGS_${config}" CMAKE_MODULE_LINKER_FLAGS_${config})
+        cmt_print_list("CMAKE_STATIC_LINKER_FLAGS_${config}" CMAKE_STATIC_LINKER_FLAGS_${config})
+    else()
+        foreach(config ${ARGS_CONFIG})
+            cmt_ensure_config(${config})
+            string(TOUPPER ${config} config)
+            cmt_print_list("CMAKE_EXE_LINKER_FLAGS_${config}" CMAKE_EXE_LINKER_FLAGS_${config})
+            cmt_print_list("CMAKE_SHARED_LINKER_FLAGS_${config}" CMAKE_SHARED_LINKER_FLAGS_${config})
+            cmt_print_list("CMAKE_MODULE_LINKER_FLAGS_${config}" CMAKE_MODULE_LINKER_FLAGS_${config})
+            cmt_print_list("CMAKE_STATIC_LINKER_FLAGS_${config}" CMAKE_STATIC_LINKER_FLAGS_${config})
+        endforeach()
+    endif()
+endfunction()
