@@ -45,6 +45,7 @@ cmt_target_generate_coverage(TARGET integration DEPENDENCIES integration)
 
 # Integration with sanitizers
 cmt_target_enable_sanitizer(TARGET integration SANITIZER TSAN)
+cmt_target_enable_sanitizers(TARGET integration SANITIZERS ASAN UBSAN)
 
 # Integration with cotire
 # cmt_target_enable_cotire(TARGET integration)

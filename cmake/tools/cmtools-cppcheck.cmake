@@ -56,7 +56,7 @@ function(cmt_target_generate_cppcheck)
 
     cmt_find_program(NAME CPPCHECK_PROGRAM PROGRAM cppcheck)
     cppcheck(TARGET ${ARGS_TARGET})
-    message(STATUS "[cmtools] Target ${ARGS_TARGET}: generate target to run cppcheck")
+    message(STATUS "[cmt] Target ${ARGS_TARGET}: generate target to run cppcheck")
 endfunction()
 
 
@@ -80,5 +80,5 @@ function(cmt_target_enable_cppcheck)
     cmt_find_program(NAME CPPCHECK_PROGRAM PROGRAM cppcheck)
     set_property(TARGET ${ARGS_TARGET} PROPERTY CMAKE_CXX_CPPCHECK ${CPPCHECK_PROGRAM})
     set_property(TARGET ${ARGS_TARGET} PROPERTY CMAKE_C_CPPCHECK ${CPPCHECK_PROGRAM})
-    message(STATUS "[cmtools] Target ${ARGS_TARGET}: enabling extension cppcheck")
+    message(STATUS "[cmt] Target ${ARGS_TARGET}: enabling extension cppcheck")
 endfunction()

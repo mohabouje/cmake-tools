@@ -55,6 +55,6 @@ function(cmt_target_enable_cotire)
     endif()
 
     cotire(${ARGS_TARGET})
-    message(STATUS "[cmtools] Target ${ARGS_TARGET}: enabling extension cotire")
+    message(STATUS "[cmt] Target ${ARGS_TARGET}: enabling extension cotire")
 endfunction()
 

@@ -74,7 +74,7 @@ function(cmt_target_enable_sanitizer)
 
     set(SANITIZER ${ARGS_SANITIZER})
     enable_sanitizers(TARGET ${ARGS_TARGET})
-    message(STATUS "[cmtools] Target ${ARGS_TARGET}: enabling extension ${SANITIZER} sanitizer")
+    message(STATUS "[cmt] Target ${ARGS_TARGET}: enabling extension ${SANITIZER} sanitizer")
 endfunction()
 
 # ! cmt_target_enable_address_sanitizer Enable memory-sanitizier checks on the given target

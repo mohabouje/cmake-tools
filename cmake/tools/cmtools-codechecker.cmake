@@ -56,5 +56,5 @@ function(cmt_target_generate_codechecker)
 
     cmt_find_program(NAME CODECHECKER_PROGRAM PROGRAM codechecker)
     codechecker(TARGET ${ARGS_TARGET})
-    message(STATUS "[cmtools] Target ${ARGS_TARGET}: generate target to run codechecker")
+    message(STATUS "[cmt] Target ${ARGS_TARGET}: generate target to run codechecker")
 endfunction()

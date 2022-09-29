@@ -185,7 +185,7 @@ function(cmt_target_add_compiler_option)
 				target_compile_options(${ARGS_TARGET} PRIVATE "$<$<COMPILE_LANGUAGE:${lang}>:${ARGS_OPTION}>")
 			endif()
 		else()
-			message(STATUS "[cmt] ${target}: flag \"${ARGS_OPTION}\" was reported as unsupported by ${lang} compiler and was not added")
+			message(STATUS "[cmt] ${ARGS_TARGET}: flag ${ARGS_OPTION} was reported as unsupported by ${lang} compiler and was not added")
 		endif()
 	endforeach()
 endfunction()
@@ -371,7 +371,7 @@ function(cmt_target_add_linker_option)
 				target_link_options(${ARGS_TARGET} PRIVATE "$<$<COMPILE_LANGUAGE:${lang}>:${ARGS_OPTION}>")
 			endif()
 		else()
-			message(STATUS "[cmt] ${target}: flag \"${ARGS_OPTION}\" was reported as unsupported by ${lang} compiler and was not added")
+			message(STATUS "[cmt] ${ARGS_TARGET}: flag ${ARGS_OPTION} was reported as unsupported by ${lang} linker and was not added")
 		endif()
 	endforeach()
 endfunction()
@@ -666,7 +666,7 @@ function(cmt_target_configure_gcc_compiler_options)
 	cmt_target_add_compiler_option(TARGET ${ARGS_TARGET} OPTION "-O2" CONFIG RelWithDebInfo)
 	cmt_target_add_compiler_option(TARGET ${ARGS_TARGET} OPTION "-O3" CONFIG Release)
 	cmt_target_add_compile_definition(TARGET ${ARGS_TARGET} DEFINITION "NDEBUG" CONFIG Release)
-	message(STATUS "[cmt] ${target}: configured gcc options")
+	message(STATUS "[cmt] ${ARGS_TARGET}: configured gcc options")
 endfunction()
 
 # ! cmt_target_configure_clang_compiler_options 
@@ -691,7 +691,7 @@ function(cmt_target_configure_clang_compiler_options)
 	cmt_target_add_compiler_option(TARGET ${ARGS_TARGET} OPTION -O2 CONFIG RelWithDebInfo)
 	cmt_target_add_compiler_option(TARGET ${ARGS_TARGET} OPTION -O3 CONFIG Release)
 	cmt_target_add_compile_definition(TARGET ${ARGS_TARGET} DEFINITION "NDEBUG" CONFIG Release)
-	message(STATUS "[cmt] ${target}: configured clang options")
+	message(STATUS "[cmt] ${ARGS_TARGET}: configured clang options")
 endfunction()
 
 # ! cmt_target_configure_msvc_compiler_options 
@@ -718,7 +718,7 @@ function(cmt_target_configure_msvc_compiler_options target)
 	cmt_target_add_compiler_options(TARGET ${ARGS_TARGET} OPTIONS /Ox /Qpar CONFIG Release)
 	cmt_target_add_linker_options(TARGET ${ARGS_TARGET} OPTIONS /INCREMENTAL:NO /OPT:REF /OPT:ICF /MANIFEST:NO CONFIG Release RelWithDebInfo)
 	cmt_target_add_compile_definition(TARGET ${ARGS_TARGET} DEFINITION NDEBUG CONFIG Release)
-	message(STATUS "[cmt] ${target}: configured msvc options")
+	message(STATUS "[cmt] ${ARGS_TARGET}: configured msvc options")
 endfunction()
 
 # ! cmt_target_configure_compiler_options 
@@ -908,19 +908,14 @@ function(cmt_target_disable_warnings)
     cmt_ensure_targets(FUNCTION cmt_target_disable_warnings TARGETS ${ARGS_TARGET}) 
 
 	cmt_define_compiler()
-	if(NOT (${CMT_COMPILER}  STREQUAL "CLANG" 
-			OR ${CMT_COMPILER}  STREQUAL "GCC" 
-			OR ${CMT_COMPILER}  STREQUAL "MVSC"))
-		message(WARNING "[cmt] Unsupported compiler (${CMAKE_CXX_COMPILER_ID}), warnings not disabled for ${ARGS_TARGET}")
-		return()
-	endif()
-
 	if (${CMT_COMPILER}  STREQUAL "MVSC")
 		cmt_target_add_compiler_option(TARGET ${ARGS_TARGET} OPTION /W0)
 	elseif(${CMT_COMPILER}  STREQUAL "GCC")
 		cmt_target_add_compiler_option(TARGET ${ARGS_TARGET} OPTION --no-warnings)
 	elseif(${CMT_COMPILER}  STREQUAL "CLANG")
 		cmt_target_add_compiler_option(TARGET ${ARGS_TARGET} OPTION -Wno-everything)
+	else()
+		message(WARNING "[cmt] Unsupported compiler (${CMAKE_CXX_COMPILER_ID}), warnings not disabled for ${ARGS_TARGET}")
 	endif()
 	message(STATUS "[cmt] ${ARGS_TARGET}: disabled warnings")
 endfunction()
@@ -981,4 +976,102 @@ function(cmt_interface_target_generate_headers_target)
 	cmt_get_headers(HEADERS RECURSE ${TARGET_INCLUDE_DIRECTORIES})
 	add_custom_target(${ARGS_HEADER_TARGET} SOURCES ${HEADERS})
 	message(STATUS "[cmt] ${ARGS_TARGET}: Generated header target ${ARGS_HEADER_TARGET}")
+endfunction()
+
+## cmt_target_enable_sanitizers
+# Enable the specified sanitizers in the specified build modes for the specified target on compilers
+# that support the sanitizers.
+# Incompatibilities: ThreadSanitizer cannot be combined with AddressSanitizer and LeakSanitizer
+# Value -> sanitizer correspondence:
+# - ASAN:   AddressSanitizer
+# - TSAN:  	ThreadSanitizer
+# - LSAN:	LeakSanitizer
+# - UBSAN:	UndefinedBehaviorSanitizer
+# - MSAN: 	MemorySanitizer
+# - AUBSAN: AddressSanitizer + UndefinedBehaviorSanitizer
+# - MWOSAN: Memory-Track-Origins + MemorySanitizer
+# - CFISAN:	Control-Flow Integrity
+# 
+# cmt_target_add_linker_option(
+#   ASAN | TSAN | LSAN | UBSAN | MSAN
+#   [TARGET <target>]
+#   [CONFIG <config1> <config2>...]
+# )
+#
+# \paramTARGET TARGET Target to add flag
+# \groupCONFIG CONFIG Configs for the property to change (Debug Release RelWithDebInfo MinSizeRel)
+function(cmt_target_enable_sanitizers)
+ 	cmake_parse_arguments(ARGS "ASAN;TSAN;LSAN;UBSAN;MSAN;CFISAN;AUBSAN;MWOSAN" "TARGET" "CONFIG" ${ARGN})
+    cmt_required_arguments(FUNCTION cmt_target_enable_sanitizers PREFIX ARGS FIELDS TARGET)
+	cmt_one_of_arguments(FUNCTION cmt_target_enable_sanitizers PREFIX ARGS FIELDS ASAN TSAN LSAN UBSAN MSAN AUBSAN MWOSAN CFISAN)
+
+	# Incompatibilities documented at:
+	# https://gcc.gnu.org/onlinedocs/gcc/Instrumentation-Options.html#Instrumentation-Options
+	if (ARGS_TSAN AND ARGS_ASAN)
+		message(FATAL_ERROR "ThreadSanitizer and AddressSanitizer cannot be combined")
+	endif()
+	if (ARGS_TSAN AND ARGS_LSAN)
+		message(FATAL_ERROR "ThreadSanitizer and LeakSanitizer cannot be combined")
+	endif()
+
+	cmt_define_compiler()
+	if (NOT (${CMT_COMPILER}  STREQUAL "CLANG" 
+			OR ${CMT_COMPILER}  STREQUAL "GCC"))
+		# Sanitizers supported only by gcc and clang
+		return()
+	endif()
+
+
+	set(flags)
+	if (ARGS_ASAN)
+		list(APPEND flags "-fsanitize=address")
+		list(APPEND flags "-fno-omit-frame-pointer")
+		list(APPEND flags "-fno-optimize-sibling-calls")
+	endif()
+
+	if (ARGS_TSAN)
+		list(APPEND flags "-fsanitize=thread")
+	endif()
+
+	if (ARGS_LSAN)
+		list(APPEND flags "-fsanitize=leak")
+	endif()
+
+	if (ARGS_UBSAN AND ${CMT_COMPILER}  STREQUAL "GCC")
+		list(APPEND flags "-fsanitize=undefined")
+		list(APPEND flags "-fsanitize=nullability")
+	endif()
+
+	if (ARGS_AUBSAN AND ${CMT_COMPILER}  STREQUAL "GCC")
+		list(APPEND flags "-fsanitize=undefined")
+		list(APPEND flags "-fsanitize=nullability")
+		list(APPEND flags "-fsanitize=address")
+		list(APPEND flags "-fno-omit-frame-pointer")
+		list(APPEND flags "-fno-optimize-sibling-calls")
+	endif()
+	
+	if (ARGS_MSAN AND ${CMT_COMPILER}  STREQUAL "CLANG")
+		list(APPEND flags "-fsanitize=memory")
+	endif()
+
+	if (ARGS_MWOSAN AND ${CMT_COMPILER}  STREQUAL "CLANG")
+		list(APPEND flags "-fsanitize=memory")
+		list(APPEND flags "-fsanitize-memory-track-origins")
+	endif()
+
+	if (ARGS_CFISAN)
+		list(APPEND flags "-fsanitize=cfi")
+	endif()
+
+	foreach(flag ${flags})
+		foreach(lang IN ITEMS C CXX)
+			if(DEFINED ARGS_CONFIG)
+				cmt_target_add_compiler_options(TARGET ${ARGS_TARGET} OPTIONS ${flag} CONFIG ${ARGS_CONFIG})
+				cmt_target_add_linker_options(TARGET ${ARGS_TARGET} OPTIONS ${flag} CONFIG ${ARGS_CONFIG})
+			else()
+				cmt_target_add_compiler_options(TARGET ${ARGS_TARGET} OPTIONS ${flag})
+				cmt_target_add_linker_options(TARGET ${ARGS_TARGET} OPTIONS ${flag})
+			endif()
+		endforeach()
+	endforeach()
 endfunction()

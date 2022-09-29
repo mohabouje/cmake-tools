@@ -56,5 +56,5 @@ function(cmt_target_enable_clang_build_analyzer)
 
 
     enable_clang_build_analyzer(TARGET ${ARGS_TARGET})
-    message(STATUS "[cmtools] Target ${ARGS_TARGET}: enabling extension clang-build-analyzer")
+    message(STATUS "[cmt] Target ${ARGS_TARGET}: enabling extension clang-build-analyzer")
 endfunction()

@@ -51,7 +51,6 @@ cmt_add_compiler_options(
         -Wno-missing-field-initializers
 )
 
-cmt_add_compiler_options(OPTIONS -Wall -Wextra -Werror)
 cmt_add_compiler_options(OPTIONS -fno-strict-aliasing -pthread)
 cmt_add_compiler_options(LANG C OPTIONS -std=gnu11)
 cmt_add_compiler_options(LANG CXX OPTIONS -std=c++2a -ftemplate-backtrace-limit=0)
@@ -62,7 +61,7 @@ cmt_add_debug_compiler_options(OPTIONS -fPIC)
 
 # Release
 cmt_add_release_compiler_options(OPTIONS -O3 -ggdb)
-cmt_add_release_compiler_options(OPTIONS -march=native -funroll-loops -Ofast -ffast-math)
+cmt_add_release_compiler_options(OPTIONS -funroll-loops -Ofast -ffast-math)
 cmt_add_release_compiler_options(OPTIONS -mpopcnt)
 
 cmt_print_flags()

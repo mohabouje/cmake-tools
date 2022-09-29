@@ -57,7 +57,7 @@ function(cmt_target_generate_coverage)
 
     set(CODE_COVERAGE ON)
     target_code_coverage(${ARGS_TARGET} OBJECTS ${ARGS_DEPENDENCIES} AUTO ALL)
-    message(STATUS "[cmtools] Target ${ARGS_TARGET}: generating coverage for dependencies: ${ARGS_DEPENDENCIES}")
+    message(STATUS "[cmt] Target ${ARGS_TARGET}: generating coverage for dependencies: ${ARGS_DEPENDENCIES}")
 endfunction()
 
 
@@ -67,6 +67,6 @@ macro(cmt_project_coverage)
     if (CMT_ENABLE_COVERAGE)
         set(CODE_COVERAGE ON)
         add_code_coverage_all_targets()
-        message(STATUS "[cmtools] Generating a code-coverage report for the project ${PROJECT_NAME}")
+        message(STATUS "[cmt] Generating a code-coverage report for the project ${PROJECT_NAME}")
     endif()
 endmacro()

@@ -57,7 +57,7 @@ function(cmt_target_generate_iwyu)
 
     cmt_find_program(NAME IWYU_PROGRAM PROGRAM include-what-you-use ALIAS iwyu)
     iwyu(TARGET ${ARGS_TARGET})
-    message(STATUS "[cmtools] Target ${ARGS_TARGET}: generate target to run include-what-you-use")
+    message(STATUS "[cmt] Target ${ARGS_TARGET}: generate target to run include-what-you-use")
 endfunction()
 
 
@@ -81,5 +81,5 @@ function(cmt_target_enable_iwyu)
     cmt_find_program(NAME IWYU_PROGRAM PROGRAM include-what-you-use ALIAS iwyu)
     set_property(TARGET ${ARGS_TARGET} PROPERTY CMAKE_CXX_INCLUDE_WHAT_YOU_USE ${IWYU_PROGRAM})
     set_property(TARGET ${ARGS_TARGET} PROPERTY CMAKE_C_INCLUDE_WHAT_YOU_USE ${IWYU_PROGRAM})
-    message(STATUS "[cmtools] Target ${ARGS_TARGET}: enabling extension include-what-you-use")
+    message(STATUS "[cmt] Target ${ARGS_TARGET}: enabling extension include-what-you-use")
 endfunction()
