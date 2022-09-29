@@ -40,12 +40,12 @@ include(${CMAKE_CURRENT_LIST_DIR}/cmtools-args.cmake)
 #
 macro(cmt_disable_in_sources_build)
 	if(ARGC GREATER 0)
-		message(FATAL_ERROR "Too many arguments")
+		cmt_fatal("Too many arguments")
 	endif()
 
 	set(CMAKE_DISABLE_SOURCE_CHANGES ON)
 	set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
-	message(STATUS "[cmt] Target Disabled in-sources build")
+	cmt_log("Target Disabled in-sources build")
 endmacro()
 
 # ! cmt_set_classic_output_folders
@@ -80,5 +80,5 @@ macro(cmt_set_output_folders)
 	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELWITHDEBINFO ${ARGS_FOLDER}/lib)
 	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${ARGS_FOLDER}/lib)
 
-	message(STATUS "[cmt] Target Set output folders to ${ARGS_FOLDER}")
+	cmt_log("Target Set output folders to ${ARGS_FOLDER}")
 endmacro()

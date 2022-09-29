@@ -30,9 +30,9 @@ set(CMT_LIZARD_INCLUDED ON)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-args.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
 
-set(MESSAGE_QUIET ON)
+cmt_disable_logger()
 include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/lizard.cmake)
-unset(MESSAGE_QUIET)
+cmt_enable_logger()
 
 # Functions summary:
 # - cmt_target_generate_lizard
@@ -56,5 +56,5 @@ function(cmt_target_generate_lizard)
 
     cmt_find_program(NAME LIZARD`_PROGRAM PROGRAM include-what-you-use ALIAS iwyu)
     lizard(TARGET ${ARGS_TARGET})
-    message(STATUS "[cmt] Target ${ARGS_TARGET}: generate target to run lizard")
+    cmt_log("Target ${ARGS_TARGET}: generate target to run lizard")
 endfunction()

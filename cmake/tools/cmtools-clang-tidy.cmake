@@ -30,9 +30,9 @@ set(CMT_CLANG_TIDY_INCLUDED ON)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-args.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
 
-set(MESSAGE_QUIET ON)
+cmt_disable_logger()
 include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/clang-tidy.cmake)
-unset(MESSAGE_QUIET)
+cmt_enable_logger()
 
 # Functions summary:
 # - cmt_target_generate_clang_tidy
@@ -57,7 +57,7 @@ function(cmt_target_generate_clang_tidy)
 
     cmt_find_program(NAME CLANG_TIDY_PROGRAM PROGRAM clang-tidy)
     clang_tidy(TARGET ${ARGS_TARGET})
-    message(STATUS "[cmt] Target ${ARGS_TARGET}: generate target to run clang-tidy")
+    cmt_log("Target ${ARGS_TARGET}: generate target to run clang-tidy")
 endfunction()
 
 
@@ -81,5 +81,5 @@ function(cmt_target_enable_clang_tidy)
     cmt_find_program(NAME CLANG_TIDY_PROGRAM PROGRAM clang-tidy)
     set_property(TARGET ${ARGS_TARGET} PROPERTY CMAKE_CXX_INCLUDE_CLANG_TIDY ${CLANG_TIDY_PROGRAM})
     set_property(TARGET ${ARGS_TARGET} PROPERTY CMAKE_C_INCLUDE_CLANG_TIDY ${CLANG_TIDY_PROGRAM})
-    message(STATUS "[cmt] Target ${ARGS_TARGET}: enabling extension clang-tidy")
+    cmt_log("Target ${ARGS_TARGET}: enabling extension clang-tidy")
 endfunction()

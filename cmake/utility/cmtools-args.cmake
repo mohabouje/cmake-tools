@@ -27,6 +27,8 @@ if(CMT_ARGUMENTS_INCLUDED)
 endif()
 set(CMT_ARGUMENTS_INCLUDED ON)
 
+include(${CMAKE_CURRENT_LIST_DIR}/cmtools-logger.cmake)
+
 # Functions summary:
 # - cmt_required_arguments
 # - cmt_one_of_arguments
@@ -49,20 +51,20 @@ function(cmt_required_arguments)
     cmake_parse_arguments(CHECK "" "FUNCTION;PREFIX" "FIELDS" ${ARGN})
 
     if(NOT DEFINED CHECK_FUNCTION)
-        message(FATAL_ERROR "cmt_required_arguments: 'FUNCTION' argument required.")
+        cmt_fatal("cmt_required_arguments: 'FUNCTION' argument required.")
     endif()
 
     if(NOT DEFINED CHECK_PREFIX)
-        message(FATAL_ERROR "cmt_required_arguments: 'PREFIX' argument required.")
+        cmt_fatal("cmt_required_arguments: 'PREFIX' argument required.")
     endif()
 
     if(NOT DEFINED CHECK_FIELDS)
-        message(FATAL_ERROR "cmt_required_arguments: 'FIELDS' argument required.")
+        cmt_fatal("cmt_required_arguments: 'FIELDS' argument required.")
     endif()
 
     foreach(arg ${CHECK_FIELDS})
         if(NOT DEFINED ${CHECK_PREFIX}_${arg})
-            message(FATAL_ERROR "${CHECK_FUNCTION}: ${CHECK_PREFIX}_${arg} argument required.")
+            cmt_fatal("${CHECK_FUNCTION}: ${CHECK_PREFIX}_${arg} argument required.")
         endif()
     endforeach()
 endfunction()
@@ -82,15 +84,15 @@ function(cmt_one_of_arguments)
     cmake_parse_arguments(CHECK "" "FUNCTION;PREFIX" "FIELDS" ${ARGN})
 
     if(NOT CHECK_FUNCTION)
-        message(FATAL_ERROR "cmt_required_arguments: 'FUNCTION' argument required.")
+        cmt_fatal("cmt_required_arguments: 'FUNCTION' argument required.")
     endif()
 
     if(NOT CHECK_PREFIX)
-        message(FATAL_ERROR "cmt_required_arguments: 'PREFIX' argument required.")
+        cmt_fatal("cmt_required_arguments: 'PREFIX' argument required.")
     endif()
 
     if(NOT CHECK_FIELDS)
-        message(FATAL_ERROR "cmt_required_arguments: 'FIELDS' argument required.")
+        cmt_fatal("cmt_required_arguments: 'FIELDS' argument required.")
     endif()
 
     set(OPTIONAL_FIELD_FOUND OFF)
@@ -102,7 +104,7 @@ function(cmt_one_of_arguments)
     endforeach()
 
     if(NOT OPTIONAL_FIELD_FOUND)
-        message(FATAL_ERROR "${CHECK_FUNCTION}: At least one of the following arguments is required: ${CHECK_FIELDS}.")
+        cmt_fatal("${CHECK_FUNCTION}: At least one of the following arguments is required: ${CHECK_FIELDS}.")
     endif()
 endfunction()
 
@@ -123,19 +125,19 @@ function(cmt_choice_arguments)
     cmake_parse_arguments(CHECK "" "FUNCTION;PREFIX;CHOICE" "OPTIONS" ${ARGN})
 
     if(NOT CHECK_FUNCTION)
-        message(FATAL_ERROR "cmt_required_arguments: 'FUNCTION' argument required.")
+        cmt_fatal("cmt_required_arguments: 'FUNCTION' argument required.")
     endif()
 
     if(NOT CHECK_PREFIX)
-        message(FATAL_ERROR "cmt_required_arguments: 'PREFIX' argument required.")
+        cmt_fatal("cmt_required_arguments: 'PREFIX' argument required.")
     endif()
 
     if(NOT CHECK_CHOICE)
-        message(FATAL_ERROR "cmt_required_arguments: 'CHOICE' argument required.")
+        cmt_fatal("cmt_required_arguments: 'CHOICE' argument required.")
     endif()
 
     if(NOT CHECK_OPTIONS)
-        message(FATAL_ERROR "cmt_required_arguments: 'OPTIONS' argument required.")
+        cmt_fatal("cmt_required_arguments: 'OPTIONS' argument required.")
     endif()
 
     set(CHOICE_FOUND OFF)
@@ -147,7 +149,7 @@ function(cmt_choice_arguments)
     endforeach()
 
     if(NOT CHOICE_FOUND)
-        message(FATAL_ERROR "${CHECK_FUNCTION}: '${${CHECK_CHOICE}}' is not a valid choice. Valid choices are: ${CHECK_OPTIONS}.")
+        cmt_fatal("${CHECK_FUNCTION}: '${${CHECK_CHOICE}}' is not a valid choice. Valid choices are: ${CHECK_OPTIONS}.")
     endif()
 endfunction()
 
@@ -187,7 +189,7 @@ function(cmt_ensure_targets)
 
     foreach(arg ${CHECK_TARGETS})
         if(NOT TARGET ${arg})
-            message(FATAL_ERROR "${CHECK_FUNCTION}: ${arg} is not a valid target.")
+            cmt_fatal("${CHECK_FUNCTION}: ${arg} is not a valid target.")
         endif()
     endforeach()
 endfunction()

@@ -22,35 +22,83 @@
 # SOFTWARE.                                                                      #
 ##################################################################################
 
-if(CMT_SETUP_INCLUDED)
+if(CMT_LOGGER_INCLUDED)
 	return()
 endif()
-set(CMT_SETUP_INCLUDED ON)
+set(CMT_LOGGER_INCLUDED ON)
+
+macro(cmt_disable_logger)
+    set(CMT_DISABLE_LOGGING ON)
+endmacro()
+
+macro(cmt_enable_logger)
+    set(CMT_DISABLE_LOGGING OFF)
+endmacro()
+
+function(message)
+    if (NOT CMT_DISABLE_LOGGING)
+        _message(${ARGN})
+    endif()
+endfunction()
+
+function(cmt_log)
+    if (NOT CMT_DISABLE_LOGGING)
+        _message(STATUS "[cmt] ${ARGN}")
+    endif()
+endfunction()
+
+function(cmt_warning)
+    if (NOT CMT_DISABLE_LOGGING)
+        _message(WARNING "[cmt] ${ARGN}")
+    endif()
+endfunction()
+
+function(cmt_error)
+    if (NOT CMT_DISABLE_LOGGING)
+        _message(FATAL_ERROR "[cmt] ${ARGN}")
+    endif()
+endfunction()
+
+function(cmt_debug)
+    if (NOT CMT_DISABLE_LOGGING)
+        _message(DEBUG "[cmt] ${ARGN}")
+    endif()
+endfunction()
+
+function(cmt_trace)
+    if (NOT CMT_DISABLE_LOGGING)
+        _message(TRACE "[cmt] ${ARGN}")
+    endif()
+endfunction()
+
+function(cmt_info)
+    if (NOT CMT_DISABLE_LOGGING)
+        _message(INFO "[cmt] ${ARGN}")
+    endif()
+endfunction()
+
+function(cmt_success)
+    if (NOT CMT_DISABLE_LOGGING)
+        _message(SUCCESS "[cmt] ${ARGN}")
+    endif()
+endfunction()
+
+function(cmt_status)
+    if (NOT CMT_DISABLE_LOGGING)
+        _message(STATUS "[cmt] ${ARGN}")
+    endif()
+endfunction()
+
+function(cmt_fatal)
+    if (NOT CMT_DISABLE_LOGGING)
+        _message(FATAL "[cmt] ${ARGN}")
+    endif()
+endfunction()
+
+function(cmt_note)
+    if (NOT CMT_DISABLE_LOGGING)
+        _message(NOTE "[cmt] ${ARGN}")
+    endif()
+endfunction()
 
 
-
-include(${CMAKE_CURRENT_LIST_DIR}/options.cmake)
-
-include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-logger.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-args.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-config.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-env.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-fsystem.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-lists.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-targets.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-compiler.cmake)
-
-include(${CMAKE_CURRENT_LIST_DIR}/tools/cmtools-ccache.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/tools/cmtools-clang-format.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/tools/cmtools-clang-tidy.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/tools/cmtools-clang-build-analyzer.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/tools/cmtools-iwyu.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/tools/cmtools-lizard.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/tools/cmtools-codechecker.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/tools/cmtools-cppcheck.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/tools/cmtools-cpplint.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/tools/cmtools-coverage.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/tools/cmtools-sanitizers.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/tools/cmtools-cotire.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/tools/cmtools-dependency-graph.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/tools/cmtools-link-time-optimization.cmake)

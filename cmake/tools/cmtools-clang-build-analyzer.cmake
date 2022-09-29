@@ -30,9 +30,9 @@ set(CMT_CLANG_BUILD_ANALYZER_INCLUDED ON)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-args.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
 
-set(MESSAGE_QUIET ON)
+cmt_disable_logger()
 include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/clang-build-analyzer.cmake)
-unset(MESSAGE_QUIET)
+cmt_enable_logger()
 
 # Functions summary:
 # - cmt_target_enable_clang_build_analyzer
@@ -56,5 +56,5 @@ function(cmt_target_enable_clang_build_analyzer)
 
 
     enable_clang_build_analyzer(TARGET ${ARGS_TARGET})
-    message(STATUS "[cmt] Target ${ARGS_TARGET}: enabling extension clang-build-analyzer")
+    cmt_log("Target ${ARGS_TARGET}: enabling extension clang-build-analyzer")
 endfunction()

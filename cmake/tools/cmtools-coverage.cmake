@@ -30,9 +30,9 @@ set(CMT_COVERAGE_INCLUDED ON)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-args.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
 
-set(MESSAGE_QUIET ON)
+cmt_disable_logger()
 include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/coverage.cmake)
-unset(MESSAGE_QUIET)
+cmt_enable_logger()
 
 # Functions summary:
 # - cmt_target_generate_coverage
@@ -57,7 +57,7 @@ function(cmt_target_generate_coverage)
 
     set(CODE_COVERAGE ON)
     target_code_coverage(${ARGS_TARGET} OBJECTS ${ARGS_DEPENDENCIES} AUTO ALL)
-    message(STATUS "[cmt] Target ${ARGS_TARGET}: generating coverage for dependencies: ${ARGS_DEPENDENCIES}")
+    cmt_log("Target ${ARGS_TARGET}: generating coverage for dependencies: ${ARGS_DEPENDENCIES}")
 endfunction()
 
 
@@ -67,6 +67,6 @@ macro(cmt_project_coverage)
     if (CMT_ENABLE_COVERAGE)
         set(CODE_COVERAGE ON)
         add_code_coverage_all_targets()
-        message(STATUS "[cmt] Generating a code-coverage report for the project ${PROJECT_NAME}")
+        cmt_log("Generating a code-coverage report for the project ${PROJECT_NAME}")
     endif()
 endmacro()

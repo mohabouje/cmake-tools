@@ -30,9 +30,9 @@ set(CMT_CODECHECKER_INCLUDED ON)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-args.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
 
-set(MESSAGE_QUIET ON)
+cmt_disable_logger()
 include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/codechecker.cmake)
-unset(MESSAGE_QUIET)
+cmt_enable_logger()
 
 # Functions summary:
 # - cmt_target_generate_codechecker
@@ -56,5 +56,5 @@ function(cmt_target_generate_codechecker)
 
     cmt_find_program(NAME CODECHECKER_PROGRAM PROGRAM codechecker)
     codechecker(TARGET ${ARGS_TARGET})
-    message(STATUS "[cmt] Target ${ARGS_TARGET}: generate target to run codechecker")
+    cmt_log("Target ${ARGS_TARGET}: generate target to run codechecker")
 endfunction()

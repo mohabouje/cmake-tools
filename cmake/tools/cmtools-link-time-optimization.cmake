@@ -30,9 +30,9 @@ set(CMT_LTO_INCLUDED ON)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-args.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
 
-set(MESSAGE_QUIET ON)
+cmt_disable_logger()
 include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/link-time-optimization.cmake)
-unset(MESSAGE_QUIET)
+cmt_enable_logger()
 
 # Functions summary:
 # - cmt_target_enable_lto
@@ -55,7 +55,7 @@ function(cmt_target_enable_lto)
     endif()
 
     target_link_time_optimization(${ARGS_TARGET})
-    message(STATUS "[cmt] Target ${ARGS_TARGET}: enabling link-time-optimization")
+    cmt_log("Target ${ARGS_TARGET}: enabling link-time-optimization")
 endfunction()
 
 
@@ -64,6 +64,6 @@ endfunction()
 macro(cmt_project_lto)
     if (NOT CMT_ENABLE_LTO)
         link_time_optimization()
-        message(STATUS "[cmt] Generating a code-lto report for the project ${PROJECT_NAME}")
+        cmt_log("Generating a code-lto report for the project ${PROJECT_NAME}")
     endif()
 endmacro()

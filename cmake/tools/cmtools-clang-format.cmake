@@ -62,7 +62,7 @@ function(cmt_target_generate_clang_format)
 
 	set(FORMAT_TARGET "clang-format-${ARGS_TARGET}")
 	if (TARGET ${FORMAT_TARGET})
-		message(FATAL_ERROR "${FORMAT_TARGET} already exists")
+		cmt_fatal("${FORMAT_TARGET} already exists")
 	endif()
 
     cmt_find_program(NAME CLANG_FORMAT_PROGRAM PROGRAM clang-format)
@@ -76,5 +76,5 @@ function(cmt_target_generate_clang_format)
 
     # TODO: verify if this is required
     # cmt_target_set_ide_folder(${FORMAT_TARGET} "format")
-	message(STATUS "[cmt] Target ${ARGS_TARGET}: generate target to run clang-format")
+	cmt_log("Target ${ARGS_TARGET}: generate target to run clang-format")
 endfunction()

@@ -30,9 +30,9 @@ set(CMT_SANITIZERS_INCLUDED ON)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-args.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
 
-set(MESSAGE_QUIET ON)
+cmt_disable_logger()
 include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/sanitizers.cmake)
-unset(MESSAGE_QUIET)
+cmt_enable_logger()
 
 # Functions summary:
 # - cmt_target_enable_sanitizers
@@ -74,7 +74,7 @@ function(cmt_target_enable_sanitizer)
 
     set(SANITIZER ${ARGS_SANITIZER})
     enable_sanitizers(TARGET ${ARGS_TARGET})
-    message(STATUS "[cmt] Target ${ARGS_TARGET}: enabling extension ${SANITIZER} sanitizer")
+    cmt_log("Target ${ARGS_TARGET}: enabling extension ${SANITIZER} sanitizer")
 endfunction()
 
 # ! cmt_target_enable_address_sanitizer Enable memory-sanitizier checks on the given target

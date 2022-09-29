@@ -30,9 +30,9 @@ set(CMT_DEPENDENCY_GRAPH_INCLUDED ON)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-args.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
 
-set(MESSAGE_QUIET ON)
+cmt_disable_logger()
 include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/dependency-graph.cmake)
-unset(MESSAGE_QUIET)
+cmt_enable_logger()
 
 # Functions summary:
 # - cmt_project_dependency_graph
@@ -52,6 +52,6 @@ macro(cmt_project_dependency_graph)
         set(BUILD_DEP_GRAPH ON)
         cmt_find_program(NAME DOT_PROGRAM PROGRAM dot)
         gen_dep_graph("png" TARGET_NAME dependency-graph-${PROJECT_NAME}  OUTPUT_DIR ${_PDG_ARGS_OUTPUT_DIR} ADD_TO_DEP_GRAPH)
-        message(STATUS "[cmt] Generating a dependency graph for the project ${PROJECT_NAME}")
+        cmt_log("Generating a dependency graph for the project ${PROJECT_NAME}")
     endif()
 endmacro()
