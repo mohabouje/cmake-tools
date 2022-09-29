@@ -49,6 +49,10 @@ include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/ucm.cmake)
 # - cmt_enable_all_warnings
 # - cmt_enable_effective_cxx_warnings
 # - cmt_enable_generation_header_dependencies
+# - cmt_configure_gcc_compiler_options
+# - cmt_configure_clang_compiler_options
+# - cmt_configure_msvc_compiler_options
+# - cmt_configure_compiler_options
 
 # ! cmt_add_compiler_option Add a flag to the compiler depending on the specific configuration
 #
@@ -65,7 +69,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/ucm.cmake)
 #
 function(cmt_add_compiler_option)
     cmake_parse_arguments(ARGS "" "OPTION;COMPILER;LANG" "CONFIG" ${ARGN})
-	cmt_required_arguments(FUNCTION cmt_target_add_compiler_option PREFIX ARGS FIELDS OPTION)
+	cmt_required_arguments(FUNCTION cmt_add_compiler_option PREFIX ARGS FIELDS OPTION)
 
     if (DEFINED ARGS_COMPILER)
         cmt_define_compiler()
@@ -75,7 +79,7 @@ function(cmt_add_compiler_option)
     endif()
 
     if (DEFINED ARGS_LANG)
-	    cmt_choice_arguments(FUNCTION cmt_add_compiler_option PREFIX ARGS CHOICE LANG OPTIONS "CXX" "C" )
+	    cmt_ensure_lang(${ARGS_LANG})
 		set(LANGUAGES ${ARGS_LANG})
 	else()
 		set(LANGUAGES "CXX" "C")
@@ -97,9 +101,8 @@ function(cmt_add_compiler_option)
 
         if(has${ARGS_OPTION})
             if (DEFINED ARGS_CONFIG)
-                cmt_choice_arguments(FUNCTION cmt_add_compile_options PREFIX ARGS CHOICE CONFIG OPTIONS "Debug" "Release" "RelWithDebInfo" "MinSizeRel" )
-                foreach(config ${ARGS_CONFIG})
-                    ucm_add_flags(${lang} ${ARGS_OPTION} CONFIG ${config})
+                foreach(__config ${ARGS_CONFIG})
+                    ucm_add_flags(${lang} ${ARGS_OPTION} CONFIG ${__config})
                 endforeach()
             else()
                 ucm_add_flags(${lang} ${ARGS_OPTION})
@@ -151,9 +154,9 @@ function(cmt_add_compiler_options)
     endif()
 
 	if (DEFINED ARGS_LANG)
-	    cmt_choice_arguments(FUNCTION cmt_add_compiler_options PREFIX ARGS CHOICE LANG OPTIONS "CXX" "C" )
+	    cmt_ensure_lang(${ARGS_LANG})
 		if (DEFINED ARGS_CONFIG)
-			cmt_choice_arguments(FUNCTION cmt_add_compiler_options PREFIX ARGS CHOICE CONFIG OPTIONS "Debug" "Release" "RelWithDebInfo" "MinSizeRel" )
+			cmt_ensure_config(${ARGS_CONFIG})
 			foreach (option ${ARGS_OPTIONS})
 				cmt_add_compiler_option(LANG ${ARGS_LANG} CONFIG ${ARGS_CONFIG} OPTION ${option})
 			endforeach()
@@ -164,7 +167,7 @@ function(cmt_add_compiler_options)
 		endif()
 	else()
 		if (DEFINED ARGS_CONFIG)
-			cmt_choice_arguments(FUNCTION cmt_add_compiler_options PREFIX ARGS CHOICE CONFIG OPTIONS "Debug" "Release" "RelWithDebInfo" "MinSizeRel" )
+			cmt_ensure_config(${ARGS_CONFIG})
 			foreach (option ${ARGS_OPTIONS})
 				cmt_add_compiler_option(CONFIG ${ARGS_CONFIG} OPTION ${option})
 			endforeach()
@@ -207,7 +210,7 @@ endfunction()
 #
 function(cmt_add_linker_option)
     cmake_parse_arguments(ARGS "" "LANG;OPTION;COMPILER" "CONFIG" ${ARGN})
-	cmt_required_arguments(FUNCTION cmt_target_add_compiler_option PREFIX ARGS FIELDS OPTION)
+	cmt_required_arguments(FUNCTION cmt_add_compiler_option PREFIX ARGS FIELDS OPTION)
 
     if (DEFINED ARGS_COMPILER)
         cmt_define_compiler()
@@ -217,7 +220,7 @@ function(cmt_add_linker_option)
     endif()
 
     if (DEFINED ARGS_LANG)
-	    cmt_choice_arguments(FUNCTION cmt_add_compiler_option PREFIX ARGS CHOICE LANG OPTIONS "CXX" "C" )
+	    cmt_ensure_lang(${ARGS_LANG})
 		set(LANGUAGES ${ARGS_LANG})
 	else()
 		set(LANGUAGES "CXX" "C")
@@ -239,7 +242,7 @@ function(cmt_add_linker_option)
 
         if(has${ARGS_OPTION})
             if (DEFINED ARGS_CONFIG)
-                cmt_choice_arguments(FUNCTION cmt_add_compile_options PREFIX ARGS CHOICE CONFIG OPTIONS "Debug" "Release" "RelWithDebInfo" "MinSizeRel" )
+			    cmt_ensure_config(${ARGS_CONFIG})
                 foreach(config ${ARGS_CONFIG})
                     ucm_add_linker_flags(${lang} ${ARGS_OPTION} CONFIG ${config})
                 endforeach()
@@ -296,7 +299,7 @@ function(cmt_add_linker_options)
 	if (DEFINED ARGS_LANG)
 	    cmt_choice_arguments(FUNCTION cmt_add_linker_options PREFIX ARGS CHOICE LANG OPTIONS "CXX" "C" )
 		if (DEFINED ARGS_CONFIG)
-			cmt_choice_arguments(FUNCTION cmt_add_linker_options PREFIX ARGS CHOICE CONFIG OPTIONS "Debug" "Release" "RelWithDebInfo" "MinSizeRel" )
+			cmt_ensure_config(${ARGS_CONFIG})
 			foreach (option ${ARGS_OPTIONS})
 				cmt_add_linker_option(LANG ${ARGS_LANG} CONFIG ${ARGS_CONFIG} OPTION ${option})
 			endforeach()
@@ -307,7 +310,7 @@ function(cmt_add_linker_options)
 		endif()
 	else()
 		if (DEFINED ARGS_CONFIG)
-			cmt_choice_arguments(FUNCTION cmt_add_compiler_options PREFIX ARGS CHOICE CONFIG OPTIONS "Debug" "Release" "RelWithDebInfo" "MinSizeRel" )
+			cmt_ensure_config(${ARGS_CONFIG})
 			foreach (option ${ARGS_OPTIONS})
 				cmt_add_linker_option(CONFIG ${ARGS_CONFIG} OPTION ${option})
 			endforeach()
@@ -361,22 +364,18 @@ function(cmt_print_flags)
 endfunction()
 
 
-# ! cmt_target_enable_all_warnings Enable all warnings for the major compilers in the target
+# ! cmt_enable_all_warnings Enable all warnings for the major compilers in the target
 #
 # cmt_enable_all_warnings()
 #
 function(cmt_enable_all_warnings)
-    cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
-    cmt_required_arguments(FUNCTION cmt_target_enable_all_warnings PREFIX ARGS FIELDS TARGET)
-    cmt_ensure_targets(FUNCTION cmt_target_enable_all_warnings TARGETS ${ARGS_TARGET}) 
-
     cmt_define_compiler()
     if (CMT_COMPILER MATCHES "CLANG")
-        cmt_add_compile_options(OPTIONS -Wall -Wextra -Wpedantic -Weverything)
+        cmt_add_compiler_options(OPTIONS -Wall -Wextra -Wpedantic -Weverything)
     elseif (CMT_COMPILER MATCHES "GNU")
-        cmt_add_compile_options(OPTIONS -Wall -Wextra -Wpedantic)
+        cmt_add_compiler_options(OPTIONS -Wall -Wextra -Wpedantic)
     elseif (CMT_COMPILER MATCHES "MSVC")
-        cmt_add_compile_options(OPTIONS /W4)
+        cmt_add_compiler_options(OPTIONS /W4)
     else()
         message(WARNING "[cmt] Unsupported compiler (${CMAKE_CXX_COMPILER_ID}), warnings not enabled")
     endif()
@@ -387,15 +386,11 @@ endfunction()
 # cmt_enable_effective_cxx_warnings()
 #
 function(cmt_enable_effective_cxx_warnings)
-    cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
-    cmt_required_arguments(FUNCTION cmt_target_enable_effective_cxx_warnings PREFIX ARGS FIELDS TARGET)
-    cmt_ensure_targets(FUNCTION cmt_target_enable_effective_cxx_warnings TARGETS ${ARGS_TARGET}) 
-
     cmt_define_compiler()
     if (${CMT_COMPILER} STREQUAL "CLANG")
-        cmt_add_compile_option(OPTION -Weffc++)
+        cmt_add_compiler_option(OPTION -Weffc++)
     elseif (${CMT_COMPILER}  STREQUAL "GNU")
-        cmt_add_compile_option(OPTION -Weffc++)
+        cmt_add_compiler_option(OPTION -Weffc++)
     else()
         message(WARNING "Cannot enable effective c++ check on non gnu/clang compiler.")
     endif()
@@ -405,11 +400,7 @@ endfunction()
 #
 # cmt_disable_warnings()
 #
-function(cmt_target_disable_warnings)
-    cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
-    cmt_required_arguments(FUNCTION cmt_target_disable_warnings PREFIX ARGS FIELDS TARGET)
-    cmt_ensure_targets(FUNCTION cmt_target_disable_warnings TARGETS ${ARGS_TARGET}) 
-
+function(cmt_disable_warnings)
 	cmt_define_compiler()
 	if(NOT (${CMT_COMPILER}  STREQUAL "CLANG" 
 			OR ${CMT_COMPILER}  STREQUAL "GCC" 
@@ -419,13 +410,30 @@ function(cmt_target_disable_warnings)
 	endif()
 
     if (${CMT_COMPILER}  STREQUAL "MVSC")
-        cmt_target_add_compiler_option(OPTION /W0)
+        cmt_add_compiler_option(OPTION /W0)
     elseif(${CMT_COMPILER}  STREQUAL "GCC")
-        cmt_target_add_compiler_option(OPTION --no-warnings)
+        cmt_add_compiler_option(OPTION --no-warnings)
     elseif(${CMT_COMPILER}  STREQUAL "CLANG")
-        cmt_target_add_compiler_option(OPTION -Wno-everything)
+        cmt_add_compiler_option(OPTION -Wno-everything)
     endif()
 	message(STATUS "[cmt] ${ARGS_TARGET}: disabled warnings")
+endfunction()
+
+# ! cmt_enable_warnings_as_errors Treat warnings as errors
+#
+# cmt_enable_warnings_as_errors()
+#
+function(cmt_enable_warnings_as_errors)
+    cmt_define_compiler()
+    if (CMT_COMPILER MATCHES "CLANG")
+        cmt_add_compiler_options(OPTIONS -Werror)
+    elseif (CMT_COMPILER MATCHES "GNU")
+        cmt_add_compiler_options(OPTIONS -Werror)
+    elseif (CMT_COMPILER MATCHES "MSVC")
+        cmt_add_compiler_options(OPTIONS /WX)
+    else()
+        message(WARNING "[cmt] Unsupported compiler (${CMAKE_CXX_COMPILER_ID}), warnings not enabled")
+    endif()
 endfunction()
 
 # ! cmt_enable_generation_header_dependencies Generates .d files with header dependencies
@@ -433,16 +441,95 @@ endfunction()
 # cmt_enable_generation_header_dependencies()
 #
 function(cmt_enable_generation_header_dependencies)
-    cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
-    cmt_required_arguments(FUNCTION cmt_target_enable_generation_header_dependencies PREFIX ARGS FIELDS TARGET)
-    cmt_ensure_targets(FUNCTION cmt_target_enable_generation_header_dependencies TARGETS ${ARGS_TARGET}) 
-
     cmt_define_compiler()
     if (${CMT_COMPILER}  STREQUAL "CLANG")
-        cmt_target_add_compiler_option(OPTION -MD)
+        cmt_add_compiler_option(OPTION -MD)
     elseif (${CMT_COMPILER}  STREQUAL "GNU")
-        cmt_target_add_compiler_option(OPTION -MD)
+        cmt_add_compiler_option(OPTION -MD)
     else()
         message(WARNING "Cannot generate header dependency on non GCC/Clang compilers.")
     endif()
+endfunction()
+
+
+# ! cmt_configure_gcc_compiler_options 
+# Configure gcc compile oprions for the target like debug informations, optimisation...
+#
+# cmt_configure_gcc_compiler_options()
+#
+function(cmt_configure_gcc_compiler_options)
+	cmt_define_compiler()
+	if (NOT CMT_COMPILER MATCHES "GCC")
+		message(WARNING "cmt_configure_gcc_compiler_options: target ${ARGS_TARGET} is not a gcc target")
+		return()
+	endif()
+
+	cmt_add_compiler_option(OPTION "-g3" CONFIG Debug RelWithDebInfo)
+	cmt_add_compiler_option(OPTION "-O0" CONFIG Debug)
+	cmt_add_compiler_option(OPTION "-O2" CONFIG RelWithDebInfo)
+	cmt_add_compiler_option(OPTION "-O3" CONFIG Release)
+	cmt_add_compile_definition(DEFINITION "NDEBUG" CONFIG Release)
+	message(STATUS "[cmt] ${target}: configured gcc options")
+endfunction()
+
+# ! cmt_configure_clang_compiler_options 
+# Configure clang compile oprions for the target like debug informations, optimisation...
+#
+# cmt_configure_clang_compiler_options()
+#
+function(cmt_configure_clang_compiler_options)
+	cmt_define_compiler()
+	if (NOT CMT_COMPILER MATCHES "CLANG")
+		message(WARNING "cmt_configure_clang_compiler_options: target ${ARGS_TARGET} is not a clang target")
+		return()
+	endif()
+
+	cmt_add_compiler_option(OPTION -g3 CONFIG Debug RelWithDebInfo)
+	cmt_add_compiler_option(OPTION -O0 CONFIG Debug)
+	cmt_add_compiler_option(OPTION -O2 CONFIG RelWithDebInfo)
+	cmt_add_compiler_option(OPTION -O3 CONFIG Release)
+
+    # TODO: implement cmt_add_compile_definition
+	# cmt_add_compile_definition(DEFINITION "NDEBUG" CONFIG Release)
+	message(STATUS "[cmt] ${target}: configured clang options")
+endfunction()
+
+# ! cmt_configure_msvc_compiler_options 
+# Configure MVSC compile oprions for the target like debug informations, optimisation...
+#
+# cmt_configure_msvc_compiler_options()
+#
+function(cmt_configure_msvc_compiler_options target)
+	cmt_define_compiler()
+	if (NOT CMT_COMPILER MATCHES "MVSC")
+		message(WARNING "cmt_configure_msvc_compiler_options: target ${ARGS_TARGET} is not a msvc target")
+		return()
+	endif()
+
+	cmt_add_compiler_options(OPTIONS /utf-8 /MP)
+	cmt_add_compiler_options(OPTIONS /Zi /DEBUG:FULL CONFIG Debug RelWithDebInfo)
+	cmt_add_compiler_options(OPTIONS /Od /RTC1 CONFIG Debug)
+	cmt_add_compiler_options(OPTIONS /O2 CONFIG RelWithDebInfo)
+	cmt_add_compiler_options(OPTIONS /Ox /Qpar CONFIG Release)
+	cmt_add_linker_options(OPTIONS /INCREMENTAL:NO /OPT:REF /OPT:ICF /MANIFEST:NO CONFIG Release RelWithDebInfo)
+	cmt_add_compile_definition(DEFINITION NDEBUG CONFIG Release)
+	message(STATUS "[cmt] ${target}: configured msvc options")
+endfunction()
+
+# ! cmt_configure_compiler_options 
+# Configure compile options for the target like debug information, optimisation...
+#
+# cmt_configure_compiler_options()
+#
+function(cmt_configure_compiler_options)
+	cmt_define_compiler()
+	if (CMT_COMPILER MATCHES "MVSC")
+		cmt_configure_msvc_compiler_options(${ARGN})
+	elseif(CMT_COMPILER MATCHES "GCC")
+		cmt_configure_gcc_compiler_options(${ARGN})
+	elseif(CMT_COMPILER MATCHES "CLANG")
+		cmt_configure_clang_compiler_options(${ARGN})
+	else()
+		message(WARNING "[cmt] Unsupported compiler (${CMAKE_CXX_COMPILER_ID}), compile options not configured")
+	endif()
 endfunction()

@@ -6,6 +6,8 @@ add_test(NAME integration COMMAND integration)
 cmt_target_enable_all_warnings(TARGET integration)
 cmt_target_enable_effective_cxx_warnings(TARGET integration)
 cmt_target_enable_generation_header_dependencies(TARGET integration)
+cmt_target_enable_warnings_as_errors(TARGET integration)
+cmt_target_configure_compiler_options(TARGET integration)
 
 # Integration test for ccache
 cmt_target_enable_ccache(TARGET integration)

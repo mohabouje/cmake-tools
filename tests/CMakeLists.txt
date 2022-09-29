@@ -68,4 +68,10 @@ cmt_add_release_compiler_options(OPTIONS -mpopcnt)
 cmt_print_flags()
 
 
+# Functionalities that affect all targets moving forward
+cmt_configure_compiler_options()
+cmt_enable_warnings_as_errors()
+cmt_enable_all_warnings()
+cmt_enable_effective_cxx_warnings()
+
 add_subdirectory(integration)

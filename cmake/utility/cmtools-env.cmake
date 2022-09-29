@@ -236,3 +236,35 @@ macro(cmt_set_c_standard)
 	set(CMAKE_CXX_STANDARD_REQUIRED ${_C_FP_CHECK_REQUIRED} CACHE BOOL "Set the C++ standard to required." FORCE)
 	set(CMAKE_CXX_EXTENSIONS ${_C_FP_CHECK_EXTENSIONS} CACHE BOOL "Set the C++ standard to use extensions." FORCE)
 endmacro()
+
+#! cmt_ensure_config Checks if the configuration is valid
+#
+# The following variables are checked:
+# - Debug
+# - Release
+# - RelWithDebInfo
+# - MinSizeRel
+#
+# cmt_ensure_config(config)
+#
+function(cmt_ensure_config config)
+	message(STATUS "Checking configuration ${config}")
+	if (NOT "${config}" MATCHES "^(Debug|Release|RelWithDebInfo|MinSizeRel)$")
+		message(FATAL_ERROR "The configuration ${config} is not valid")
+	endif()
+endfunction()
+
+#! cmt_ensure_lang Checks if the language is valid
+#
+# The following variables are checked:
+# - C
+# - CXX
+#
+# cmt_ensure_lang(lang)
+#
+function(cmt_ensure_lang lang)
+	message(STATUS "Checking language ${lang}")
+	if (NOT "${lang}" MATCHES "^(C|CXX)$")
+		message(FATAL_ERROR "The language ${lang} is not valid")
+	endif()
+endfunction()

@@ -40,7 +40,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/cmtools-args.cmake)
 # ! cmt_filter_list Filters a list based on a regex pattern.
 # It will include or exclude the elements that match the pattern.
 #
-# cmt_append_to_target_property(
+# cmt_filter_list(
 #   [INCLUDE OR EXCLUDE]
 #   [REFEX <regex>]
 #   [LIST <list> ]

@@ -39,16 +39,22 @@ include(${CMAKE_CURRENT_LIST_DIR}/cmtools-fsystem.cmake)
 # - cmt_target_add_linker_options
 # - cmt_target_add_c_linker_options
 # - cmt_target_add_cxx_linker_options
+# - cmt_target_add_compiler_option
+# - cmt_target_add_c_compiler_option
+# - cmt_target_add_cxx_compiler_option
+# - cmt_target_add_linker_option
+# - cmt_target_add_c_linker_option
+# - cmt_target_add_cxx_linker_option
 # - cmt_target_set_standard
 # - cmt_target_set_output_directory
 # - cmt_target_set_output_directories
 # - cmt_target_set_runtime_output_directory
 # - cmt_target_set_library_output_directory
 # - cmt_target_set_archive_output_directory
-# - cmt_target_configure_gcc_compile_options
-# - cmt_target_configure_clang_compile_options
-# - cmt_target_configure_msvc_compile_options
-# - cmt_target_configure_compile_options
+# - cmt_target_configure_gcc_compiler_options
+# - cmt_target_configure_clang_compiler_options
+# - cmt_target_configure_msvc_compiler_options
+# - cmt_target_configure_compiler_options
 # - cmt_target_set_runtime
 # - cmt_target_enable_warnings_as_errors
 # - cmt_target_enable_all_warnings
@@ -109,7 +115,7 @@ function(cmt_target_add_compile_definition)
     endif()
 
 	if (DEFINED ARGS_CONFIG)
-        cmt_choice_arguments(FUNCTION cmt_add_compile_options PREFIX ARGS CHOICE CONFIG OPTIONS "Debug" "Release" "RelWithDebInfo" "MinSizeRel" )
+        cmt_choice_arguments(FUNCTION cmt_add_compiler_options PREFIX ARGS CHOICE CONFIG OPTIONS "Debug" "Release" "RelWithDebInfo" "MinSizeRel" )
     	foreach(config ${ARGS_CONFIG})
 			string(TOUPPER ${config} config)
 			target_compile_definitions(${ARGS_TARGET} PRIVATE "$<$<CONFIG:${config}>:${ARGS_DEFINITION}>")
@@ -148,7 +154,7 @@ function(cmt_target_add_compiler_option)
     endif()
 
 	if (DEFINED ARGS_LANG)
-	    cmt_choice_arguments(FUNCTION cmt_target_add_linker_option PREFIX ARGS CHOICE LANG OPTIONS "CXX" "C" )
+	    cmt_ensure_lang(${ARGS_LANG})
 		set(LANGUAGES ${ARGS_LANG})
 	else()
 		set(LANGUAGES "CXX" "C")
@@ -170,7 +176,7 @@ function(cmt_target_add_compiler_option)
 
 		if(has${ARGS_OPTION})
 			if (DEFINED ARGS_CONFIG)
-				cmt_choice_arguments(FUNCTION cmt_add_compile_options PREFIX ARGS CHOICE CONFIG OPTIONS "Debug" "Release" "RelWithDebInfo" "MinSizeRel" )
+				cmt_ensure_config(${ARGS_CONFIG})
 				foreach(config ${ARGS_CONFIG})
 					string(TOUPPER ${config} config)
 					target_compile_options(${ARGS_TARGET} PRIVATE "$<$<AND:$<COMPILE_LANGUAGE:${lang}>,$<CONFIG:${config}>>:${ARGS_OPTION}>")
@@ -196,7 +202,7 @@ endfunction()
 #
 # \paramTARGET TARGET Target to add flag
 # \paramOPTION OPTION Compiler flag to add
-# \groupCONFIG CONFIG Configs for the property to change (Debug Release RelWithDebInfo MinSizeRel)
+# \groupCONFIG CONFIG Configs for the property to change (÷ RelWithDebInfo MinSizeRel)
 macro(cmt_target_add_c_compiler_option)
 	cmt_target_add_compiler_option(LANGUAGE C ${ARGN})
 endmacro()
@@ -245,9 +251,9 @@ function(cmt_target_add_compiler_options)
     endif()
 
 	if (DEFINED ARGS_LANG)
-	    cmt_choice_arguments(FUNCTION cmt_target_add_compiler_options PREFIX ARGS CHOICE LANG OPTIONS "CXX" "C" )
+	    cmt_ensure_lang(${ARGS_LANG})
 		if (DEFINED ARGS_CONFIG)
-			cmt_choice_arguments(FUNCTION cmt_target_add_compiler_options PREFIX ARGS CHOICE CONFIG OPTIONS "Debug" "Release" "RelWithDebInfo" "MinSizeRel" )
+			cmt_ensure_config(${ARGS_CONFIG})
 			foreach (option ${ARGS_OPTIONS})
 				cmt_target_add_compiler_option(TARGET ${ARGS_TARGET} LANG ${ARGS_LANG} CONFIG ${ARGS_CONFIG} OPTION ${option})
 			endforeach()
@@ -334,7 +340,7 @@ function(cmt_target_add_linker_option)
     endif()
 
 	if (DEFINED ARGS_LANG)
-	    cmt_choice_arguments(FUNCTION cmt_target_add_linker_option PREFIX ARGS CHOICE LANG OPTIONS "CXX" "C" )
+	    cmt_ensure_lang(${ARGS_LANG})
 		set(LANGUAGES ${ARGS_LANG})
 	else()
 		set(LANGUAGES "CXX" "C")
@@ -356,7 +362,7 @@ function(cmt_target_add_linker_option)
 
 		if(has${ARGS_OPTION})
 			if (DEFINED ARGS_CONFIG)
-				cmt_choice_arguments(FUNCTION cmt_add_compile_options PREFIX ARGS CHOICE CONFIG OPTIONS "Debug" "Release" "RelWithDebInfo" "MinSizeRel" )
+				cmt_choice_arguments(FUNCTION cmt_add_compiler_options PREFIX ARGS CHOICE CONFIG OPTIONS "Debug" "Release" "RelWithDebInfo" "MinSizeRel" )
 				foreach(config ${ARGS_CONFIG})
 					string(TOUPPER ${config} config)
 					target_link_options(${ARGS_TARGET} PRIVATE "$<$<AND:$<COMPILE_LANGUAGE:${lang}>,$<CONFIG:${config}>>:${ARGS_OPTION}>")
@@ -431,9 +437,9 @@ function(cmt_target_add_linker_options)
     endif()
 
 	if (DEFINED ARGS_LANG)
-	    cmt_choice_arguments(FUNCTION cmt_target_add_linker_options PREFIX ARGS CHOICE LANG OPTIONS "CXX" "C" )
+	    cmt_ensure_lang(${ARGS_LANG})
 		if (DEFINED ARGS_CONFIG)
-			cmt_choice_arguments(FUNCTION cmt_target_add_linker_options PREFIX ARGS CHOICE CONFIG OPTIONS "Debug" "Release" "RelWithDebInfo" "MinSizeRel" )
+			cmt_ensure_config(${ARGS_CONFIG})
 			foreach (option ${ARGS_OPTIONS})
 				cmt_target_add_linker_option(TARGET ${ARGS_TARGET} LANG ${ARGS_LANG} CONFIG ${ARGS_CONFIG} OPTION ${option})
 			endforeach()
@@ -444,7 +450,7 @@ function(cmt_target_add_linker_options)
 		endif()
 	else()
 		if (DEFINED ARGS_CONFIG)
-			cmt_choice_arguments(FUNCTION cmt_target_add_linker_options PREFIX ARGS CHOICE CONFIG OPTIONS "Debug" "Release" "RelWithDebInfo" "MinSizeRel" )
+			cmt_ensure_config(${ARGS_CONFIG})
 			foreach (option ${ARGS_OPTIONS})
 				cmt_target_add_linker_option(TARGET ${ARGS_TARGET} CONFIG ${ARGS_CONFIG} OPTION ${option})
 			endforeach()
@@ -514,7 +520,7 @@ function(cmt_target_set_standard)
 	if (DEFINED ARGS_C)
 		cmt_choice_arguments(FUNCTION cmt_target_set_standard PREFIX ARGS CHOICE C OPTIONS "90" "99" "11" "17" "23")
 		target_compile_features(${ARGS_TARGET} PUBLIC c_std_${ARGS_C})
-		target_compile_options(${ARGS_TARGET} PUBLIC "$<$<COMPILE_LANGUAGE:C>:${ARGS_C}>")
+		target_compiler_option(${ARGS_TARGET} PUBLIC "$<$<COMPILE_LANGUAGE:C>:${ARGS_C}>")
 		set_target_properties(
 			${ARGS_TARGET} PROPERTIES
 			C_STANDARD ${ARGS_C}
@@ -526,7 +532,7 @@ function(cmt_target_set_standard)
 	if (DEFINED ARGS_CXX)
 		cmt_choice_arguments(FUNCTION cmt_target_set_standard PREFIX ARGS CHOICE CXX OPTIONS "98" "11" "14" "17" "20" "23")
 		target_compile_features(${ARGS_TARGET} PUBLIC cxx_std_${ARGS_CXX})
-		target_compile_options(${ARGS_TARGET} PUBLIC "$<$<COMPILE_LANGUAGE:CXX>:${ARGS_CXX}>")
+		target_compiler_option(${ARGS_TARGET} PUBLIC "$<$<COMPILE_LANGUAGE:CXX>:${ARGS_CXX}>")
 		set_target_properties(
 			${ARGS_TARGET} PROPERTIES
 			CXX_STANDARD ${ARGS_CXX}
@@ -638,20 +644,20 @@ function(cmt_target_set_archive_output_directory)
 endfunction()
 
 
-# ! cmt_target_configure_gcc_compile_options 
+# ! cmt_target_configure_gcc_compiler_options 
 # Configure gcc compile oprions for the target like debug informations, optimisation...
 #
-# cmt_target_configure_gcc_compile_options(
+# cmt_target_configure_gcc_compiler_options(
 #   [TARGET <target>]
 # )
 #
 # \paramTARGET TARGET Target to configure
-function(cmt_target_configure_gcc_compile_options)
+function(cmt_target_configure_gcc_compiler_options)
 	cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
-	cmt_required_arguments(FUNCTION cmt_target_configure_gcc_compile_options PREFIX ARGS FIELDS TARGET)
+	cmt_required_arguments(FUNCTION cmt_target_configure_gcc_compiler_options PREFIX ARGS FIELDS TARGET)
 	cmt_define_compiler()
 	if (NOT CMT_COMPILER MATCHES "GCC")
-		message(WARNING "cmt_target_configure_gcc_compile_options: target ${ARGS_TARGET} is not a gcc target")
+		message(WARNING "cmt_target_configure_gcc_compiler_options: target ${ARGS_TARGET} is not a gcc target")
 		return()
 	endif()
 
@@ -663,20 +669,20 @@ function(cmt_target_configure_gcc_compile_options)
 	message(STATUS "[cmt] ${target}: configured gcc options")
 endfunction()
 
-# ! cmt_target_configure_clang_compile_options 
+# ! cmt_target_configure_clang_compiler_options 
 # Configure clang compile oprions for the target like debug informations, optimisation...
 #
-# cmt_target_configure_clang_compile_options(
+# cmt_target_configure_clang_compiler_options(
 #   [TARGET <target>]
 # )
 #
 # \paramTARGET TARGET Target to configure
-function(cmt_target_configure_clang_compile_options)
+function(cmt_target_configure_clang_compiler_options)
 	cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
-	cmt_required_arguments(FUNCTION cmt_target_configure_clang_compile_options PREFIX ARGS FIELDS TARGET)
+	cmt_required_arguments(FUNCTION cmt_target_configure_clang_compiler_options PREFIX ARGS FIELDS TARGET)
 	cmt_define_compiler()
 	if (NOT CMT_COMPILER MATCHES "CLANG")
-		message(WARNING "cmt_target_configure_clang_compile_options: target ${ARGS_TARGET} is not a clang target")
+		message(WARNING "cmt_target_configure_clang_compiler_options: target ${ARGS_TARGET} is not a clang target")
 		return()
 	endif()
 
@@ -688,20 +694,20 @@ function(cmt_target_configure_clang_compile_options)
 	message(STATUS "[cmt] ${target}: configured clang options")
 endfunction()
 
-# ! cmt_target_configure_msvc_compile_options 
+# ! cmt_target_configure_msvc_compiler_options 
 # Configure MVSC compile oprions for the target like debug informations, optimisation...
 #
-# cmt_target_configure_msvc_compile_options(
+# cmt_target_configure_msvc_compiler_options(
 #   [TARGET <target>]
 # )
 #
 # \paramTARGET TARGET Target to configure
-function(cmt_target_configure_msvc_compile_options target)
+function(cmt_target_configure_msvc_compiler_options target)
 	cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
-	cmt_required_arguments(FUNCTION cmt_target_configure_clang_compile_options PREFIX ARGS FIELDS TARGET)
+	cmt_required_arguments(FUNCTION cmt_target_configure_clang_compiler_options PREFIX ARGS FIELDS TARGET)
 	cmt_define_compiler()
 	if (NOT CMT_COMPILER MATCHES "MVSC")
-		message(WARNING "cmt_target_configure_msvc_compile_options: target ${ARGS_TARGET} is not a msvc target")
+		message(WARNING "cmt_target_configure_msvc_compiler_options: target ${ARGS_TARGET} is not a msvc target")
 		return()
 	endif()
 
@@ -715,22 +721,22 @@ function(cmt_target_configure_msvc_compile_options target)
 	message(STATUS "[cmt] ${target}: configured msvc options")
 endfunction()
 
-# ! cmt_target_configure_compile_options 
+# ! cmt_target_configure_compiler_options 
 # Configure compile options for the target like debug information, optimisation...
 #
-# cmt_target_configure_compile_options(
+# cmt_target_configure_compiler_options(
 #   [TARGET <target>]
 # )
 #
 # \paramTARGET TARGET Target to configure
-function(cmt_target_configure_compile_options)
+function(cmt_target_configure_compiler_options)
 	cmt_define_compiler()
 	if (CMT_COMPILER MATCHES "MVSC")
-		cmt_target_configure_msvc_compile_options(${ARGN})
+		cmt_target_configure_msvc_compiler_options(${ARGN})
 	elseif(CMT_COMPILER MATCHES "GCC")
-		cmt_target_configure_gcc_compile_options(${ARGN})
+		cmt_target_configure_gcc_compiler_options(${ARGN})
 	elseif(CMT_COMPILER MATCHES "CLANG")
-		cmt_target_configure_clang_compile_options(${ARGN})
+		cmt_target_configure_clang_compiler_options(${ARGN})
 	else()
 		message(WARNING "[cmt] Unsupported compiler (${CMAKE_CXX_COMPILER_ID}), compile options not configured")
 	endif()
