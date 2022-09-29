@@ -36,8 +36,7 @@ unset(MESSAGE_QUIET)
 
 # Functions summary:
 # - cmt_target_enable_clang_build_analyzer
-
-
+#
 # ! cmt_target_enable_clang_build_analyzer Enable clang-build-analyzer checks on the given target
 #
 # cmt_target_enable_clang_build_analyzer(

@@ -54,7 +54,7 @@ function(cmt_target_enable_lto)
         return()
     endif()
 
-    target_link_time_optimization(${ARGS_TARGET} REQUIRED)
+    target_link_time_optimization(${ARGS_TARGET})
     message(STATUS "[cmtools] Target ${ARGS_TARGET}: enabling link-time-optimization")
 endfunction()
 

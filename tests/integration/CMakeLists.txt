@@ -45,7 +45,7 @@ cmt_target_generate_coverage(TARGET integration DEPENDENCIES integration)
 cmt_target_enable_sanitizer(TARGET integration SANITIZER TSAN)
 
 # Integration with cotire
-cmt_target_enable_cotire(TARGET integration)
+# cmt_target_enable_cotire(TARGET integration)
 
 # Integration with dependency graph
 cmt_project_dependency_graph()

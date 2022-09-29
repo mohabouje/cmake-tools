@@ -37,7 +37,6 @@ include(${CMAKE_CURRENT_LIST_DIR}/options.cmake)
 
 include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-args.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-config.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-dev.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-env.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-fsystem.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-lists.cmake)

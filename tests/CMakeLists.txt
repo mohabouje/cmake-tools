@@ -4,8 +4,10 @@ if(CMAKE_BUILD_TYPE MATCHES "Release")
     add_definitions(-DNDEBUG)
 endif()
 
-if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    cmt_add_compile_options(CXX 
+cmt_add_compiler_options(
+    COMPILER CLANG
+    LANG CXX
+    OPTIONS 
         -Wno-unused-parameter
         -Wno-unused-function
         -Wno-sign-compare
@@ -19,48 +21,49 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         -Wno-macro-redefined
         -Wno-mismatched-tags
         -Wno-format-security
-    )
-else()
-    cmt_add_compile_options(CXX
+)
+
+cmt_add_compiler_options(
+    COMPILER GCC
+    LANG CXX
+    OPTIONS 
         -Wno-unused-parameter
         -Wno-unused-function
         -Wno-sign-compare
-        -Wno-attributes
-        -Wno-missing-field-initializers
+        -Wno-invalid-constexpr
         -Wno-unknown-pragmas
-        -Wno-unused-but-set-variable
-        -Wno-unused-but-set-parameter
-        -Wno-deprecated
+        -Wno-gnu-string-literal-operator-template
+        -Wno-ambiguous-reversed-operator
         -Wno-deprecated-copy
-        -Wno-uninitialized
-        -Wno-nonnull
         -Wno-deprecated-declarations
-        -Wno-stringop-overflow
-        -Wno-array-bounds
-        -Wno-format-security
+        -Wno-format
         -Wno-macro-redefined
-    )
-endif()
-
-# OpenSSL deprecated API
-cmt_add_compile_options(CXX
-    -Wno-deprecated-declarations
-    -Wno-missing-field-initializers
+        -Wno-mismatched-tags
+        -Wno-format-security
 )
 
-cmt_add_compile_options(-Wall -Wextra -Werror)
-cmt_add_compile_options(-fno-strict-aliasing -pthread)
-cmt_add_compile_options(C -std=gnu11)
-cmt_add_compile_options(CXX -std=c++2a -ftemplate-backtrace-limit=0)
+
+
+# OpenSSL deprecated API
+cmt_add_compiler_options(
+    OPTIONS
+        -Wno-deprecated-declarations
+        -Wno-missing-field-initializers
+)
+
+cmt_add_compiler_options(OPTIONS -Wall -Wextra -Werror)
+cmt_add_compiler_options(OPTIONS -fno-strict-aliasing -pthread)
+cmt_add_compiler_options(LANG C OPTIONS -std=gnu11)
+cmt_add_compiler_options(LANG CXX OPTIONS -std=c++2a -ftemplate-backtrace-limit=0)
 
 # Debug 
-cmt_add_compile_options(-O0 -ggdb CONFIG Debug)
-cmt_add_compile_options(-fPIC CONFIG Debug)
+cmt_add_debug_compiler_options(OPTIONS -O0 -ggdb)
+cmt_add_debug_compiler_options(OPTIONS -fPIC)
 
 # Release
-cmt_add_compile_options(-O3 -ggdb CONFIG Release)
-cmt_add_compile_options(-march=native -funroll-loops -Ofast -ffast-math CONFIG Release)
-cmt_add_compile_options(-mpopcnt CONFIG Release)
+cmt_add_release_compiler_options(OPTIONS -O3 -ggdb)
+cmt_add_release_compiler_options(OPTIONS -march=native -funroll-loops -Ofast -ffast-math)
+cmt_add_release_compiler_options(OPTIONS -mpopcnt)
 
 cmt_print_flags()
 
