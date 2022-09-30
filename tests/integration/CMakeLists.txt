@@ -1,4 +1,15 @@
-add_executable(integration ${CMAKE_CURRENT_SOURCE_DIR}/clang_format_integration.cpp)
+cmt_add_target(
+    NAME integration
+    TYPE EXECUTABLE
+    HEADERS
+        ${CMAKE_CURRENT_SOURCE_DIR}/example.hpp
+    SOURCES 
+        ${CMAKE_CURRENT_SOURCE_DIR}/example.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+    UNITY
+)
+cmt_target_set_standard(TARGET integration CXX 20 REQUIRED EXTENSIONS)
+
 gtest_discover_tests(integration)
 add_test(NAME integration COMMAND integration)
 
@@ -45,7 +56,7 @@ cmt_target_generate_coverage(TARGET integration DEPENDENCIES integration)
 
 # Integration with sanitizers
 cmt_target_enable_sanitizer(TARGET integration SANITIZER TSAN)
-cmt_target_enable_sanitizers(TARGET integration SANITIZERS ASAN UBSAN)
+cmt_target_enable_sanitizers(TARGET integration SANITIZERS UBSAN)
 
 # Integration with cotire
 # cmt_target_enable_cotire(TARGET integration)

@@ -91,13 +91,7 @@ endfunction()
 
 function(cmt_fatal)
     if (NOT CMT_DISABLE_LOGGING)
-        _message(FATAL "[cmt] ${ARGN}")
-    endif()
-endfunction()
-
-function(cmt_note)
-    if (NOT CMT_DISABLE_LOGGING)
-        _message(NOTE "[cmt] ${ARGN}")
+        _message(FATAL_ERROR "[cmt] ${ARGN}")
     endif()
 endfunction()
 

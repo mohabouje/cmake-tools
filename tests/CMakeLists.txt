@@ -21,6 +21,8 @@ cmt_add_compiler_options(
         -Wno-macro-redefined
         -Wno-mismatched-tags
         -Wno-format-security
+        -Wno-c++98-compat-pedantic
+        -Wno-newline-eof
 )
 
 cmt_add_compiler_options(

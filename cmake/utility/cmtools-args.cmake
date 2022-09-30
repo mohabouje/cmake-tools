@@ -142,14 +142,18 @@ function(cmt_choice_arguments)
 
     set(CHOICE_FOUND OFF)
 
+    if (NOT DEFINED ${CHECK_PREFIX}_${CHECK_CHOICE})
+        cmt_fatal("${CHECK_PREFIX}_${CHECK_CHOICE} was not found.")
+    endif()
+
     foreach(arg ${CHECK_OPTIONS})
-        if(${${CHECK_PREFIX}_${CHECK_CHOICE}} STREQUAL ${arg})
+        if (${${CHECK_PREFIX}_${CHECK_CHOICE}} STREQUAL ${arg})
             set(CHOICE_FOUND ON)
         endif()
     endforeach()
 
     if(NOT CHOICE_FOUND)
-        cmt_fatal("${CHECK_FUNCTION}: '${${CHECK_CHOICE}}' is not a valid choice. Valid choices are: ${CHECK_OPTIONS}.")
+        cmt_fatal("${CHECK_FUNCTION}: '${${CHECK_PREFIX}_${CHECK_CHOICE}}' is not a valid choice. Valid choices are: ${CHECK_OPTIONS}.")
     endif()
 endfunction()
 

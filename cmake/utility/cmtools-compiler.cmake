@@ -574,7 +574,7 @@ function(cmt_print_compiler_options)
 		endif()
 
 		cmt_status("  > ${title}:")
-		foreach(element {${list}})
+		foreach(element ${${list}})
 			cmt_log("    - ${element}")
 		endforeach()
 	endmacro()

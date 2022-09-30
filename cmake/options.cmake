@@ -15,3 +15,4 @@ option(CMT_ENABLE_SANITIZERS            "Enable the integration of sanitizers in
 
 option(CMT_IGNORE_COMPILER_OPTION_CHECKS    "Disable the compiler option checks"   ON)
 option(CMT_IGNORE_LINKER_OPTION_CHECKS      "Disable the compiler warning checks"  ON)
+option(CMT_ENABLE_UNITY_BUILD      "Join all files together before building"  ON)
