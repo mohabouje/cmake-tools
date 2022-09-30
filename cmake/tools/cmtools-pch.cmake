@@ -38,19 +38,19 @@ cmt_enable_logger()
 # Adds precompiled headers to the target.
 #
 # cmt_target_add_precompiled_headers(
-#   FORCEINCLUDE
-#   <target>
+#   <FORCEINCLUDE>
+#   TARGET
 #   [HEADERS <header1> <header2> ...]
 # )
 #
-# \param:TARGET TARGET The target to configure
-# \groups:HEADERS HEADERS The list of headers to include
-# \param:FORCEINCLUDE FORCEINCLUDE Force the inclusion of the headers
+# \input TARGET The target to configure
+# \group HEADERS The list of headers to include
+# \option FORCEINCLUDE Force the inclusion of the headers
 #
 function(cmt_target_add_precompiled_headers TARGET)
     cmake_parse_arguments(ARGS "FORCEINCLUDE" "" "HEADERS" ${ARGN})
-    cmt_required_arguments(FUNCTION cmt_target_add_precompiled_headers PREFIX ARGS FIELDS HEADERS)
-    cmt_ensure_targets(FUNCTION cmt_target_add_precompiled_headers TARGETS ${TARGET}) 
+    cmt_required_arguments(ARGS "" "" "HEADERS")
+    cmt_ensure_targets(${TARGET}) 
 
     if (NOT CMT_ENABLE_PCH)
         return()

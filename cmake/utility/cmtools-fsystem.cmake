@@ -34,23 +34,20 @@ include(${CMAKE_CURRENT_LIST_DIR}/cmtools-lists.cmake)
 # - cmt_get_headers
 
 
-# ! cmt_directory_is_empty Check if a directory is empty.
+# ! cmt_directory_is_empty
+# Check if a directory is empty.
 #
 # cmt_directory_is_empty(
-#   [NAME <name>]
-#   [DIRECTORY <directory> ]
+#   DIRECTORY
+#   RESULT
 # )
 #
-# \param:NAME NAME Name of the variable containing the result.
-# \param:DIRECTORY DIRECTORY Directory to check.
+# \input DIRECTORY Directory to check
+# \output RESULT Variable containing the result
 #
-function(cmt_directory_is_empty)
-    cmake_parse_arguments(ARGS "" "NAME;DIRECTORY" "" ${ARGN})
-    cmt_required_arguments(FUNCTION cmt_directory_is_empty PREFIX ARGS FIELDS NAME DIRECTORY)
-
-
+function(cmt_directory_is_empty DIRECTORY RESULT)
 	set(TEMPORAL_OUTPUT false)
-	get_filename_component(DIRECTORY_PATH ${ARGS_DIRECTORY} REALPATH)
+	get_filename_component(DIRECTORY_PATH ${DIRECTORY} REALPATH)
 	if(EXISTS "${DIRECTORY_PATH}")
 		if(IS_DIRECTORY "${DIRECTORY_PATH}")
 			file(GLOB files "${DIRECTORY_PATH}/*")
@@ -64,34 +61,35 @@ function(cmt_directory_is_empty)
 	else()
 		set(TEMPORAL_OUTPUT true)
 	endif()
-	set(${ARGS_NAME} ${TEMPORAL_OUTPUT} CACHE STRING "Checking emptiness of ${ARGS_DIRECTORY}" FORCE PARENT_SCOP)
+	set(${RESULT} ${TEMPORAL_OUTPUT} PARENT_SCOP)
 endfunction()
 
-# ! cmt_get_files Get files with the specified extensions form in the directory
-#
+# ! cmt_get_files 
+# Get files with the specified extensions form in the directory
+# 
 # cmt_get_files(
-#	[RECURSIVE]
-#   [NAME <name>]
-#   [DIRECTORY <directory> ]
+#	<RECURSIVE>
+#   DIRECTORY
+#   RESULT
 #   [EXTENSIONS <extensions1> <extensions2> ...]
 # )
 #
-# \param:NAME NAME Name of the variable containing the result.
-# \param:DIRECTORY DIRECTORY Directory to check.
-# \param:RECURSIVE RECURSIVE If present, search is recursive
+# \input DIRECTORY Directory to check
+# \output RESULT Variable containing the result
+# \option RECURSIVE RECURSIVE If present, search is recursive
 # \param:EXTENSIONS EXTENSIONS Extensions of files to get
 #
-function(cmt_get_files)
-	cmake_parse_arguments(ARGS "RECURSIVE" "NAME;DIRECTORY" "EXTENSIONS" ${ARGN})
-    cmt_required_arguments(FUNCTION cmt_get_files PREFIX ARGS FIELDS NAME DIRECTORY EXTENSIONS)
-	if (ARGS_RECURSIVE)
+function(cmt_get_files DIRECTORY RESULT)
+	cmake_parse_arguments(ARGS "RECURSIVE" "" "EXTENSIONS" ${ARGN})
+    cmt_required_arguments(ARGS EXTENSIONS)
+	if (DEFINED ARGS_RECURSIVE)
 		set(GLOB_COMMAND GLOB_RECURSE)
 	else()
 		set(GLOB_COMMAND GLOB)
 	endif()
 
 	set(LIST_FILES)
-	if(IS_DIRECTORY ${ARGS_DIRECTORY})
+	if(IS_DIRECTORY ${DIRECTORY})
 		set(PATTERNS)
 		foreach(EXTENSION ${ARGS_EXTENSIONS})
 			list(APPEND PATTERNS "${ARGS_DIRECTORY}/*${EXTENSION}")
@@ -99,39 +97,40 @@ function(cmt_get_files)
 		file(${GLOB_COMMAND} TEMPORAL_FILES ${PATTERNS})
 		list(APPEND LIST_FILES ${TEMPORAL_FILES})
 	endif()
-	set(${ARGS_NAME} ${LIST_FILES} PARENT_SCOPE)
+	set(${RESULT} ${LIST_FILES} PARENT_SCOPE)
 endfunction()
 
-# ! cmt_get_sources Get (recursively or not) C and C++ sources files form input directories.
+# ! cmt_get_sources
+# Get (recursively or not) C and C++ sources files form input directories.
 #
 # cmt_get_sources(
-#	[RECURSIVE]
-#   [NAME <name>]
-#   [DIRECTORY <directory> ]
+#	<RECURSIVE>
+#   DIRECTORY
+#   RESULT
 # )
 #
-# \param:NAME NAME Name of the variable containing the result.
-# \param:DIRECTORY DIRECTORY Directory to check.
-# \param:RECURSIVE RECURSIVE If present, search is recursive
+# \input DIRECTORY Directory to check
+# \output RESULT Variable containing the result
+# \option RECURSIVE RECURSIVE If present, search is recursive
 #
-macro(cmt_get_sources)
-	cmt_get_files(${ARGN} EXTENSIONS .c .C .c++ .cc .cpp .cxx .h .hh .h++ .hpp .hxx .tpp .txx .tcc)
+macro(cmt_get_sources DIRECTORY RESULT)
+	cmt_get_files(DIRECTORY RESULT ${ARGN} EXTENSIONS .c .C .c++ .cc .cpp .cxx .h .hh .h++ .hpp .hxx .tpp .txx .tcc)
 endmacro()
 
 
-# ! cmt_get_headers Get (recursively or not) C and C++ headers files form input directories.
+# ! cmt_get_headers 
+# Get (recursively or not) C and C++ headers files form input directories.
 #
 # cmt_get_headers(
-#	[RECURSIVE]
-#   [NAME <name>]
-#   [DIRECTORY <directory> ]
+#	<RECURSIVE>
+#   DIRECTORY
+#   RESULT
 # )
 #
-# \param:NAME NAME Name of the variable containing the result.
-# \param:DIRECTORY DIRECTORY Directory to check.
-# \param:RECURSIVE RECURSIVE If present, search is recursive
-# \param:EXTENSIONS EXTENSIONS Extensions of files to get
+# \input DIRECTORY Directory to check
+# \output RESULT Variable containing the result
+# \option RECURSIVE RECURSIVE If present, search is recursive
 #
-macro(cmt_get_headers)
-	cmt_get_files(${ARGN} EXTENSIONS .h .hh .h++ .hpp .hxx .tpp .txx .tcc)
+macro(cmt_get_headers DIRECTORY RESULT)
+	cmt_get_files(DIRECTORY RESULT ${ARGN} EXTENSIONS .h .hh .h++ .hpp .hxx .tpp .txx .tcc)
 endmacro()

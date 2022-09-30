@@ -34,48 +34,46 @@ cmt_enable_logger()
 # Functions summary:
 # - cmt_target_generate_cppcheck
 
-# ! cmt_target_generate_cppcheck Generate a cppcheck target for the target.
+# ! cmt_target_generate_cppcheck
+# Generate a cppcheck target for the target.
 # The generated target lanch cppcheck on all the target sources in the specified working directory.
 #
 # cmt_target_generate_cppcheck(
-#   [TARGET <target>]
+#   TARGET
 # )
 #
-# \param:TARGET TARGET The target to configure
+# \input TARGET The target to generate the cppcheck target for.
 #
-function(cmt_target_generate_cppcheck)
-    cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
-    cmt_required_arguments(FUNCTION cmt_target_generate_cppcheck PREFIX ARGS FIELDS TARGET)
+function(cmt_target_generate_cppcheck TARGET)
+    cmt_ensure_target(${TARGET})
 
     if (NOT CMT_ENABLE_CPPCHECK)
         return()
     endif()
 
-    cmt_find_program(NAME CPPCHECK_PROGRAM PROGRAM cppcheck)
-    cppcheck(TARGET ${ARGS_TARGET})
-    cmt_log("Target ${ARGS_TARGET}: generate target to run cppcheck")
+    cmt_find_program(CPPCHECK_PROGRAM cppcheck)
+    cppcheck(TARGET ${TARGET})
+    cmt_log("Target ${TARGET}: generate target to run cppcheck")
 endfunction()
 
 
-# ! cmt_target_enable_cppcheck Enable include-what-you-use checks on the given target
+# ! cmt_target_enable_cppcheck
+# Enable include-what-you-use checks on the given target
 #
 # cmt_target_enable_cppcheck(
-#   [TARGET <target>]
+#   TARGET
 # )
 #
-# \param:TARGET TARGET The target to configure
+# \input TARGET The target to enable the cppcheck checks for.
 #
-function(cmt_target_enable_cppcheck)
-    cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
-    cmt_required_arguments(FUNCTION cmt_target_enable_cppcheck PREFIX ARGS FIELDS TARGET)
-    cmt_ensure_targets(FUNCTION cmt_target_enable_cppcheck TARGETS ${ARGS_TARGET}) 
-
+function(cmt_target_enable_cppcheck TARGET)
+    cmt_ensure_target(${TARGET})
     if (NOT CMT_ENABLE_CPPCHECK)
         return()
     endif()
 
-    cmt_find_program(NAME CPPCHECK_PROGRAM PROGRAM cppcheck)
-    set_property(TARGET ${ARGS_TARGET} PROPERTY CMAKE_CXX_CPPCHECK ${CPPCHECK_PROGRAM})
-    set_property(TARGET ${ARGS_TARGET} PROPERTY CMAKE_C_CPPCHECK ${CPPCHECK_PROGRAM})
-    cmt_log("Target ${ARGS_TARGET}: enabling extension cppcheck")
+    cmt_find_program(CPPCHECK_PROGRAM cppcheck)
+    set_property(TARGET ${TARGET} PROPERTY CMAKE_CXX_CPPCHECK ${CPPCHECK_PROGRAM})
+    set_property(TARGET ${TARGET} PROPERTY CMAKE_C_CPPCHECK ${CPPCHECK_PROGRAM})
+    cmt_log("Target ${TARGET}: enabling extension cppcheck")
 endfunction()

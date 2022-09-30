@@ -32,12 +32,13 @@ include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-fsystem.cmake)
 # - cmt_target_generate_clang_format(target [STYLE style] [WORKING_DIRECTORY work_dir])
 
 
-# ! cmt_target_generate_clang_format Generate a format target for the target (clang-format-${TARGET}).
+# ! cmt_target_generate_clang_format
+# Generate a format target for the target (clang-format-${TARGET}).
 # The generated target lanch clang-format on all the target sources with the specified style 
 # in the specified working directory (${CMAKE_CURRENT_SOURCE_DIR} by default}).
 #
 # cmt_target_generate_clang_format(
-#   [TARGET <target>]
+#   TARGET
 #   [STYLE <style>] ('file' style by default)
 #   [WORKING_DIRECTORY <work_dir>] (${CMAKE_CURRENT_SOURCE_DIR} by default}).
 # )
@@ -46,24 +47,23 @@ include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-fsystem.cmake)
 # \param:STYLE STYLE The clang-format style (file, LLVM, Google, Chromium, Mozilla, WebKit)
 # \param:WORKING_DIRECTORY WORKING_DIRECTORY The clang-format working directory
 #
-function(cmt_target_generate_clang_format)
-    cmake_parse_arguments(ARGS "" "TARGET" "STYLE;WORKING_DIRECTORY" ${ARGN})
-    cmt_required_arguments(FUNCTION cmt_target_generate_clang_format PREFIX ARGS FIELDS TARGET)
-    cmt_ensure_targets(FUNCTION cmt_target_generate_clang_format TARGETS ${ARGS_TARGET}) 
-    cmt_default_argument(FUNCTION cmt_target_generate_clang_format PREFIX ARGS FIELDS STYLE VALUE "file")
-    cmt_default_argument(FUNCTION cmt_target_generate_clang_format PREFIX ARGS FIELDS WORKING_DIRECTORY VALUE ${CMAKE_CURRENT_SOURCE_DIR})
+function(cmt_target_generate_clang_format TARGET)
+    cmake_parse_arguments(ARGS "" "" "STYLE;WORKING_DIRECTORY" ${ARGN})
+    cmt_default_argument(ARGS STYLE "file")
+    cmt_default_argument(ARGS WORKING_DIRECTORY VALUE ${CMAKE_CURRENT_SOURCE_DIR})
+    cmt_ensure_target(${TARGET}) 
 
 	if (NOT CMT_ENABLE_CLANG_FORMAT)
     	return()
 	endif()
 
-	set(FORMAT_TARGET "clang-format-${ARGS_TARGET}")
+	set(FORMAT_TARGET "clang-format-${TARGET}")
 	if (TARGET ${FORMAT_TARGET})
 		cmt_fatal("${FORMAT_TARGET} already exists")
 	endif()
 
-    cmt_find_program(NAME CLANG_FORMAT_PROGRAM PROGRAM clang-format)
-	get_property(FORMAT_TARGET_SOURCES TARGET ${ARGS_TARGET} PROPERTY SOURCES)
+    cmt_find_program(CLANG_FORMAT_PROGRAM clang-format)
+	get_property(FORMAT_TARGET_SOURCES TARGET ${TARGET} PROPERTY SOURCES)
 	add_custom_target(
 		${FORMAT_TARGET}
 		COMMAND "${CLANG_FORMAT_PROGRAM}" -style=${ARGS_STYLE} -i ${FORMAT_TARGET_SOURCES}
@@ -71,7 +71,6 @@ function(cmt_target_generate_clang_format)
 		VERBATIM
 	)
 
-    # TODO: verify if this is required
-    # cmt_target_set_ide_folder(${FORMAT_TARGET} "format")
-	cmt_log("Target ${ARGS_TARGET}: generate target to run clang-format")
+    cmt_target_set_ide_directory(${FORMAT_TARGET} "format")
+	cmt_log("Target ${TARGET}: generate target to run clang-format")
 endfunction()

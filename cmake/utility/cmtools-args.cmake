@@ -28,169 +28,270 @@ include(${CMAKE_CURRENT_LIST_DIR}/cmtools-logger.cmake)
 
 # Functions summary:
 # - cmt_required_arguments
-# - cmt_one_of_arguments
-# - cmt_choice_arguments
+# - cmt_ensure_on_of_argument
+# - cmt_ensure_argument_choice
 # - cmt_default_argument
 # - cmt_ensure_target
+# - cmt_append_each_to_options_with_prefix
+# - cmt_forward_options
+# - cmt_append_to_global_property
+# - cmt_append_to_global_property_unique
 
-# ! cmt_required_arguments : this function check if the parsed arguments contain the required arguments
+
+# cmt_required_arguments
 #
-# cmt_required_arguments(
-#   [FUNCTION <file>]
-#   [PREFIX <prefix>]
-#   [FIELDS <field1> <field2> ...]
-# )
+# This function check if the parsed arguments contain the required arguments
 #
-# \param:FUNCTION FUNCTION specify the name of the function that is being checked
-# \param:PREFIX PREFIX specifies the prefix used to parse the arguments
-# \group:FIELDS FIELDS contains the list of required arguments
-function(cmt_required_arguments)
-    cmake_parse_arguments(CHECK "" "FUNCTION;PREFIX" "FIELDS" ${ARGN})
+# \input PREFIX The prefix to give each item in ARGN.
+# \input OPTION_ARGS The list of options to forward.
+# \input SINGLEVAR_ARGS List of single variables to forward
+# \input MULTIVAR_ARGS List of multi variables to forward
+#
+function(cmt_required_arguments PREFIX OPTION_ARGS SINGLEVAR_ARGS MULTIVAR_ARGS)
+    foreach(arg ${OPTION_ARGS})
+        if(NOT DEFINED ${PREFIX}_{arg})
+            cmt_fatal("${PREFIX}_${arg} argument required.")
+        endif()
+    endforeach()
 
-    if(NOT DEFINED CHECK_FUNCTION)
-        cmt_fatal("cmt_required_arguments: 'FUNCTION' argument required.")
-    endif()
+    foreach(arg ${FIELDS})
+        if(NOT DEFINED ${PREFIX}_{arg})
+            cmt_fatal("${PREFIX}_${arg} argument required.")
+        endif()
+    endforeach()
 
-    if(NOT DEFINED CHECK_PREFIX)
-        cmt_fatal("cmt_required_arguments: 'PREFIX' argument required.")
-    endif()
-
-    if(NOT DEFINED CHECK_FIELDS)
-        cmt_fatal("cmt_required_arguments: 'FIELDS' argument required.")
-    endif()
-
-    foreach(arg ${CHECK_FIELDS})
-        if(NOT DEFINED ${CHECK_PREFIX}_${arg})
-            cmt_fatal("${CHECK_FUNCTION}: ${CHECK_PREFIX}_${arg} argument required.")
+    foreach(arg ${FIELDS})
+        if(NOT DEFINED ${PREFIX}_{arg})
+            cmt_fatal("${PREFIX}_${arg} argument required.")
         endif()
     endforeach()
 endfunction()
 
-# ! cmt_one_of_arguments : this function check if the parsed arguments contain at least one of the optional fields
+# cmt_forward_options
 #
-# cmt_one_of_arguments(
-#   [FUNCTION <file>]
-#   [PREFIX <prefix>]
-#   [FIELDS <field1> <field2> ...]
+# Creates a list to forward all arguments of the current function to another function.
+#
+# \arg   RETURN_LIST  The list to append to.
+# \param PREFIX The prefix to give each item in ARGN.
+# \group OPTION_ARGS The list of options to forward.
+# \group SINGLEVAR_ARGS List of single variables to forward
+# \group MULTIVAR_ARGS List of multi variables to forward
+#
+function (cmt_forward_options RETURN_LIST_NAME)
+    cmake_parse_arguments (FORWARD "" "PREFIX" "OPTION_ARGS;SINGLEVAR_ARGS;MULTIVAR_ARGS" ${ARGN})
+    cmt_required_arguments(FUNCTION cmt_forward_options PREFIX FORWARD FIELDS PREFIX)
+
+    # Temporary accumulation of variables to forward
+    set (RETURN_LIST)
+
+    # Option arguments - just forward the value of each set
+    # ${PREFIX_OPTION_ARG} as this will be set to the option or to ""
+    foreach (OPTION_ARG ${FORWARD_OPTION_ARGS})
+        set (PREFIXED_OPTION_ARG ${FORWARD_PREFIX}_${OPTION_ARG})
+        if (${PREFIXED_OPTION_ARG})
+            list (APPEND RETURN_LIST ${OPTION_ARG})
+        endif ()
+    endforeach ()
+
+    # Single-variable arguments - add the name of the argument and its value to
+    # the return list
+    foreach (SINGLEVAR_ARG ${FORWARD_SINGLEVAR_ARGS})
+        set (PREFIXED_SINGLEVAR_ARG ${FORWARD_PREFIX}_${SINGLEVAR_ARG})
+        if (${PREFIXED_SINGLEVAR_ARG})
+            list (APPEND RETURN_LIST ${SINGLEVAR_ARG})
+            list (APPEND RETURN_LIST ${${PREFIXED_SINGLEVAR_ARG}})
+        endif ()
+    endforeach ()
+
+    # Multi-variable arguments - add the name of the argument and all its values
+    # to the return-list
+    foreach (MULTIVAR_ARG ${FORWARD_MULTIVAR_ARGS})
+        set (PREFIXED_MULTIVAR_ARG ${FORWARD_PREFIX}_${MULTIVAR_ARG})
+        list (APPEND RETURN_LIST ${MULTIVAR_ARG})
+        foreach (VALUE ${${PREFIXED_MULTIVAR_ARG}})
+            list (APPEND RETURN_LIST ${VALUE})
+        endforeach ()
+    endforeach ()
+
+    set (${RETURN_LIST_NAME} ${RETURN_LIST} PARENT_SCOPE)
+endfunction ()
+
+# cmt_append_each_to_options_with_prefix
+#
+# Append items in ARGN to MAIN_LIST, giving each PREFIX.
+#
+# cmt_append_each_to_options_with_prefix(
+#   MAIN_LIST
+#   PREFIX
+#   <WRAP_IN_QUOTES>
 # )
 #
-# \param:FUNCTION FUNCTION specify the name of the function that is being checked
-# \param:PREFIX PREFIX specifies the prefix used to parse the arguments
-# \group:FIELDS FIELDS contains the list of optional arguments
-function(cmt_one_of_arguments)
-    cmake_parse_arguments(CHECK "" "FUNCTION;PREFIX" "FIELDS" ${ARGN})
+# \output   MAIN_LIST List to append to.
+# \input    PREFIX Prefix to append to each item.
+# \option   WRAP_IN_QUOTES If set, each item in ARGN will be wrapped in quotes.
+# \group    LIST List of items to append.
+#
+function (cmt_append_each_to_options_with_prefix MAIN_LIST PREFIX)
+    cmake_parse_arguments (APPEND "WRAP_IN_QUOTES" "" "LIST" ${ARGN})
+    foreach (ITEM ${APPEND_LIST})
+        if (APPEND_WRAP_IN_QUOTES)
+            list (APPEND ${MAIN_LIST} "\\\"${PREFIX}${ITEM}\\\"")
+        else ()
+            list (APPEND ${MAIN_LIST} ${PREFIX}${ITEM})
+        endif ()
+    endforeach ()
+    set (${MAIN_LIST} ${${MAIN_LIST}} PARENT_SCOPE)
+endfunction ()
 
-    if(NOT CHECK_FUNCTION)
-        cmt_fatal("cmt_required_arguments: 'FUNCTION' argument required.")
-    endif()
 
-    if(NOT CHECK_PREFIX)
-        cmt_fatal("cmt_required_arguments: 'PREFIX' argument required.")
-    endif()
-
-    if(NOT CHECK_FIELDS)
-        cmt_fatal("cmt_required_arguments: 'FIELDS' argument required.")
-    endif()
-
-    set(OPTIONAL_FIELD_FOUND OFF)
-
-    foreach(arg ${CHECK_FIELDS})
-        if(${CHECK_PREFIX}_${arg})
-            set(OPTIONAL_FIELD_FOUND ON)
+# ! cmt_ensure_on_of_argument
+# This function check if the parsed arguments contain at least one of the optional ones
+#
+# cmt_ensure_argument_choice(
+#   PREFIX
+#   argument1, argument2, ...
+# )
+#
+# \input PREFIX PREFIX specifies the prefix used to parse the arguments
+function(cmt_ensure_on_of_argument PREFIX)
+    cmake_parse_arguments (CHOICE "" "" "" ${ARGN})
+    foreach(arg ${CHOICE_UNPARSED_ARGUMENTS})
+        if(DEFINED ${PREFIX}_${arg})
+            return()
         endif()
     endforeach()
 
-    if(NOT OPTIONAL_FIELD_FOUND)
-        cmt_fatal("${CHECK_FUNCTION}: At least one of the following arguments is required: ${CHECK_FIELDS}.")
-    endif()
+    cmt_fatal("At least one of the following arguments is required: ${CHOICE_UNPARSED_ARGUMENTS}.")
 endfunction()
 
-# ! cmt_choice_arguments : this function check if the parsed argument contain one of the choices
+# ! cmt_ensure_choice
+# This function check if the variable contain one of the choices
 #
-# cmt_choice_arguments(
-#   [FUNCTION <file>]
-#   [PREFIX <prefix>]
-#   [CHOICE <prefix>]
-#   [OPTIONS  <option1> <option2> ...]
+# cmt_ensure_choice(
+#   VARIABLE
+#   [OPTIONS option, ...]
 # )
 #
-# \param:FUNCTION FUNCTION specify the name of the function that is being checked
-# \param:PREFIX PREFIX specifies the prefix used to parse the arguments
-# \param:CHOICE CHOICE specifies the choice to check
-# \group:OPTIONS OPTIONS contains the list of optional arguments
-function(cmt_choice_arguments)
-    cmake_parse_arguments(CHECK "" "FUNCTION;PREFIX;CHOICE" "OPTIONS" ${ARGN})
-
-    if(NOT CHECK_FUNCTION)
-        cmt_fatal("cmt_required_arguments: 'FUNCTION' argument required.")
-    endif()
-
-    if(NOT CHECK_PREFIX)
-        cmt_fatal("cmt_required_arguments: 'PREFIX' argument required.")
-    endif()
-
-    if(NOT CHECK_CHOICE)
-        cmt_fatal("cmt_required_arguments: 'CHOICE' argument required.")
-    endif()
-
-    if(NOT CHECK_OPTIONS)
-        cmt_fatal("cmt_required_arguments: 'OPTIONS' argument required.")
-    endif()
-
-    set(CHOICE_FOUND OFF)
-
-    if (NOT DEFINED ${CHECK_PREFIX}_${CHECK_CHOICE})
-        cmt_fatal("${CHECK_PREFIX}_${CHECK_CHOICE} was not found.")
-    endif()
-
-    foreach(arg ${CHECK_OPTIONS})
-        if (${${CHECK_PREFIX}_${CHECK_CHOICE}} STREQUAL ${arg})
-            set(CHOICE_FOUND ON)
+# \input VARIABLE The variable to check
+# \group OPTIONS List of choices
+#
+function(cmt_ensure_choice VARIABLE)
+    cmake_parse_arguments (ARGS "" "" "OPTIONS" ${ARGN})
+    cmt_required_arguments(ARGS "" "" "OPTIONS")
+    foreach(arg ${ARGS_OPTIONS})
+        if (${VARIABLE} STREQUAL ${arg})
+            return()
         endif()
     endforeach()
-
-    if(NOT CHOICE_FOUND)
-        cmt_fatal("${CHECK_FUNCTION}: '${${CHECK_PREFIX}_${CHECK_CHOICE}}' is not a valid choice. Valid choices are: ${CHECK_OPTIONS}.")
-    endif()
+    cmt_fatal("Argument ${ARGUMENT} is not one of the following choices: ${CHOICES}")
 endfunction()
 
-# ! cmake_default_argument : This functions checks if an argument was set, if not, it sets it to the default value
+
+# ! cmt_ensure_argument_choice
+# This function check if the parsed argument contain one of the choices
+#
+# cmt_ensure_argument_choice(
+#   PREFIX
+#   ARGUMENT
+#   [OPTIONS option, ...]
+# )
+#
+# \input PREFIX specifies the prefix used to parse the arguments
+# \input ARGUMENT The argument to check
+# \group OPTIONS List of choices
+#
+function(cmt_ensure_argument_choice PREFIX ARGUMENT)
+    cmake_parse_arguments (ARGS "" "" "OPTIONS" ${ARGN})
+    cmt_required_arguments(ARGS "" "" "OPTIONS")
+    foreach(arg ${ARGS_OPTIONS})
+        if (${PREFIX}_${ARGUMENT} STREQUAL ${arg})
+            return()
+        endif()
+    endforeach()
+    cmt_fatal("Argument ${ARGUMENT} is not one of the following choices: ${CHOICES}")
+endfunction()
+
+# ! cmake_default_argument
+# This functions checks if an argument was set, if not, it sets it to the default value
 #
 # cmake_default_argument(
-#   [PREFIX <prefix>]
-#   [FIELD <field>]
+#   PREFIX
+#   ARGUMENT
 #   [DEFAULT <default>]
 # )
 #
-# \param:PREFIX PREFIX specifies the prefix used to parse the arguments
-# \param:FIELD FIELD Contain the name of the field to check
-# \param:DEFAULT DEFAULT Contain the default value to set
-function(cmt_default_argument)
-    cmake_parse_arguments(ARG_CHECK "" "PREFIX;FIELD;DEFAULT" "" ${ARGN})
-    # cmt_required_arguments(FUNCTION cmake_default_argument PREFIX ARG_CHECK FIELDS PREFIX FIELD DEFAULT)
-
-    if(NOT ${ARG_CHECK_PREFIX}_${ARG_CHECK_FIELD})
-        set(${ARG_CHECK_PREFIX}_${ARG_CHECK_FIELD} ${ARG_CHECK_DEFAULT} PARENT_SCOPE)
+# \input PREFIX specifies the prefix used to parse the arguments
+# \input ARGUMENT Contain the argument to check
+# \input DEFAULT Contain the default value to set if the argument is not set
+function(cmt_default_argument PREFIX ARGUMENT DEFAULT)
+    if(NOT DEFINED ${PREFIX}_${ARGUMENT})
+        set(${PREFIX}_${ARGUMENT} ${DEFAULT} PARENT_SCOPE)
     endif()
 endfunction()
 
 
 # ! cmt_ensure_target : Checks if the list of targets exist and are valid
 #
-# cmt_ensure_targets(
-#   [FUNCTION <file>]
-#   [TARGETS <target1> <target2> ...]
+# cmt_ensure_target(
+#   TARGET
 # )
 #
-# \param:FUNCTION FUNCTION specify the name of the function that is being checked
-# \group:TARGETS TARGETS contains the list of optional arguments
-function(cmt_ensure_targets)
-    cmake_parse_arguments(CHECK "" "FUNCTION" "TARGETS" ${ARGN})
-    cmt_required_arguments(FUNCTION cmt_ensure_targets PREFIX CHECK FIELDS TARGETS)
+# \input TARGET Target to check
+#
+function(cmt_ensure_target TARGET)
+    if(NOT TARGET ${TARGET})
+        cmt_fatal("${TARGET} is not a valid target.")
+    endif()
+endfunction()
 
-    foreach(arg ${CHECK_TARGETS})
-        if(NOT TARGET ${arg})
-            cmt_fatal("${CHECK_FUNCTION}: ${arg} is not a valid target.")
-        endif()
+# ! cmt_ensure_target : Checks if the list of targets exist and are valid
+#
+# cmt_ensure_targets(
+#   <target1> <target2> ...
+# )
+#
+# \input List of targets to be checked
+function(cmt_ensure_targets)
+    cmake_parse_arguments(ENSURE_TARGET "" "" "" ${ARGN})
+    foreach(arg ${ENSURE_TARGET_UNPARSED_ARGUMENTS})
+        cmt_ensure_target(${arg})
     endforeach()
 endfunction()
+
+# ! cmt_append_to_global_property_unique
+#
+# Append ITEM to the global property PROPERTY, only if it is not
+# already part of the list.
+#
+# \input    PROPERTY Global property to append to.
+# \input    ITEM Item to append, only if not present.
+function (cmt_append_to_global_property_unique PROPERTY ITEM)
+    get_property (GLOBAL_PROPERTY GLOBAL PROPERTY ${PROPERTY})
+    set (LIST_CONTAINS_ITEM FALSE)
+
+    foreach (LIST_ITEM ${GLOBAL_PROPERTY})
+        if (LIST_ITEM STREQUAL ${ITEM})
+            set(LIST_CONTAINS_ITEM TRUE)
+            break()
+        endif ()
+    endforeach ()
+
+    if(NOT LIST_CONTAINS_ITEM)
+        set_property (GLOBAL APPEND PROPERTY ${PROPERTY}  ${ITEM})
+    endif()
+endfunction ()
+
+
+# ! cmt_append_to_global_property
+#
+# Append ITEM to the global property PROPERTY.
+#
+# \input    PROPERTY Global property to append to.
+# \input    ITEM Item to append, only if not present.
+# \group    LIST List of items to append.
+function (cmt_append_to_global_property PROPERTY)
+    cmake_parse_arguments (APPEND "" "" "LIST" ${ARGN})
+    foreach (ITEM ${APPEND_LIST})
+        set_property (GLOBAL APPEND PROPERTY ${PROPERTY} ${ITEM})
+    endforeach ()
+endfunction ()

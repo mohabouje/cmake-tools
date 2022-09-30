@@ -34,24 +34,24 @@ cmt_enable_logger()
 # Functions summary:
 # - cmt_target_generate_codechecker
 
-# ! cmt_target_generate_codechecker Generate a codechecker target for the target.
+# ! cmt_target_generate_codechecker
+# Generate a codechecker target for the target.
 # The generated target lanch codechecker on all the target sources in the specified working directory.
 #
 # cmt_target_generate_codechecker(
-#   [TARGET <target>]
+#   TARGET
 # )
 #
-# \param:TARGET TARGET The target to configure
+# \input TARGET The target to generate the codechecker target for.
 #
-function(cmt_target_generate_codechecker)
-    cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
-    cmt_required_arguments(FUNCTION cmt_target_generate_codechecker PREFIX ARGS FIELDS TARGET)
-
+function(cmt_target_generate_codechecker TARGET)
+    cmt_ensure_target(${TARGET})
+ 
     if (NOT CMT_ENABLE_CODECHECKER)
         return()
     endif()
 
-    cmt_find_program(NAME CODECHECKER_PROGRAM PROGRAM codechecker)
-    codechecker(TARGET ${ARGS_TARGET})
-    cmt_log("Target ${ARGS_TARGET}: generate target to run codechecker")
+    cmt_find_program(CODECHECKER_PROGRAM codechecker)
+    codechecker(TARGET ${TARGET})
+    cmt_log("Target ${TARGET}: generate target to run codechecker")
 endfunction()

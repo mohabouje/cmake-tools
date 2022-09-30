@@ -34,20 +34,21 @@ cmt_enable_logger()
 # Functions summary:
 # - cmt_project_dependency_graph
 
-# ! cmt_project_dependency_graph Builds a dependency graph of the active code targets using the `dot` application
+# ! cmt_project_dependency_graph
+# Builds a dependency graph of the active code targets using the `dot` application
 #
 # cmt_project_dependency_graph(
 #   [OUTPUT_DIR <output>] # Default: ${CMAKE_CURRENT_BINARY_DIR} 
 # )
 #
-# \param:OUTPUT_DIR OUTPUT_DIR The output directory where the generated files will be stored.
+# \param OUTPUT_DIR The output directory where the generated files will be stored.
 #
-macro(cmt_project_dependency_graph)
+macro(cmt_project_dependency_graph OUTPUT_DIR)
     cmake_parse_arguments(_PDG_ARGS "" "OUTPUT_DIR" "" ${ARGN})
-    cmt_default_argument(FUNCTION cmt_generate_project_dependency_graph PREFIX _PDG_ARGS FIELDS OUTPUT VALUE ${CMAKE_CURRENT_BINARY_DIR})
+    cmt_default_argument(_PDG_ARGS OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR})
     if (CMT_ENABLE_DEPENDENCY_GRAPH)
         set(BUILD_DEP_GRAPH ON)
-        cmt_find_program(NAME DOT_PROGRAM PROGRAM dot)
+        cmt_find_program(DOT_PROGRAM dot)
         gen_dep_graph("png" TARGET_NAME dependency-graph-${PROJECT_NAME}  OUTPUT_DIR ${_PDG_ARGS_OUTPUT_DIR} ADD_TO_DEP_GRAPH)
         cmt_log("Generating a dependency graph for the project ${PROJECT_NAME}")
     endif()

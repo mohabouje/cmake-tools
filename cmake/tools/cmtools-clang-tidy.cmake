@@ -35,48 +35,48 @@ cmt_enable_logger()
 # - cmt_target_generate_clang_tidy
 # - cmt_target_enable_clang_tidy
 
-# ! cmt_target_generate_clang_tidy Generate a clang-tidy target for the target.
+# ! cmt_target_generate_clang_tidy
+# Generate a clang-tidy target for the target.
 # The generated target lanch clang-tidy on all the target sources in the specified working directory.
 #
 # cmt_target_generate_clang_tidy(
-#   [TARGET <target>]
+#   TARGET
 # )
 #
-# \param:TARGET TARGET The target to configure
+# \input TARGET The target to generate the clang-tidy target for.
 #
-function(cmt_target_generate_clang_tidy)
-    cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
-    cmt_required_arguments(FUNCTION cmt_target_generate_clang_tidy PREFIX ARGS FIELDS TARGET)
-
+function(cmt_target_generate_clang_tidy TARGET)
+    cmt_ensure_target(${TARGET})    
+    
     if (NOT CMT_ENABLE_CLANG_TIDY)
         return()
     endif()
 
-    cmt_find_program(NAME CLANG_TIDY_PROGRAM PROGRAM clang-tidy)
-    clang_tidy(TARGET ${ARGS_TARGET})
-    cmt_log("Target ${ARGS_TARGET}: generate target to run clang-tidy")
+    
+    cmt_find_program(CLANG_TIDY_PROGRAM clang-tidy)
+    clang_tidy(TARGET ${TARGET})
+    cmt_log("Target ${TARGET}: generate target to run clang-tidy")
 endfunction()
 
 
-# ! cmt_target_enable_clang_tidy Enable clang-tidy checks on the given target
+# ! cmt_target_enable_clang_tidy
+# Enable clang-tidy checks on the given target
 #
 # cmt_target_use_clang_tidy(
-#   [TARGET <target>]
+#   TARGET
 # )
 #
-# \param:TARGET TARGET The target to configure
+# \input TARGET The target to enable clang-tidy checks for.
 #
-function(cmt_target_enable_clang_tidy)
-    cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
-    cmt_required_arguments(FUNCTION cmt_target_use_clang_tidy PREFIX ARGS FIELDS TARGET)
-    cmt_ensure_targets(FUNCTION cmt_target_use_clang_tidy TARGETS ${ARGS_TARGET}) 
+function(cmt_target_enable_clang_tidy TARGET)
+    cmt_ensure_target(${TARGET})
 
     if (NOT CMT_ENABLE_CLANG_TIDY)
         return()
     endif()
 
-    cmt_find_program(NAME CLANG_TIDY_PROGRAM PROGRAM clang-tidy)
-    set_property(TARGET ${ARGS_TARGET} PROPERTY CMAKE_CXX_INCLUDE_CLANG_TIDY ${CLANG_TIDY_PROGRAM})
-    set_property(TARGET ${ARGS_TARGET} PROPERTY CMAKE_C_INCLUDE_CLANG_TIDY ${CLANG_TIDY_PROGRAM})
-    cmt_log("Target ${ARGS_TARGET}: enabling extension clang-tidy")
+    cmt_find_program(CLANG_TIDY_PROGRAM clang-tidy)
+    set_property(TARGET ${TARGET} PROPERTY CMAKE_CXX_INCLUDE_CLANG_TIDY ${CLANG_TIDY_PROGRAM})
+    set_property(TARGET ${TARGET} PROPERTY CMAKE_C_INCLUDE_CLANG_TIDY ${CLANG_TIDY_PROGRAM})
+    cmt_log("Target ${TARGET}: enabling extension clang-tidy")
 endfunction()

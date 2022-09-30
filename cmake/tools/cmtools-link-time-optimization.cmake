@@ -35,28 +35,29 @@ cmt_enable_logger()
 # - cmt_target_enable_lto
 # - cmt_project_lto
 
-# ! cmt_target_enable_lto Enables link-time-optimization for the target.
+# ! cmt_target_enable_lto
+# Enables link-time-optimization for the target.
 #
 # cmt_target_enable_lto(
-#   [TARGET <target>]
+#   TARGET
 # )
 #
-# \param:TARGET TARGET The target to configure
+# \input TARGET The target to enable link-time-optimization.
 #
-function(cmt_target_enable_lto)
-    cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
-    cmt_required_arguments(FUNCTION cmt_target_enable_lto PREFIX ARGS FIELDS TARGET)
+function(cmt_target_enable_lto TARGET)
+    cmt_ensure_target(${TARGET})
 
     if (NOT CMT_ENABLE_LTO)
         return()
     endif()
 
-    target_link_time_optimization(${ARGS_TARGET})
-    cmt_log("Target ${ARGS_TARGET}: enabling link-time-optimization")
+    target_link_time_optimization(${TARGET})
+    cmt_log("Target ${TARGET}: enabling link-time-optimization")
 endfunction()
 
 
-# ! cmt_project_lto Generate code lto for all the targets.
+# ! cmt_project_lto
+# Generate code lto for all the targets.
 #
 macro(cmt_project_lto)
     if (NOT CMT_ENABLE_LTO)

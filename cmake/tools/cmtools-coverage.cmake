@@ -35,30 +35,33 @@ cmt_enable_logger()
 # - cmt_target_generate_coverage
 # - cmt_project_coverage
 
-# ! cmt_target_generate_coverage Generate a code coverage report for the target.
+# ! cmt_target_generate_coverage
+# Generate a code coverage report for the target.
 # The generated target lanch lcov on all the target sources in the specified working directory.
 #
 # cmt_target_generate_coverage(
-#   [TARGET <target>]
+#   TARGET
+#   [DEPENDENCIES dependencies...]
 # )
 #
-# \param:TARGET TARGET The target to configure
+# \input TARGET The target to generate the coverage report for.
+# \group DEPENDENCIES The dependencies of the target.
 #
-function(cmt_target_generate_coverage)
-    cmake_parse_arguments(ARGS "" "TARGET" "DEPENDENCIES" ${ARGN})
-    cmt_required_arguments(FUNCTION cmt_target_generate_coverage PREFIX ARGS FIELDS TARGET DEPENDENCIES)
+function(cmt_target_generate_coverage TARGET)
+    cmake_parse_arguments(ARGS "" "" "DEPENDENCIES" ${ARGN})
 
     if (NOT CMT_ENABLE_COVERAGE)
         return()
     endif()
 
     set(CODE_COVERAGE ON)
-    target_code_coverage(${ARGS_TARGET} OBJECTS ${ARGS_DEPENDENCIES} AUTO ALL)
-    cmt_log("Target ${ARGS_TARGET}: generating coverage for dependencies: ${ARGS_DEPENDENCIES}")
+    target_code_coverage(${TARGET} OBJECTS ${ARGS_DEPENDENCIES} AUTO ALL)
+    cmt_log("Target ${TARGET}: generating coverage for dependencies: ${ARGS_DEPENDENCIES}")
 endfunction()
 
 
-# ! cmt_project_coverage Generate code coverage for all the targets.
+# ! cmt_project_coverage
+# Generate code coverage for all the targets.
 #
 macro(cmt_project_coverage)
     if (CMT_ENABLE_COVERAGE)

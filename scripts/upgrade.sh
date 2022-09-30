@@ -125,4 +125,3 @@ upgrade_github_master JoakimSoderberg coveralls-cmake cmake/CoverallsGenerateGco
 # Precompiled header setup for CMake. 
 upgrade_github_master larsch cmake-precompiled-header PrecompiledHeader.cmake "${CURRENT_DIRECTORY}/cmake/third_party/cmake-precompiled-header/PrecompiledHeader.cmake"
 
-https://github.com/larsch/cmake-precompiled-header/blob/master/PrecompiledHeader.cmake

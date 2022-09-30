@@ -34,7 +34,8 @@ include(${CMAKE_CURRENT_LIST_DIR}/cmtools-args.cmake)
 # - cmt_define_os
 # - cmt_define_compiler
 
-# ! cmt_set_default_build_type Sets the default build type for the current project
+# ! cmt_set_default_build_type
+# Sets the default build type for the current project
 # It makes sure that the build type is set to one of the following values:
 # - Debug
 # - Release
@@ -43,19 +44,18 @@ include(${CMAKE_CURRENT_LIST_DIR}/cmtools-args.cmake)
 # - Coverage
 #
 # cmt_set_default_build_type(
-#   [CONFIG <config>]
+#   BUILD_TYPE
 # )
 #
-# \param:CONFIG CONFIG The configuration to be used.
+# \input BUILD_TYPE The default build type
 #
-function(cmt_set_default_build_type)
-    cmake_parse_arguments(CHECK "" "CONFIG" "" ${ARGN})
-	cmt_required_arguments(FUNCTION cmt_set_build_type PREFIX ARGS FIELDS CONFIG)
-    cmt_choice_arguments(FUNCTION cmt_set_build_type PREFIX ARGS CHOICE CONFIG OPTIONS Debug Release RelWithDebInfo MinSizeRel Coverage)
-	set(CMT_DEFAULT_BUILD_TYPE ${ARGS_CONFIG} CACHE STRING "Set the default build type." FORCE PARENT_SCOPE)
+function(cmt_set_default_build_type BUILD_TYPE)
+    cmt_ensure_choice(BUILD_TYPE OPTIONS Debug Release RelWithDebInfo MinSizeRel Coverage)
+	set(CMT_DEFAULT_BUILD_TYPE ${BUILD_TYPE} CACHE STRING "Set the default build type." FORCE PARENT_SCOPE)
 endfunction()
 
-# ! cmt_set_build_type Sets the build type for the current project
+# ! cmt_set_build_type
+# Sets the build type for the current project
 # It makes sure that the build type is set to one of the following values:
 # - Debug
 # - Release
@@ -64,20 +64,32 @@ endfunction()
 # - Coverage
 #
 # cmt_set_build_type(
-#   [CONFIG <config>]
+#   BUILD_TYPE
 # )
 #
-# \param:CONFIG CONFIG The configuration to be used.
+# \input BUILD_TYPE The default build type
 #
-function(cmt_set_build_type)
-	cmt_define_build_type(${ARGN})
-	if(NOT CMAKE_BUILD_TYPE)
-		set(CMAKE_BUILD_TYPE ${CMT_DEFAULT_BUILD_TYPE} CACHE STRING "Choose the type of build." FORCE PARENT_SCOPE)
+function(cmt_set_build_type BUILD_TYPE)
+    cmt_ensure_choice(BUILD_TYPE OPTIONS Debug Release RelWithDebInfo MinSizeRel Coverage)
+	set(CMAKE_BUILD_TYPE ${BUILD_TYPE} CACHE STRING "Choose the type of build." FORCE PARENT_SCOPE)
+endfunction()
+
+
+# ! cmt_ensure_build_type_is_set
+# Sets the build type for the current project to the default one
+#
+# cmt_ensure_build_type_is_set()
+#
+function(cmt_ensure_build_type_is_set)
+	if (NOT CMAKE_BUILD_TYPE)
+		message(STATUS "Setting build type to '${CMT_DEFAULT_BUILD_TYPE}' as none was specified.")
+		set(CMAKE_BUILD_TYPE ${CMT_DEFAULT_BUILD_TYPE} CACHE STRING "Choose the type of build." FORCE)
 	endif()
 endfunction()
 
 
-#! cmt_define_archichecture Defines the architecture variables
+#! cmt_define_archichecture
+# Defines the architecture variables
 # It defines the variable CMT_ARCHITECTURE to one of the following values:
 # - 32BIT
 # - 64BIT
@@ -95,7 +107,8 @@ macro(cmt_define_archichecture)
 	endif()
 endmacro()
 
-#! cmt_define_compiler Defines the compiler variables
+#! cmt_define_compiler
+# Defines the compiler variables
 # It defines the variable CMT_COMPILER to one of the following values:
 # - CLANG
 # - GCC
@@ -116,7 +129,8 @@ macro(cmt_define_compiler)
 	endif()
 endmacro()
 
-#! cmt_define_compiler Defines the OS variables
+#! cmt_define_compiler
+# Defines the OS variables
 # It defines the variable CMT_OS to one of the following values:
 # - UNIX
 # - WINDOWS
@@ -153,32 +167,16 @@ macro(cmt_define_os)
 	endif()
 endmacro()
 
-#! cmt_find_program Check if a program exists and set the variable to the path
-#
-# cmt_find_program(
-#   [NAME <name>]
-#   [PROGRAM <program>]
-#   [ALIAS <alias1> <alias2> ...]
-#   [COMPONENTS <component1> <component2> ...]
-# )
+#! cmt_find_program
+# Simple wrapper around find_program to make it easier to use. 
+# It fails if the program is not found.
 #
 macro(cmt_find_program)
-
-    cmake_parse_arguments(_FP_CHECK "" "NAME;PROGRAM" "ALIAS;COMPONENTS" ${ARGN})
-	cmt_required_arguments(FUNCTION cmt_find_program PREFIX _FP_CHECK FIELDS NAME PROGRAM)
-
-	if (${_FP_CHECK_NAME})
-		return()
-	endif()
-
-	find_program(${_FP_CHECK_NAME} ${_FP_CHECK_PROGRAM} NAMES ${_FP_CHECK_ALIAS} COMPONENTS ${_FP_CHECK_COMPONENTS})
-    if(NOT ${_FP_CHECK_NAME})
-        cmt_fatal("Could not find the program ${_FP_CHECK_PROGRAM}")
-    endif()
-
+	find_program(${ARGN} REQUIRED)
 endmacro()
 
-#! cmt_set_cpp_standard Sets the C++ standard for the current project
+#! cmt_set_cpp_standard
+# Sets the C++ standard for the current project
 # The C++ standard is set to the value of the variable CMT_CPP_STANDARD.
 #
 # The value of the standard is set to one of the following values:
@@ -190,19 +188,22 @@ endmacro()
 # - 23
 #
 # cmt_set_cpp_standard(
-#   [STANDARD <standard>]
+#   STANDARD
 #   [REQUIRED <required>] (Default: ON)
 #   [EXTENSIONS <extensions>] (Default: OFF)
 # )
-macro(cmt_set_cpp_standard)
-    cmake_parse_arguments(_CPP_FP_CHECK "" "STANDARD;REQUIRED;EXTENSIONS" "" ${ARGN})
-	cmt_required_arguments(FUNCTION cmt_set_cpp_standard PREFIX _CPP_FP_CHECK FIELDS NAME STANDARD)
-    cmt_choice_arguments(FUNCTION cmt_set_cpp_standard PREFIX _CPP_FP_CHECK CHOICE STANDARD OPTIONS 98 11 14 17 20 23)
-	cmt_default_argument(FUNCTION cmt_set_cpp_standard PREFIX _CPP_FP_CHECK FIELD EXTENSION VALUE OFF)
-	cmt_default_argument(FUNCTION cmt_set_cpp_standard PREFIX _CPP_FP_CHECK FIELD REQUIRED VALUE ON)
+#
+# \input STANDARD The C++ standard
+# \param REQUIRED If the standard is required
+# \param EXTENSIONS If the compiler extensions are allowed
+#
+macro(cmt_set_cpp_standard STANDARD)
+    cmake_parse_arguments(_CPP_FP_CHECK "" "REQUIRED;EXTENSIONS" "" ${ARGN})
+    cmt_ensure_choice(STANDARD OPTIONS 98 11 14 17 20 23)
+	cmt_default_argument(_CPP_FP_CHECK EXTENSION OFF)
+	cmt_default_argument(_CPP_FP_CHECK REQUIRED ON)
 
-	set(CMT_CPP_STANDARD ${_CPP_FP_CHECK_STANDARD} CACHE STRING "The C++ standard to use" FORCE)
-	set(CMAKE_CXX_STANDARD ${_CPP_FP_CHECK_STANDARD} CACHE STRING "Set the C++ standard to use." FORCE)
+	set(CMAKE_CXX_STANDARD ${STANDARD} CACHE STRING "Set the C++ standard to use." FORCE)
 	set(CMAKE_CXX_STANDARD_REQUIRED ${_CPP_FP_CHECK_REQUIRED} CACHE BOOL "Set the C++ standard to required." FORCE)
 	set(CMAKE_CXX_EXTENSIONS ${_CPP_FP_CHECK_EXTENSIONS} CACHE BOOL "Set the C++ standard to use extensions." FORCE)
 endmacro()
@@ -217,24 +218,28 @@ endmacro()
 # - 23
 #
 # cmt_set_c_standard(
-#   [STANDARD <standard>]
+#   STANDARD
 #   [REQUIRED <required>] (Default: ON)
 #   [EXTENSIONS <extensions>] (Default: OFF)
 # )
-macro(cmt_set_c_standard)
-    cmake_parse_arguments(_C_FP_CHECK "" "STANDARD;REQUIRED;EXTENSIONS" "" ${ARGN})
-	cmt_required_arguments(FUNCTION cmt_set_cpp_standard PREFIX _C_FP_CHECK FIELDS NAME STANDARD)
-    cmt_choice_arguments(FUNCTION cmt_set_cpp_standard PREFIX _C_FP_CHECK CHOICE STANDARD OPTIONS 98 11 17 23)
-	cmt_default_argument(FUNCTION cmt_set_cpp_standard PREFIX _C_FP_CHECK FIELD EXTENSION VALUE OFF)
-	cmt_default_argument(FUNCTION cmt_set_cpp_standard PREFIX _C_FP_CHECK FIELD REQUIRED VALUE ON)
+#
+# \input STANDARD The C standard
+# \param REQUIRED If the standard is required
+# \param EXTENSIONS If the compiler extensions are allowed
+#
+macro(cmt_set_c_standard STANDARD)
+    cmake_parse_arguments(_C_FP_CHECK "" "REQUIRED;EXTENSIONS" "" ${ARGN})
+    cmt_ensure_choice(STANDARD OPTIONS 98 11 17 23)
+	cmt_default_argument(_C_FP_CHECK FIELD EXTENSION OFF)
+	cmt_default_argument(_C_FP_CHECK FIELD REQUIRED ON)
 
-	set(CMT_CPP_STANDARD ${_C_FP_CHECK_STANDARD} CACHE STRING "The C++ standard to use" FORCE)
-	set(CMAKE_CXX_STANDARD ${_C_FP_CHECK_STANDARD} CACHE STRING "Set the C++ standard to use." FORCE)
-	set(CMAKE_CXX_STANDARD_REQUIRED ${_C_FP_CHECK_REQUIRED} CACHE BOOL "Set the C++ standard to required." FORCE)
-	set(CMAKE_CXX_EXTENSIONS ${_C_FP_CHECK_EXTENSIONS} CACHE BOOL "Set the C++ standard to use extensions." FORCE)
+	set(CMAKE_C_STANDARD ${STANDARD} CACHE STRING "Set the C standard to use." FORCE)
+	set(CMAKE_C_STANDARD_REQUIRED ${_C_FP_CHECK_REQUIRED} CACHE BOOL "Set the C standard to required." FORCE)
+	set(CMAKE_C_EXTENSIONS ${_C_FP_CHECK_EXTENSIONS} CACHE BOOL "Set the C standard to use extensions." FORCE)
 endmacro()
 
-#! cmt_ensure_config Checks if the configuration is valid
+#! cmt_ensure_config
+# Checks if the configuration is valid
 #
 # The following variables are checked:
 # - Debug
@@ -242,13 +247,12 @@ endmacro()
 # - RelWithDebInfo
 # - MinSizeRel
 #
-# cmt_ensure_config(config)
+# cmt_ensure_config(BUILD_TYPE)
 #
-function(cmt_ensure_config config)
-	cmt_debug("Checking configuration ${config}")
-	if (NOT "${config}" MATCHES "^(Debug|Release|RelWithDebInfo|MinSizeRel)$")
-		cmt_fatal("The configuration ${config} is not valid")
-	endif()
+# \input BUILD_TYPE The build type to check
+#
+function(cmt_ensure_config BUILD_TYPE)
+	cmt_ensure_choice(BUILD_TYPE OPTIONS Debug Release RelWithDebInfo MinSizeRel)
 endfunction()
 
 #! cmt_ensure_lang Checks if the language is valid
@@ -257,11 +261,9 @@ endfunction()
 # - C
 # - CXX
 #
-# cmt_ensure_lang(lang)
+# cmt_ensure_lang(LANGUAGE)
 #
-function(cmt_ensure_lang lang)
-	cmt_debug("Checking language ${lang}")
-	if (NOT "${lang}" MATCHES "^(C|CXX)$")
-		cmt_fatal("The language ${lang} is not valid")
-	endif()
+# \input LANGUAGE The language to check
+function(cmt_ensure_lang LANGUAGE)
+	cmt_ensure_choice(LANGUAGE OPTIONS C CXX)
 endfunction()

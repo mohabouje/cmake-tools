@@ -34,24 +34,24 @@ cmt_enable_logger()
 # Functions summary:
 # - cmt_target_enable_clang_build_analyzer
 #
-# ! cmt_target_enable_clang_build_analyzer Enable clang-build-analyzer checks on the given target
+
+# ! cmt_target_enable_clang_build_analyzer
+# Enable clang-build-analyzer checks on the given target
 #
 # cmt_target_enable_clang_build_analyzer(
-#   [TARGET <target>]
+#   TARGET
 # )
 #
-# \param:TARGET TARGET The target to configure
+# \input TARGET The target to configure
 #
-function(cmt_target_enable_clang_build_analyzer)
-    cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
-    cmt_required_arguments(FUNCTION cmt_target_use_CLANG_BUILD_ANALYZER PREFIX ARGS FIELDS TARGET)
-    cmt_ensure_targets(FUNCTION cmt_target_use_CLANG_BUILD_ANALYZER TARGETS ${ARGS_TARGET}) 
+function(cmt_target_enable_clang_build_analyzer TARGET)
+    cmt_ensure_target(${TARGET}) 
 
     if (NOT CMT_ENABLE_CLANG_BUILD_ANALYZER)
         return()
     endif()
 
 
-    enable_clang_build_analyzer(TARGET ${ARGS_TARGET})
-    cmt_log("Target ${ARGS_TARGET}: enabling extension clang-build-analyzer")
+    enable_clang_build_analyzer(TARGET ${TARGET})
+    cmt_log("Target ${TARGET}: enabling extension clang-build-analyzer")
 endfunction()

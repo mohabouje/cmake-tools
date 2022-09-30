@@ -34,24 +34,23 @@ cmt_enable_logger()
 # Functions summary:
 # - cmt_target_enable_cotire
 
-# ! cmt_target_enable_cotire Enable cotire compilation boost on the given target
+# ! cmt_target_enable_cotire
+# Enable cotire compilation boost on the given target
 #
 # cmt_target_enable_cotire(
-#   [TARGET <target>]
+#   TARGET
 # )
 #
-# \param:TARGET TARGET The target to configure
+# \input TARGET Target to enable cotire compilation boost
 #
-function(cmt_target_enable_cotire)
-    cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
-    cmt_required_arguments(FUNCTION cmt_target_generate_cotire PREFIX ARGS FIELDS TARGET)
-    cmt_ensure_targets(FUNCTION cmt_target_generate_cotire TARGETS ${ARGS_TARGET})
+function(cmt_target_enable_cotire TARGET)
+    cmt_ensure_target(${TARGET})
 
     if (NOT CMT_ENABLE_COTIRE)
         return()
     endif()
 
-    cotire(${ARGS_TARGET})
-    cmt_log("Target ${ARGS_TARGET}: enabling extension cotire")
+    cotire(${TARGET})
+    cmt_log("Target ${TARGET}: enabling extension cotire")
 endfunction()
 

@@ -34,29 +34,30 @@ include(${CMAKE_CURRENT_LIST_DIR}/cmtools-args.cmake)
 # - cmt_join_list
 
 
-# ! cmt_filter_list Filters a list based on a regex pattern.
+# ! cmt_filter_list 
+# Filters a list based on a regex pattern.
 # It will include or exclude the elements that match the pattern.
 #
 # cmt_filter_list(
-#   [INCLUDE OR EXCLUDE]
-#   [REFEX <regex>]
-#   [LIST <list> ]
+#   <INCLUDE>
+#   <EXCLUDE>
+#   REGEX
+#   LIST
 # )
 #
-# \param:INCLUDE/EXCLUDE INCLUDE/EXCLUDE Include or exclude the list
-# \param:REFEX REGEX Regular expression to filter the list
-# \param:LIST LIST List to filter
+# \input  REGEX Regular expression to filter the list
+# \output LIST List to filter
+# \option INCLUDE If set, the elements that match the regex will be included in the list
+# \option EXCLUDE If set, the elements that match the regex will be excluded from the list
 #
-function(cmt_filter_list)
-    cmake_parse_arguments(ARGS "INCLUDE;EXCLUDE" "REGEX;LIST" "" ${ARGN})
-    cmt_required_arguments(FUNCTION cmt_filter_list PREFIX ARGS FIELDS REGEX LIST)
-    cmt_one_of_arguments(FUNCTION cmt_filter_list PREFIX ARGS FIELDS INCLUDE EXCLUDE)
-
+function(cmt_filter_list REGEX LIST)
+    cmake_parse_arguments(ARGS "INCLUDE;EXCLUDE" "" "" ${ARGN})
+    cmt_ensure_on_of_argument(ARGS INCLUDE EXCLUDE)
 
 	set(TEMPORAL_LIST)
-	foreach(ITERATOR ${${ARGS_LIST}})
+	foreach(ITERATOR ${LIST})
 		set(TOUCH)
-        if(${ITERATOR} MATCHES ${ARGS_REGEX})
+        if(${ITERATOR} MATCHES ${REGEX})
             set(TOUCH true)
             break()
         endif()
@@ -64,62 +65,62 @@ function(cmt_filter_list)
 			list(APPEND TEMPORAL_LIST ${ITERATOR})
 		endif()
 	endforeach()
-	set(${ARGS_LIST} ${TEMPORAL_LIST} PARENT_SCOPE)
+	set(${LIST} ${TEMPORAL_LIST} PARENT_SCOPE)
 endfunction()
 
-# ! cmt_filter_out Filters out a list based on a regex pattern.
+# ! cmt_filter_out
+# Filters out a list based on a regex pattern.
 #
 # cmt_filter_out(
-#   [REFEX <regex>]
-#   [LIST <list> ]
+#   REGEX
+#   LIST
 # )
 #
-# \param:REFEX REGEX Regular expression to filter the list
-# \param:LIST LIST List to filter
+# \input  REGEX Regular expression to filter the list
+# \output LIST List to filter
 #
-macro(cmt_filter_out)
-	cmt_filter_list(EXCLUDE ${ARGN})
+macro(cmt_filter_out REGEX LIST)
+	cmt_filter_list(REGEX LIST EXCLUDE ${ARGN})
 endmacro()
 
-# ! cmt_filter_in Filters in a list based on a regex pattern.
+# ! cmt_filter_in
+# Filters in a list based on a regex pattern.
 #
 # cmt_filter_in(
-#   [REFEX <regex>]
-#   [LIST <list> ]
+#   REGEX
+#   LIST
 # )
 #
-# \param:REFEX REGEX Regular expression to filter the list
-# \param:LIST LIST List to filter
+# \input  REGEX Regular expression to filter the list
+# \output LIST List to filter
 #
-macro(cmt_filter_in)
-	cmt_filter_list(INCLUDE ${ARGN})
+macro(cmt_filter_in REGEX LIST)
+	cmt_filter_list(REGEX LIST INCLUDE ${ARGN})
 endmacro()
 
-# ! cmt_join_list Join items with a separator into a variable.
+# ! cmt_join_list
+# Join items with a separator into a variable.
 #
 # cmt_join_list(
-#   [NAME <name>]
-#   [SEPARATOR <separator>]
-#   [LIST <list> ]
+#   LIST
+#   SEPARATOR
+#   OUTPUT
 # )
 #
-# \param:REFEX REGEX Regular expression to filter the list
-# \param:LIST LIST List to filter
+# \input  LIST List to join
+# \input  SEPARATOR Separator to use
+# \output OUTPUT Resulting string
 #
-function(cmt_join_list)
-    cmake_parse_arguments(ARGS "" "NAME;SEPARATOR" "LIST" ${ARGN})
-    cmt_required_arguments(FUNCTION cmt_join_list PREFIX ARGS FIELDS NAME SEPARATOR LIST)
-
-
+function(cmt_join_list LIST SEPARATOR OUTPUT)
 	set(TEMPORAL_OUTPUT)
 	set(FIRST)
-	foreach(ITERATOR ${ARGS_LIST})
+	foreach(ITERATOR ${LIST})
 		if(NOT DEFINED FIRST)
 			set(TEMPORAL_OUTPUT ${ITERATOR})
 			set(FIRST true)
 		else()
-			set(TEMPORAL_OUTPUT "${TEMPORAL_OUTPUT}${ARGS_SEPARATOR}${ITERATOR}")
+			set(TEMPORAL_OUTPUT "${TEMPORAL_OUTPUT}${SEPARATOR}${ITERATOR}")
 		endif()
 	endforeach()
-	set(${ARGS_NAME} ${TEMPORAL_OUTPUT} PARENT_SCOPE)
+	set(${OUTPUT} ${TEMPORAL_OUTPUT} PARENT_SCOPE)
 endfunction()

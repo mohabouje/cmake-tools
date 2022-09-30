@@ -27,25 +27,24 @@ include_guard(GLOBAL)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-args.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
 
-# ! cmt_target_enable_cpplint Enable include-what-you-use checks on the given target
+# ! cmt_target_enable_cpplint
+# Enable include-what-you-use checks on the given target
 #
 # cmt_target_enable_cpplint(
-#   [TARGET <target>]
+#   TARGET
 # )
 #
-# \param:TARGET TARGET The target to configure
+# \input TARGET The target to enable the cpplint checks
 #
-function(cmt_target_enable_cpplint)
-    cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
-    cmt_required_arguments(FUNCTION cmt_target_enable_cpplint PREFIX ARGS FIELDS TARGET)
-    cmt_ensure_targets(FUNCTION cmt_target_enable_cpplint TARGETS ${ARGS_TARGET}) 
+function(cmt_target_enable_cpplint TARGET)
+    cmt_ensure_target(${ARGS_TARGET})
 
     if (NOT CMT_ENABLE_CPPLINT)
         return()
     endif()
 
-    cmt_find_program(NAME CPPLINT_PROGRAM PROGRAM cpplint)
-    set_property(TARGET ${ARGS_TARGET} PROPERTY CMAKE_CXX_CPPLINT ${CPPLINT_PROGRAM})
-    set_property(TARGET ${ARGS_TARGET} PROPERTY CMAKE_C_CPPLINT ${CPPLINT_PROGRAM})
-    cmt_log("Target ${ARGS_TARGET}: enabling extension cpplint")
+    cmt_find_program(CPPLINT_PROGRAM cpplint)
+    set_property(TARGET ${TARGET} PROPERTY CMAKE_CXX_CPPLINT ${CPPLINT_PROGRAM})
+    set_property(TARGET ${TARGET} PROPERTY CMAKE_C_CPPLINT ${CPPLINT_PROGRAM})
+    cmt_log("Target ${TARGET}: enabling extension cpplint")
 endfunction()

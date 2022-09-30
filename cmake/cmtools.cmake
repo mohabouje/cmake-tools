@@ -27,6 +27,7 @@ if(CMT_SETUP_INCLUDED)
 endif()
 set(CMT_SETUP_INCLUDED ON)
 
+set(CMT_DEFAULT_BUILD_TYPE "Debug" CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel.")
 
 
 include(${CMAKE_CURRENT_LIST_DIR}/options.cmake)

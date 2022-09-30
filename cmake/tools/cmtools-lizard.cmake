@@ -34,24 +34,23 @@ cmt_enable_logger()
 # Functions summary:
 # - cmt_target_generate_lizard
 
-# ! cmt_target_generate_lizard Generate a lizard target for the target.
+# ! cmt_target_generate_lizard
+# Generate a lizard target for the target.
 # The generated target lanch lizard on all the target sources in the specified working directory.
 #
 # cmt_target_generate_lizard(
-#   [TARGET <target>]
+#   TARGET
 # )
 #
-# \param:TARGET TARGET The target to configure
+# \input TARGET The target to generate the lizard target for.
 #
-function(cmt_target_generate_lizard)
-    cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
-    cmt_required_arguments(FUNCTION cmt_target_generate_lizard PREFIX ARGS FIELDS TARGET)
-
+function(cmt_target_generate_lizard TARGET)
+    ensure_target(${TARGET})
     if (NOT CMT_ENABLE_LIZARD)
         return()
     endif()
 
-    cmt_find_program(NAME LIZARD`_PROGRAM PROGRAM include-what-you-use ALIAS iwyu)
-    lizard(TARGET ${ARGS_TARGET})
-    cmt_log("Target ${ARGS_TARGET}: generate target to run lizard")
+    cmt_find_program(LIZARD`_PROGRAM include-what-you-use ALIAS iwyu)
+    lizard(TARGET ${TARGET})
+    cmt_log("Target ${TARGET}: generate target to run lizard")
 endfunction()

@@ -41,7 +41,8 @@ cmt_enable_logger()
 # - cmt_target_enable_cti_sanitizer
 # - cmt_target_enable_mto_sanitizer
 
-# ! cmt_target_enable_sanitizers Enable sanitiziers checks on the given target
+# ! cmt_target_enable_sanitizers
+# Enable sanitiziers checks on the given target
 # The supported sanitizers are:
 # - ASAN
 # - AUBSAN
@@ -53,121 +54,109 @@ cmt_enable_logger()
 # - UBSAN
 #
 # cmt_target_use_sanitizers(
-#   [TARGET <target>]
+#   TARGET
 #   [SANITIZER <sanitizer>]
 # )
 #
-# \param:TARGET TARGET The target to configure
+# \input TARGET The target to enable the sanitizers
+# \param SANITIZER The sanitizer to enable.
 #
-function(cmt_target_enable_sanitizer)
-    cmake_parse_arguments(ARGS "" "TARGET;SANITIZER" "" ${ARGN})
-    cmt_required_arguments(FUNCTION cmt_target_use_sanitizers PREFIX ARGS FIELDS TARGET SANITIZER)
-    cmt_choice_arguments(FUNCTION cmt_target_use_sanitizers PREFIX ARGS CHOICE SANITIZER OPTIONS "ASAN" "AUBSAN" "CFISAN" "LSAN" "MSAN" "MWOSAN" "TSAN" "UBSAN")
-    cmt_ensure_targets(FUNCTION cmt_target_use_sanitizers TARGETS ${ARGS_TARGET})
+function(cmt_target_enable_sanitizer TARGET)
+    cmake_parse_arguments(ARGS "" "SANITIZER" "" ${ARGN})
+    cmt_required_arguments(ARGS "" "SANITIZER" "")
+    cmt_ensure_argument_choice(ARGS SANITIZER OPTIONS "ASAN" "AUBSAN" "CFISAN" "LSAN" "MSAN" "MWOSAN" "TSAN" "UBSAN")
+    cmt_ensure_target(${TARGET})
 
     if (NOT CMT_ENABLE_SANITIZERS)
         return()
     endif()
 
     set(SANITIZER ${ARGS_SANITIZER})
-    enable_sanitizers(TARGET ${ARGS_TARGET})
-    cmt_log("Target ${ARGS_TARGET}: enabling extension ${SANITIZER} sanitizer")
+    enable_sanitizers(TARGET ${TARGET})
+    cmt_log("Target ${TARGET}: enabling extension ${SANITIZER} sanitizer")
 endfunction()
 
-# ! cmt_target_enable_address_sanitizer Enable memory-sanitizier checks on the given target
+# ! cmt_target_enable_address_sanitizer
+# Enable memory-sanitizier checks on the given target
 #
 # cmt_target_enable_address_sanitizer(
-#   [TARGET <target>]
+#   TARGET
 # )
 #
-# \param:TARGET TARGET The target to configure
+# \input TARGET The target to enable the sanitizers
 #
-function(cmt_target_enable_address_sanitizer)
-    cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
-    cmt_required_arguments(FUNCTION cmt_target_use_sanitizers PREFIX ARGS FIELDS TARGET)
-    cmt_target_enable_sanitizer(TARGET ${ARGS_TARGET} SANITIZER "ASAN")
+function(cmt_target_enable_address_sanitizer TARGET)
+    cmt_target_enable_sanitizer(${TARGET} SANITIZER "ASAN")
 endfunction()
 
 # ! cmt_target_enable_memory_sanitizer Enable address-sanitizier checks on the given target
 #
 # cmt_target_enable_memory_sanitizer(
-#   [TARGET <target>]
+#   TARGET
 # )
 #
-# \param:TARGET TARGET The target to configure
+# \input TARGET The target to enable the sanitizers
 #
-function(cmt_target_enable_memory_sanitizer)
-    cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
-    cmt_required_arguments(FUNCTION cmt_target_use_sanitizers PREFIX ARGS FIELDS TARGET)
-    cmt_target_enable_sanitizer(TARGET ${ARGS_TARGET} SANITIZER "MSAN")
+function(cmt_target_enable_memory_sanitizer TARGET)
+    cmt_target_enable_sanitizer(${TARGET} SANITIZER "MSAN")
 endfunction()
 
 # ! cmt_target_enable_thread_sanitizer Enable thread-sanitizier checks on the given target
 #
 # cmt_target_enable_thread_sanitizer(
-#   [TARGET <target>]
+#   TARGET
 # )
 #
-# \param:TARGET TARGET The target to configure
+# \input TARGET The target to enable the sanitizers
 #
-function(cmt_target_enable_thread_sanitizer)
-    cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
-    cmt_required_arguments(FUNCTION cmt_target_use_sanitizers PREFIX ARGS FIELDS TARGET)
-    cmt_target_enable_sanitizer(TARGET ${ARGS_TARGET} SANITIZER "TSAN")
+function(cmt_target_enable_thread_sanitizer TARGET)
+    cmt_target_enable_sanitizer(${TARGET} SANITIZER "TSAN")
 endfunction()
 
 # ! cmt_target_enable_thread_sanitizer Enable undefined-behavior sanitizer checks on the given target
 #
 # cmt_target_enable_ub_sanitizer(
-#   [TARGET <target>]
+#   TARGET
 # )
 #
-# \param:TARGET TARGET The target to configure
+# \input TARGET The target to enable the sanitizers
 #
-function(cmt_target_enable_ub_sanitizer)
-    cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
-    cmt_required_arguments(FUNCTION cmt_target_use_sanitizers PREFIX ARGS FIELDS TARGET)
-    cmt_target_enable_sanitizer(TARGET ${ARGS_TARGET} SANITIZER "UBSAN")
+function(cmt_target_enable_ub_sanitizer TARGET)
+    cmt_target_enable_sanitizer(${TARGET} SANITIZER "UBSAN")
 endfunction()
 
 # ! cmt_target_enable_cfi_sanitizer Enable control-flow-integrity sanitizer checks on the given target
 #
 # cmt_target_enable_cfi_sanitizer(
-#   [TARGET <target>]
+#   TARGET
 # )
 #
-# \param:TARGET TARGET The target to configure
+# \input TARGET The target to enable the sanitizers
 #
 function(cmt_target_enable_cfi_sanitizer)
-    cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
-    cmt_required_arguments(FUNCTION cmt_target_use_sanitizers PREFIX ARGS FIELDS TARGET)
-    cmt_target_enable_sanitizer(TARGET ${ARGS_TARGET} SANITIZER "CFISAN")
+    cmt_target_enable_sanitizer(${TARGET} SANITIZER "CFISAN")
 endfunction()
 
 # ! cmt_target_enable_leak_sanitizer Enable leak sanitizer checks on the given target
 #
 # cmt_target_enable_leak_sanitizer(
-#   [TARGET <target>]
+#   TARGET
 # )
 #
-# \param:TARGET TARGET The target to configure
+# \input TARGET The target to enable the sanitizers
 #
-function(cmt_target_enable_leak_sanitizer)
-    cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
-    cmt_required_arguments(FUNCTION cmt_target_use_sanitizers PREFIX ARGS FIELDS TARGET)
-    cmt_target_enable_sanitizer(TARGET ${ARGS_TARGET} SANITIZER "LISAN")
+function(cmt_target_enable_leak_sanitizer TARGET)
+    cmt_target_enable_sanitizer(${TARGET} SANITIZER "LISAN")
 endfunction()
 
 # ! cmt_target_enable_mto_sanitizer Enable memory-track-origin sanitizer checks on the given target
 #
 # cmt_target_enable_mto_sanitizer(
-#   [TARGET <target>]
+#   TARGET
 # )
 #
-# \param:TARGET TARGET The target to configure
+# \input TARGET The target to enable the sanitizers
 #
-function(cmt_target_enable_mto_sanitizer)
-    cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
-    cmt_required_arguments(FUNCTION cmt_target_use_sanitizers PREFIX ARGS FIELDS TARGET)
-    cmt_target_enable_sanitizer(TARGET ${ARGS_TARGET} SANITIZER "MWOSAN")
+function(cmt_target_enable_mto_sanitizer TARGET)
+    cmt_target_enable_sanitizer(${TARGET} SANITIZER "MWOSAN")
 endfunction()
