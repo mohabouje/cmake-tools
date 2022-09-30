@@ -116,3 +116,8 @@ upgrade_github_main conformism cmake-utils  Modules/Sanitizers.cmake "${CURRENT_
 upgrade_github_main StableCoder cmake-scripts code-coverage.cmake "${CURRENT_DIRECTORY}/cmake/third_party/coverage.cmake"
 upgrade_github_main StableCoder cmake-scripts dependency-graph.cmake "${CURRENT_DIRECTORY}/cmake/third_party/dependency-graph.cmake"
 upgrade_github_main StableCoder cmake-scripts link-time-optimization.cmake "${CURRENT_DIRECTORY}/cmake/third_party/link-time-optimization.cmake"
+
+# This is a set of CMake scripts that are meant to be used to generate and upload coverage data to http://coveralls.io/.
+upgrade_github_master JoakimSoderberg coveralls-cmake cmake/Coveralls.cmake "${CURRENT_DIRECTORY}/cmake/third_party/coveralls/Coveralls.cmake"
+upgrade_github_master JoakimSoderberg coveralls-cmake cmake/CoverallsClear.cmake "${CURRENT_DIRECTORY}/cmake/third_party/coveralls/CoverallsClear.cmake"
+upgrade_github_master JoakimSoderberg coveralls-cmake cmake/CoverallsGenerateGcov.cmake "${CURRENT_DIRECTORY}/cmake/third_party/coveralls/CoverallsGenerateGcov.cmake"
