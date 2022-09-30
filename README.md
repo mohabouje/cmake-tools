@@ -27,3 +27,11 @@ It also offers a set of functionalities to create and configure targets (librari
 
 - `cmtools-compiler`: set of functionalities to control the compilation flags of selected targets
 - `cmtools-*`: miscellaneous functionalities used all over the place
+
+## External Dependencies
+
+|                                 **Tool**                                  |    **Author**    |                                   **License**                                    |
+| :-----------------------------------------------------------------------: | :--------------: | :------------------------------------------------------------------------------: |
+| **[coveralls-cmake](https://github.com/JoakimSoderberg/coveralls-cmake)** | Joakim Söderberg | [MIT](https://github.com/JoakimSoderberg/coveralls-cmake/blob/master/LICENSE.md) |
+|                 **[ucm](https://github.com/onqtam/ucm)**                  |  Viktor Kirilov  |           [MIT](https://github.com/onqtam/ucm/blob/master/LICENSE.txt)           |
+|               **[cotire](https://github.com/sakra/cotire)**               |  Sascha Kratky   |                      [MIT](https://github.com/sakra/cotire)                      |
