@@ -58,4 +58,4 @@ cmt_add_release_compiler_option(-mpopcnt)
 cmt_print_compiler_options(LANG CXX CONFIG Debug Release)
 cmt_print_linker_options(CONFIG Debug Release)
 
-# add_subdirectory(integration)
+add_subdirectory(integration)

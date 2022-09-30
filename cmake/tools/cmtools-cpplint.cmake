@@ -37,7 +37,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
 # \input TARGET The target to enable the cpplint checks
 #
 function(cmt_target_enable_cpplint TARGET)
-    cmt_ensure_target(${ARGS_TARGET})
+    cmt_ensure_target(${TARGET})
 
     if (NOT CMT_ENABLE_CPPLINT)
         return()

@@ -64,7 +64,7 @@ cmt_enable_logger()
 function(cmt_target_enable_sanitizer TARGET)
     cmake_parse_arguments(ARGS "" "SANITIZER" "" ${ARGN})
     cmt_required_arguments(ARGS "" "SANITIZER" "")
-    cmt_ensure_argument_choice(ARGS SANITIZER OPTIONS "ASAN" "AUBSAN" "CFISAN" "LSAN" "MSAN" "MWOSAN" "TSAN" "UBSAN")
+    cmt_ensure_argument_choice(ARGS SANITIZER ASAN AUBSAN CFISAN LSAN MSAN MWOSAN TSAN UBSAN)
     cmt_ensure_target(${TARGET})
 
     if (NOT CMT_ENABLE_SANITIZERS)

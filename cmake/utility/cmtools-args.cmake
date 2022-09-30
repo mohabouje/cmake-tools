@@ -176,9 +176,8 @@ endfunction()
 # \group OPTIONS List of choices
 #
 function(cmt_ensure_choice VARIABLE)
-    cmake_parse_arguments (ARGS "" "" "OPTIONS" ${ARGN})
-    cmt_required_arguments(ARGS "" "" "OPTIONS")
-    foreach(arg ${ARGS_OPTIONS})
+    cmake_parse_arguments (ARGS "" "" "" ${ARGN})
+    foreach(arg ${ARGS_UNPARSED_ARGUMENTS})
         if (${VARIABLE} STREQUAL ${arg})
             return()
         endif()
@@ -201,14 +200,13 @@ endfunction()
 # \group OPTIONS List of choices
 #
 function(cmt_ensure_argument_choice PREFIX ARGUMENT)
-    cmake_parse_arguments (ARGS "" "" "OPTIONS" ${ARGN})
-    cmt_required_arguments(ARGS "" "" "OPTIONS")
-    foreach(arg ${ARGS_OPTIONS})
+    cmake_parse_arguments (ARGS "" "" "" ${ARGN})
+    foreach(arg ${ARGS_UNPARSED_ARGUMENTS})
         if (${PREFIX}_${ARGUMENT} STREQUAL ${arg})
             return()
         endif()
     endforeach()
-    cmt_fatal("Argument ${ARGUMENT} is not one of the following choices: ${CHOICES}")
+    cmt_fatal("Argument ${ARGUMENT} is not one of the following choices: ${ARGS_UNPARSED_ARGUMENTS}")
 endfunction()
 
 # ! cmake_default_argument

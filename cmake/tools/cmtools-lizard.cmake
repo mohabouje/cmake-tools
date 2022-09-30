@@ -45,7 +45,7 @@ cmt_enable_logger()
 # \input TARGET The target to generate the lizard target for.
 #
 function(cmt_target_generate_lizard TARGET)
-    ensure_target(${TARGET})
+    cmt_ensure_target(${TARGET})
     if (NOT CMT_ENABLE_LIZARD)
         return()
     endif()

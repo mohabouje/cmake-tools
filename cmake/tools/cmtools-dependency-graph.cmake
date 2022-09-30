@@ -43,7 +43,7 @@ cmt_enable_logger()
 #
 # \param OUTPUT_DIR The output directory where the generated files will be stored.
 #
-macro(cmt_project_dependency_graph OUTPUT_DIR)
+macro(cmt_project_dependency_graph)
     cmake_parse_arguments(_PDG_ARGS "" "OUTPUT_DIR" "" ${ARGN})
     cmt_default_argument(_PDG_ARGS OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR})
     if (CMT_ENABLE_DEPENDENCY_GRAPH)

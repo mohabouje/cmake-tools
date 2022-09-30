@@ -43,16 +43,14 @@ include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
 # \input TARGET The target to configure
 #
 function(cmt_target_enable_ccache TARGET)
-    cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
-    cmt_required_arguments(ARGS TARGET)
-    cmt_ensure_target(${ARGS_TARGET}) 
+    cmt_ensure_target(${TARGET}) 
     
     if (NOT CMT_ENABLE_CCACHE)
         return()
     endif()
     
     cmt_find_program(CCACHE_PROGRAM ccache)
-    set_target_properties(${ARGS_TARGET} PROPERTIES C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
-    set_target_properties(${ARGS_TARGET} PROPERTIES CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
-    cmt_log("Target ${ARGS_TARGET}: enabling extension ccache")
+    set_target_properties(${TARGET} PROPERTIES C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+    set_target_properties(${TARGET} PROPERTIES CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+    cmt_log("Target ${TARGET}: enabling extension ccache")
 endfunction()

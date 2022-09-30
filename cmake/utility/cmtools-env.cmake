@@ -50,7 +50,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/cmtools-args.cmake)
 # \input BUILD_TYPE The default build type
 #
 function(cmt_set_default_build_type BUILD_TYPE)
-    cmt_ensure_choice(BUILD_TYPE OPTIONS Debug Release RelWithDebInfo MinSizeRel Coverage)
+    cmt_ensure_choice(BUILD_TYPE Debug Release RelWithDebInfo MinSizeRel Coverage)
 	set(CMT_DEFAULT_BUILD_TYPE ${BUILD_TYPE} CACHE STRING "Set the default build type." FORCE PARENT_SCOPE)
 endfunction()
 
@@ -70,7 +70,7 @@ endfunction()
 # \input BUILD_TYPE The default build type
 #
 function(cmt_set_build_type BUILD_TYPE)
-    cmt_ensure_choice(BUILD_TYPE OPTIONS Debug Release RelWithDebInfo MinSizeRel Coverage)
+    cmt_ensure_choice(BUILD_TYPE Debug Release RelWithDebInfo MinSizeRel Coverage)
 	set(CMAKE_BUILD_TYPE ${BUILD_TYPE} CACHE STRING "Choose the type of build." FORCE PARENT_SCOPE)
 endfunction()
 
@@ -199,7 +199,7 @@ endmacro()
 #
 macro(cmt_set_cpp_standard STANDARD)
     cmake_parse_arguments(_CPP_FP_CHECK "" "REQUIRED;EXTENSIONS" "" ${ARGN})
-    cmt_ensure_choice(STANDARD OPTIONS 98 11 14 17 20 23)
+    cmt_ensure_choice(STANDARD 98 11 14 17 20 23)
 	cmt_default_argument(_CPP_FP_CHECK EXTENSION OFF)
 	cmt_default_argument(_CPP_FP_CHECK REQUIRED ON)
 
@@ -229,7 +229,7 @@ endmacro()
 #
 macro(cmt_set_c_standard STANDARD)
     cmake_parse_arguments(_C_FP_CHECK "" "REQUIRED;EXTENSIONS" "" ${ARGN})
-    cmt_ensure_choice(STANDARD OPTIONS 98 11 17 23)
+    cmt_ensure_choice(STANDARD 98 11 17 23)
 	cmt_default_argument(_C_FP_CHECK FIELD EXTENSION OFF)
 	cmt_default_argument(_C_FP_CHECK FIELD REQUIRED ON)
 
@@ -252,7 +252,7 @@ endmacro()
 # \input BUILD_TYPE The build type to check
 #
 function(cmt_ensure_config BUILD_TYPE)
-	cmt_ensure_choice(BUILD_TYPE OPTIONS Debug Release RelWithDebInfo MinSizeRel)
+	cmt_ensure_choice(BUILD_TYPE Debug Release RelWithDebInfo MinSizeRel)
 endfunction()
 
 #! cmt_ensure_lang Checks if the language is valid
@@ -265,5 +265,5 @@ endfunction()
 #
 # \input LANGUAGE The language to check
 function(cmt_ensure_lang LANGUAGE)
-	cmt_ensure_choice(LANGUAGE OPTIONS C CXX)
+	cmt_ensure_choice(LANGUAGE C CXX)
 endfunction()

@@ -1,5 +1,6 @@
+set(TEST_TARGET cmtools-test)
 cmt_add_target(
-    NAME integration
+    NAME ${TEST_TARGET}
     TYPE EXECUTABLE
     HEADERS
         ${CMAKE_CURRENT_SOURCE_DIR}/example.hpp
@@ -8,65 +9,63 @@ cmt_add_target(
         ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
     UNITY
 )
-cmt_target_set_standard(TARGET integration CXX 20 REQUIRED EXTENSIONS)
+gtest_discover_tests(${TEST_TARGET})
+add_test(NAME ${TEST_TARGET} COMMAND ${TEST_TARGET})
 
-gtest_discover_tests(integration)
-add_test(NAME integration COMMAND integration)
-
-# Compiler flags 
-cmt_target_enable_all_warnings(TARGET integration)
-cmt_target_enable_effective_cxx_warnings(TARGET integration)
-cmt_target_enable_generation_header_dependencies(TARGET integration)
-cmt_target_enable_warnings_as_errors(TARGET integration)
-cmt_target_configure_compiler_options(TARGET integration)
+# # Compiler flags 
+cmt_target_enable_all_warnings(${TEST_TARGET})
+cmt_target_enable_effective_cxx_warnings(${TEST_TARGET})
+cmt_target_enable_generation_header_dependencies(${TEST_TARGET})
+cmt_target_enable_warnings_as_errors(${TEST_TARGET})
+cmt_target_configure_compiler_options(${TEST_TARGET})
 
 # Integration test for ccache
-cmt_target_enable_ccache(TARGET integration)
+cmt_target_enable_ccache(${TEST_TARGET})
 
 # Integration test for clang-format
-cmt_target_generate_clang_format(TARGET integration)
+cmt_target_generate_clang_format(${TEST_TARGET})
 
 # Integration test for clang-tidy
-cmt_target_enable_clang_tidy(TARGET integration)
-cmt_target_generate_clang_tidy(TARGET integration)
+cmt_target_enable_clang_tidy(${TEST_TARGET})
+cmt_target_generate_clang_tidy(${TEST_TARGET})
 
 # Integration test for clang-build-analyzer
-cmt_target_enable_clang_build_analyzer(TARGET integration)
+cmt_target_enable_clang_build_analyzer(${TEST_TARGET})
 
 # Integration with include-what-you-use
-cmt_target_enable_iwyu(TARGET integration)
-cmt_target_generate_iwyu(TARGET integration)
+cmt_target_enable_iwyu(${TEST_TARGET})
+cmt_target_generate_iwyu(${TEST_TARGET})
 
 # Integration with lizard
-cmt_target_generate_lizard(TARGET integration)
+cmt_target_generate_lizard(${TEST_TARGET})
 
 # Integration with cppcheck
-cmt_target_enable_cppcheck(TARGET integration)
-cmt_target_generate_cppcheck(TARGET integration)
+cmt_target_enable_cppcheck(${TEST_TARGET})
+cmt_target_generate_cppcheck(${TEST_TARGET})
 
 # Integration with cpplint
-cmt_target_enable_cpplint(TARGET integration)
+cmt_target_enable_cpplint(${TEST_TARGET})
 
 # Integration with codechecker
-cmt_target_generate_codechecker(TARGET integration)
+cmt_target_generate_codechecker(${TEST_TARGET})
 
 # Integration with code coverage tools
 cmt_project_coverage()
-cmt_target_generate_coverage(TARGET integration DEPENDENCIES integration)
+cmt_target_generate_coverage(${TEST_TARGET} DEPENDENCIES ${TEST_TARGET})
 
 # Integration with sanitizers
-cmt_target_enable_sanitizer(TARGET integration SANITIZER TSAN)
-cmt_target_enable_sanitizers(TARGET integration SANITIZERS UBSAN)
+cmt_target_enable_sanitizer(${TEST_TARGET} SANITIZER TSAN)
+cmt_target_enable_sanitizers(${TEST_TARGET} SANITIZERS UBSAN)
 
 # Integration with cotire
-# cmt_target_enable_cotire(TARGET integration)
+# cmt_target_enable_cotire(${TEST_TARGET})
 
 # Integration with dependency graph
 cmt_project_dependency_graph()
 
 # Integration with lto
-cmt_target_enable_lto(TARGET integration)
+cmt_target_enable_lto(${TEST_TARGET})
 
 # Print information about target
-cmt_target_print_compiler_options(TARGET integration CONFIG Debug Release)
-cmt_target_print_linker_options(TARGET integration CONFIG Debug Release)
+cmt_target_print_compiler_options(${TEST_TARGET} CONFIG Debug Release)
+cmt_target_print_linker_options(${TEST_TARGET} CONFIG Debug Release)

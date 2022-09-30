@@ -50,7 +50,9 @@ function(cmt_target_enable_cotire TARGET)
         return()
     endif()
 
+    cmt_disable_logger()
     cotire(${TARGET})
+    cmt_enable_logger()
     cmt_log("Target ${TARGET}: enabling extension cotire")
 endfunction()
 
