@@ -22,10 +22,7 @@
 # SOFTWARE.                                                                      #
 ##################################################################################
 
-if(CMT_TARGET_INCLUDED)
-	return()
-endif()
-set(CMT_TARGET_INCLUDED ON)
+include_guard(GLOBAL)
 
 include(${CMAKE_CURRENT_LIST_DIR}/cmtools-env.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/cmtools-fsystem.cmake)

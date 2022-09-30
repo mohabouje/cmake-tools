@@ -22,10 +22,7 @@
 # SOFTWARE.                                                                      #
 ##################################################################################
 
-if(CMT_ARGUMENTS_INCLUDED)
-	return()
-endif()
-set(CMT_ARGUMENTS_INCLUDED ON)
+include_guard(GLOBAL)
 
 include(${CMAKE_CURRENT_LIST_DIR}/cmtools-logger.cmake)
 

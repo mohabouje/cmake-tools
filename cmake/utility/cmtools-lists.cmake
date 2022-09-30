@@ -22,10 +22,7 @@
 # SOFTWARE.                                                                      #
 ##################################################################################
 
-if(CMT_LISTS_INCLUDED)
-	return()
-endif()
-set(CMT_LISTS_INCLUDED ON)
+include_guard(GLOBAL)
 
 include(${CMAKE_CURRENT_LIST_DIR}/cmtools-args.cmake)
 

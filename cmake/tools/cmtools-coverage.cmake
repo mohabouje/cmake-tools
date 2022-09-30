@@ -22,10 +22,7 @@
 # SOFTWARE.                                                                      #
 ##################################################################################
 
-if(CMT_COVERAGE_INCLUDED)
-	return()
-endif()
-set(CMT_COVERAGE_INCLUDED ON)
+include_guard(GLOBAL)
 
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-args.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)

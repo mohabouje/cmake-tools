@@ -22,10 +22,7 @@
 # SOFTWARE.                                                                      #
 ##################################################################################
 
-if(CMT_COTIRE_INCLUDED)
-	return()
-endif()
-set(CMT_COTIRE_INCLUDED ON)
+include_guard(GLOBAL)
 
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-args.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)

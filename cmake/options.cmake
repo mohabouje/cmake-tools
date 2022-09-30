@@ -13,6 +13,8 @@ option(CMT_ENABLE_LIZARD                "Enable the integration of lizard into t
 option(CMT_ENABLE_LTO                   "Enable the integration of lto into the build system"                   ON)
 option(CMT_ENABLE_SANITIZERS            "Enable the integration of sanitizers into the build system"            ON)
 
-option(CMT_IGNORE_COMPILER_OPTION_CHECKS    "Disable the compiler option checks"   ON)
-option(CMT_IGNORE_LINKER_OPTION_CHECKS      "Disable the compiler warning checks"  ON)
-option(CMT_ENABLE_UNITY_BUILD      "Join all files together before building"  ON)
+
+option(CMT_ENABLE_COMPILER_OPTION_CHECKS    "Enable checks in compiler options"         ON)
+option(CMT_ENABLE_LINKER_OPTION_CHECKS      "Enable checks in linker options"           ON)
+option(CMT_ENABLE_PCH                       "Enable the usage of pre-compiled headers"  ON)
+option(CMT_ENABLE_UNITY_BUILD               "Enable unity builds optimization"          ON)

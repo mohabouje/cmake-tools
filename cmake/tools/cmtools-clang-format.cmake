@@ -22,10 +22,7 @@
 # SOFTWARE.                                                                      #
 ##################################################################################
 
-if (CMT_CLANG_FORMAT_INCLUDED)
-	return()
-endif()
-set(CMT_CLANG_FORMAT_INCLUDED ON)
+include_guard(GLOBAL)
 
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-lists.cmake)

@@ -22,10 +22,7 @@
 # SOFTWARE.                                                                      #
 ##################################################################################
 
-if(CMT_LOGGER_INCLUDED)
-	return()
-endif()
-set(CMT_LOGGER_INCLUDED ON)
+include_guard(GLOBAL)
 
 macro(cmt_disable_logger)
     set(CMT_DISABLE_LOGGING ON)

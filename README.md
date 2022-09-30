@@ -30,8 +30,9 @@ It also offers a set of functionalities to create and configure targets (librari
 
 ## External Dependencies
 
-|                                 **Tool**                                  |    **Author**    |                                   **License**                                    |
-| :-----------------------------------------------------------------------: | :--------------: | :------------------------------------------------------------------------------: |
-| **[coveralls-cmake](https://github.com/JoakimSoderberg/coveralls-cmake)** | Joakim Söderberg | [MIT](https://github.com/JoakimSoderberg/coveralls-cmake/blob/master/LICENSE.md) |
-|                 **[ucm](https://github.com/onqtam/ucm)**                  |  Viktor Kirilov  |           [MIT](https://github.com/onqtam/ucm/blob/master/LICENSE.txt)           |
-|               **[cotire](https://github.com/sakra/cotire)**               |  Sascha Kratky   |                      [MIT](https://github.com/sakra/cotire)                      |
+|                                      **Tool**                                      |    **Author**    |                                   **License**                                    |
+| :--------------------------------------------------------------------------------: | :--------------: | :------------------------------------------------------------------------------: |
+|     **[coveralls-cmake](https://github.com/JoakimSoderberg/coveralls-cmake)**      | Joakim Söderberg | [MIT](https://github.com/JoakimSoderberg/coveralls-cmake/blob/master/LICENSE.md) |
+|                      **[ucm](https://github.com/onqtam/ucm)**                      |  Viktor Kirilov  |           [MIT](https://github.com/onqtam/ucm/blob/master/LICENSE.txt)           |
+|                   **[cotire](https://github.com/sakra/cotire)**                    |  Sascha Kratky   |                      [MIT](https://github.com/sakra/cotire)                      |
+| **[cmake-precompiled-header](https://github.com/larsch/cmake-precompiled-header)** | Lars Christensen |            [MIT](https://github.com/larsch/cmake-precompiled-header)             |

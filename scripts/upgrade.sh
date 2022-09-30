@@ -121,3 +121,8 @@ upgrade_github_main StableCoder cmake-scripts link-time-optimization.cmake "${CU
 upgrade_github_master JoakimSoderberg coveralls-cmake cmake/Coveralls.cmake "${CURRENT_DIRECTORY}/cmake/third_party/coveralls/Coveralls.cmake"
 upgrade_github_master JoakimSoderberg coveralls-cmake cmake/CoverallsClear.cmake "${CURRENT_DIRECTORY}/cmake/third_party/coveralls/CoverallsClear.cmake"
 upgrade_github_master JoakimSoderberg coveralls-cmake cmake/CoverallsGenerateGcov.cmake "${CURRENT_DIRECTORY}/cmake/third_party/coveralls/CoverallsGenerateGcov.cmake"
+
+# Precompiled header setup for CMake. 
+upgrade_github_master larsch cmake-precompiled-header PrecompiledHeader.cmake "${CURRENT_DIRECTORY}/cmake/third_party/cmake-precompiled-header/PrecompiledHeader.cmake"
+
+https://github.com/larsch/cmake-precompiled-header/blob/master/PrecompiledHeader.cmake

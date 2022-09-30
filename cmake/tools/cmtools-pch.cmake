@@ -28,54 +28,39 @@ include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-args.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
 
 cmt_disable_logger()
-include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/cppcheck.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/cmake-precompiled-header/PrecompiledHeader.cmake)
 cmt_enable_logger()
 
 # Functions summary:
-# - cmt_target_generate_cppcheck
+# - cmt_target_add_precompiled_headers
 
-# ! cmt_target_generate_cppcheck Generate a cppcheck target for the target.
-# The generated target lanch cppcheck on all the target sources in the specified working directory.
+# ! cmt_target_add_precompiled_headers 
+# Adds precompiled headers to the target.
 #
-# cmt_target_generate_cppcheck(
-#   [TARGET <target>]
+# cmt_target_add_precompiled_headers(
+#   FORCEINCLUDE
+#   <target>
+#   [HEADERS <header1> <header2> ...]
 # )
 #
 # \param:TARGET TARGET The target to configure
+# \groups:HEADERS HEADERS The list of headers to include
+# \param:FORCEINCLUDE FORCEINCLUDE Force the inclusion of the headers
 #
-function(cmt_target_generate_cppcheck)
-    cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
-    cmt_required_arguments(FUNCTION cmt_target_generate_cppcheck PREFIX ARGS FIELDS TARGET)
+function(cmt_target_add_precompiled_headers TARGET)
+    cmake_parse_arguments(ARGS "FORCEINCLUDE" "" "HEADERS" ${ARGN})
+    cmt_required_arguments(FUNCTION cmt_target_add_precompiled_headers PREFIX ARGS FIELDS HEADERS)
+    cmt_ensure_targets(FUNCTION cmt_target_add_precompiled_headers TARGETS ${TARGET}) 
 
-    if (NOT CMT_ENABLE_CPPCHECK)
+    if (NOT CMT_ENABLE_PCH)
         return()
     endif()
 
-    cmt_find_program(NAME CPPCHECK_PROGRAM PROGRAM cppcheck)
-    cppcheck(TARGET ${ARGS_TARGET})
-    cmt_log("Target ${ARGS_TARGET}: generate target to run cppcheck")
-endfunction()
-
-
-# ! cmt_target_enable_cppcheck Enable include-what-you-use checks on the given target
-#
-# cmt_target_enable_cppcheck(
-#   [TARGET <target>]
-# )
-#
-# \param:TARGET TARGET The target to configure
-#
-function(cmt_target_enable_cppcheck)
-    cmake_parse_arguments(ARGS "" "TARGET" "" ${ARGN})
-    cmt_required_arguments(FUNCTION cmt_target_enable_cppcheck PREFIX ARGS FIELDS TARGET)
-    cmt_ensure_targets(FUNCTION cmt_target_enable_cppcheck TARGETS ${ARGS_TARGET}) 
-
-    if (NOT CMT_ENABLE_CPPCHECK)
-        return()
-    endif()
-
-    cmt_find_program(NAME CPPCHECK_PROGRAM PROGRAM cppcheck)
-    set_property(TARGET ${ARGS_TARGET} PROPERTY CMAKE_CXX_CPPCHECK ${CPPCHECK_PROGRAM})
-    set_property(TARGET ${ARGS_TARGET} PROPERTY CMAKE_C_CPPCHECK ${CPPCHECK_PROGRAM})
-    cmt_log("Target ${ARGS_TARGET}: enabling extension cppcheck")
+    foreach (HEADER ${ARGS_HEADERS})
+        if (ARGS_FORCEINCLUDE)
+            add_precompiled_header(${TARGET} ${HEADER} FORCEINCLUDE)
+        else()
+            add_precompiled_header(${TARGET} ${HEADER})
+        endif()
+    endforeach()
 endfunction()
