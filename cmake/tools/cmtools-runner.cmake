@@ -24,8 +24,8 @@
 
 include_guard(GLOBAL)
 
-include(${CMAKE_CURRENT_LIST_DIR}/cmtools-args.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/cmtools-sources.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-args.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-sources.cmake)
 
 # Functions summary:
 # - cmt_run_tool_on_source
@@ -48,8 +48,8 @@ include(${CMAKE_CURRENT_LIST_DIR}/cmtools-sources.cmake)
 #   [COMMAND <command>...]
 # )
 #
-# \input    TARGET TARGET The target to run the tool for.
-# \input    TOOL TOOL The name of the tool. 
+# \input    TARGET The target to run the tool for.
+# \input    TOOL_NAME The name of the tool. 
 # \input    SOURCE The source file to check.
 # \param    WORKING_DIRECTORY The working directory for the tool.
 # \groups   DEPENDENCIES Targets and sources running this tool DEPENDENCIES on.
@@ -66,8 +66,7 @@ function (cmt_run_tool_on_source TARGET SOURCE TOOL_NAME)
     # Get the basename of the file, used for the comment and stamp.
     get_filename_component (SRCNAME "${SOURCE}" NAME)
     set (TOOLING_SIG "stamp")
-    set (STAMPFILE
-         "${CMAKE_CURRENT_BINARY_DIR}/${SRCNAME}.${TOOL}.${TOOLING_SIG}")
+    set (STAMPFILE "${CMAKE_CURRENT_BINARY_DIR}/${SRCNAME}.${TOOL}.${TOOLING_SIG}")
     set (COMMENT "Analyzing ${SRCNAME} with ${TOOL}")
 
     if (DEFINED RUN_TOOL_ON_SOURCE_WORKING_DIRECTORY)
@@ -112,11 +111,8 @@ function (cmt_run_tool_on_source TARGET SOURCE TOOL_NAME)
                         COMMENT ${COMMENT}
                         VERBATIM)
 
-    # Add the stampfile both to the SOURCES of TARGET
-    # but also to the OBJECT_DEPENDENCIES of any source files.
-    #
-    # On older CMake versions editing SOURCES post-facto for a linkable
-    # target was a no-op.
+    # Add the stampfile both to the SOURCES of TARGET  but also to the OBJECT_DEPENDENCIES of any source files.
+    # On older CMake versions editing SOURCES post-facto for a linkable target was a no-op.
     set_property (TARGET ${TARGET}
                   APPEND PROPERTY SOURCES ${STAMPFILE})
     set_property (SOURCE "${SOURCE}"
@@ -148,27 +144,22 @@ endfunction ()
 # \groups   COMMAND The command to run to invoke this tool. @SOURCE@ is replaced with the source file path.
 #
 function (cmt_target_run_tool TARGET TOOL_NAME)
-
     cmake_parse_arguments(RUN_COMMAND "CHECK_GENERATED" "WORKING_DIRECTORY" "DEPENDENCIES;COMMAND" ${ARGN})
-	cmt_required_arguments(FUNCTION cmt_target_run_tool PREFIX RUN_COMMAND FIELDS COMMAND)
+	cmt_required_arguments(RUN_COMMAND "" "" "COMMAND")
+    cmt_ensure_target(${TARGET})
 
-    cmt_strip_extraneous_sources (FILTERED_SOURCES ${TARGET})
-
+    cmt_strip_extraneous_sources( ${TARGET} FILTERED_SOURCES)
     if (DEFINED ${RUN_COMMAND_CHECK_GENERATED})
         cmt_filter_out_generated_sources (FILTERED_SOURCES
                                         SOURCES ${HANDLE_CHECK_GENERATED_SOURCES})
     endif()
 
-    cmt_forward_options (RUN_COMMAND RUN_ON_SOURCE_FORWARD
-                         SINGLEVAR_ARGS WORKING_DIRECTORY
-                         MULTIVAR_ARGS COMMAND DEPENDENCIES)
+    cmt_forward_options (RUN_COMMAND "" "WORKING_DIRECTORY" "DEPENDENCIES;COMMAND" RUN_ON_SOURCE_FORWARD)
 
-    # For each source file, add a new custom command which runs our
-    # tool and generates a stampfile, depending on the generation of
-    # the source file.
+    # For each source file, add a new custom command which runs our tool and generates a stampfile, 
+    # depending on the generation of the source file.
     foreach (SOURCE ${FILTERED_SOURCES})
-        cmt_run_tool_on_source (${TARGET} "${SOURCE}" ${TOOL}
-                                ${RUN_ON_SOURCE_FORWARD})
+        cmt_run_tool_on_source (${TARGET} "${SOURCE}" ${TOOL_NAME} ${RUN_ON_SOURCE_FORWARD})
     endforeach ()
 endfunction ()
 
@@ -194,8 +185,6 @@ endfunction ()
 # \group    DEFINITIONS Extra definitions to set.
 function (cmt_target_add_compilation_db TARGET
                                   CUSTOM_COMPILATION_DB_DIR_RETURN)
-
-
 
     cmake_parse_arguments(COMPDB "" "" "C_SOURCES;CXX_SOURCES;INTERNAL_INCLUDE_DIRS;EXTERNAL_INCLUDE_DIRS;DEFINITIONS" ${ARGN})
 	cmt_required_arguments(FUNCTION cmt_target_compilation_db PREFIX RUN_COMMAND FIELDS TOOL)

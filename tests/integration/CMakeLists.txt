@@ -42,6 +42,7 @@ cmt_target_generate_lizard(${TEST_TARGET})
 # Integration with cppcheck
 cmt_target_enable_cppcheck(${TEST_TARGET})
 cmt_target_generate_cppcheck(${TEST_TARGET})
+cmt_target_generate_cppcheck_(${TEST_TARGET})
 
 # Integration with cpplint
 cmt_target_enable_cpplint(${TEST_TARGET})

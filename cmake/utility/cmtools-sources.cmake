@@ -130,36 +130,27 @@ endfunction()
 #  [CPP_IDENTIFIERS cpp_identifiers ...]
 # )
 #
-# \arg      C_SOURCES Variable to store list of C sources in.
-# \arg      CXX_SOURCES Variable to store list of C++ sources in.
-# \arg      HEADERS HEADERS Variable to store list of headers in.
+# \output   C_SOURCES Variable to store list of C sources in.
+# \output   CXX_SOURCES Variable to store list of C++ sources in.
+# \output   HEADERS HEADERS Variable to store list of headers in.
 # \option   FORCE_LANGUAGE Force language of all sources to be either C or CXX.
 # \group    SOURCES SOURCES List of source files to separate out.
 # \group    CPP_IDENTIFIERS List of identifiers that indicate that a source file is actually a C++ source file.
 # \group    INCLUDES Include directories to search.
 #
 function (cmt_sort_sources_to_languages C_SOURCES CXX_SOURCES HEADERS)
-
-
     cmake_parse_arguments(SORT_SOURCES "" "FORCE_LANGUAGE" "SOURCES;CPP_IDENTIFIERS;INCLUDES" ${ARGN})
-	cmt_required_arguments(FUNCTION cmt_sort_sources_to_languages PREFIX SORT_SOURCES FIELDS SOURCES)
-    cmt_forward_options (DETERMINE_LANG_OPTIONS
-                         PREFFIX SORT_SOURCES
-                         SINGLEVAR_ARGS FORCE_LANGUAGE
-                         MULTIVAR_ARGS CPP_IDENTIFIERS INCLUDES)
+	cmt_required_arguments(SORT_SOURCES "" "" "SOURCES")
+    cmt_forward_options (SORT_SOURCES "" "FORCE_LANGUAGE" "CPP_IDENTIFIERS;INCLUDES" DETERMINE_LANG_OPTIONS)
 
     foreach (SOURCE ${SORT_SOURCES_SOURCES})
         set(INCLUDES ${SORT_SOURCES_INCLUDES})
         set(CPP_IDENTIFIERS ${SORT_SOURCES_CPP_IDENTIFIERS})
-        cmt_determine_language_for_source ("${SOURCE}"
-                                           LANGUAGE
-                                           SOURCE_WAS_HEADER
-                                           ${DETERMINE_LANG_OPTIONS})
+        cmt_determine_language_for_source ("${SOURCE}" LANGUAGE SOURCE_WAS_HEADER ${DETERMINE_LANG_OPTIONS})
 
         # Scan this source for headers, we'll need them later
         if (NOT SOURCE_WAS_HEADER)
-            cmt_scan_source_for_headers (SOURCE "${SOURCE}"
-                                                ${DETERMINE_LANG_OPTIONS})
+            cmt_scan_source_for_headers (SOURCE "${SOURCE}" ${DETERMINE_LANG_OPTIONS})
         endif()
 
         list (FIND LANGUAGE "C" C_INDEX)

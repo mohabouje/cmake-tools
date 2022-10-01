@@ -67,27 +67,23 @@ function(cmt_required_arguments PREFIX OPTION_ARGS SINGLEVAR_ARGS MULTIVAR_ARGS)
     endforeach()
 endfunction()
 
-# cmt_forward_options
-#
+# ! cmt_forward_options
 # Creates a list to forward all arguments of the current function to another function.
 #
-# \arg   RETURN_LIST  The list to append to.
-# \param PREFIX The prefix to give each item in ARGN.
-# \group OPTION_ARGS The list of options to forward.
-# \group SINGLEVAR_ARGS List of single variables to forward
-# \group MULTIVAR_ARGS List of multi variables to forward
+# \input PREFIX The prefix to give each item in ARGN.
+# \input OPTION_ARGS The list of options to forward.
+# \input SINGLEVAR_ARGS List of single variables to forward
+# \input MULTIVAR_ARGS List of multi variables to forward
+# \output   RETURN_LIST  The list to append to.
 #
-function (cmt_forward_options RETURN_LIST_NAME)
-    cmake_parse_arguments (FORWARD "" "PREFIX" "OPTION_ARGS;SINGLEVAR_ARGS;MULTIVAR_ARGS" ${ARGN})
-    cmt_required_arguments(FUNCTION cmt_forward_options PREFIX FORWARD FIELDS PREFIX)
-
+function (cmt_forward_options PREFIX OPTION_ARGS SINGLEVAR_ARGS MULTIVAR_ARGS RETURN_LIST_NAME)
     # Temporary accumulation of variables to forward
     set (RETURN_LIST)
 
     # Option arguments - just forward the value of each set
     # ${PREFIX_OPTION_ARG} as this will be set to the option or to ""
-    foreach (OPTION_ARG ${FORWARD_OPTION_ARGS})
-        set (PREFIXED_OPTION_ARG ${FORWARD_PREFIX}_${OPTION_ARG})
+    foreach (OPTION_ARG ${OPTION_ARGS})
+        set (PREFIXED_OPTION_ARG ${PREFIX}_${OPTION_ARG})
         if (${PREFIXED_OPTION_ARG})
             list (APPEND RETURN_LIST ${OPTION_ARG})
         endif ()
@@ -95,8 +91,8 @@ function (cmt_forward_options RETURN_LIST_NAME)
 
     # Single-variable arguments - add the name of the argument and its value to
     # the return list
-    foreach (SINGLEVAR_ARG ${FORWARD_SINGLEVAR_ARGS})
-        set (PREFIXED_SINGLEVAR_ARG ${FORWARD_PREFIX}_${SINGLEVAR_ARG})
+    foreach (SINGLEVAR_ARG ${SINGLEVAR_ARGS})
+        set (PREFIXED_SINGLEVAR_ARG ${PREFIX}_${SINGLEVAR_ARG})
         if (${PREFIXED_SINGLEVAR_ARG})
             list (APPEND RETURN_LIST ${SINGLEVAR_ARG})
             list (APPEND RETURN_LIST ${${PREFIXED_SINGLEVAR_ARG}})
@@ -105,8 +101,8 @@ function (cmt_forward_options RETURN_LIST_NAME)
 
     # Multi-variable arguments - add the name of the argument and all its values
     # to the return-list
-    foreach (MULTIVAR_ARG ${FORWARD_MULTIVAR_ARGS})
-        set (PREFIXED_MULTIVAR_ARG ${FORWARD_PREFIX}_${MULTIVAR_ARG})
+    foreach (MULTIVAR_ARG ${MULTIVAR_ARGS})
+        set (PREFIXED_MULTIVAR_ARG ${PREFIX}_${MULTIVAR_ARG})
         list (APPEND RETURN_LIST ${MULTIVAR_ARG})
         foreach (VALUE ${${PREFIXED_MULTIVAR_ARG}})
             list (APPEND RETURN_LIST ${VALUE})
@@ -292,4 +288,29 @@ function (cmt_append_to_global_property PROPERTY)
     foreach (ITEM ${APPEND_LIST})
         set_property (GLOBAL APPEND PROPERTY ${PROPERTY} ${ITEM})
     endforeach ()
+endfunction ()
+
+# ! cmt_add_switch:
+# Specify certain command line switches depending on value of
+# boolean variable.
+#
+# \input  ALL_OPTIONS Existing list of command line switches.
+# \input  OPTION_NAME Boolean variable to check.
+# \option ON Switch to add if boolean variable is true.
+# \option OFF Switch to add if boolean variable is false.
+#
+function (cmt_add_switch ALL_OPTIONS OPTION_NAME)
+    set (ADD_SWITCH_SINGLEVAR_ARGS ON OFF)
+    cmake_parse_arguments (ADD_SWITCH
+                           ""
+                           "${ADD_SWITCH_SINGLEVAR_ARGS}"
+                           ""
+                           ${ARGN})
+
+    if (${OPTION_NAME})
+        list (APPEND ${ALL_OPTIONS} ${ADD_SWITCH_ON})
+    else ()
+        list (APPEND ${ALL_OPTIONS} ${ADD_SWITCH_OFF})
+    endif ()
+    set (${ALL_OPTIONS} ${${ALL_OPTIONS}} PARENT_SCOPE)
 endfunction ()
