@@ -40,6 +40,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-fsystem.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-lists.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-targets.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-compiler.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-finder.cmake)
 
 include(${CMAKE_CURRENT_LIST_DIR}/tools/cmtools-pch.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/tools/cmtools-ccache.cmake)

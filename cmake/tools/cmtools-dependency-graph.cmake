@@ -34,6 +34,57 @@ cmt_enable_logger()
 # Functions summary:
 # - cmt_project_dependency_graph
 
+# ! cmt_find_dot
+# Try to find the dot executable.
+# If the executable is not found, the function will throw an error.
+#
+# cmt_find_dot(
+#   EXECUTABLE
+#   EXECUTABLE_FOUND
+# )
+#
+# \output EXECUTABLE The path to the dot executable.
+# \output EXECUTABLE_FOUND - True if the executable is found, false otherwise.
+# \param BIN_SUBDIR - The subdirectory where the executable is located.
+# \group NAMES - The name of the executable.
+#
+function (cmt_find_dot EXECUTABLE EXECUTABLE_FOUND)
+    cmake_parse_arguments(ARGS "" "BIN_SUBDIR" "NAMES" ${ARGN})
+    cmt_default_argument(ARGS NAMES "dot;")
+    cmt_default_argument(ARGS BIN_SUBDIR bin)
+
+    foreach (DOT_EXECUTABLE_NAME ${ARGS_NAMES})
+         cmt_find_tool_executable (${DOT_EXECUTABLE_NAME}
+                                  DOT_EXECUTABLE
+                                  PATHS ${DOT_SEARCH_PATHS}
+                                  PATH_SUFFIXES "${ARGS_BIN_SUBDIR}")
+        if (DOT_EXECUTABLE)
+            break ()
+        endif ()
+    endforeach ()
+
+    cmt_report_not_found_if_not_quiet (dot DOT_EXECUTABLE
+        "The 'dot' executable was not found in any search or system paths.\n"
+        "Please adjust DOT_SEARCH_PATHS to the installation prefix of the 'dot' executable or install dot")
+
+    # if (DOT_EXECUTABLE)
+    #     set (DOT_VERSION_HEADER "dot - graphviz version ")
+    #     cmt_find_tool_extract_version("${DOT_EXECUTABLE}"
+    #                                   DOT_VERSION
+    #                                   VERSION_ARG -V
+    #                                   VERSION_HEADER
+    #                                   "${DOT_VERSION_HEADER}"
+    #                                   VERSION_END_TOKEN ")")
+    # endif()
+    set(DOT_VERSION "Unknown")
+    cmt_check_and_report_tool_version(dot
+                                      "${DOT_VERSION}"
+                                      REQUIRED_VARS
+                                      DOT_EXECUTABLE
+                                      DOT_VERSION)
+    set (EXECUTABLE ${DOT_EXECUTABLE} PARENT_SCOPE)
+endfunction ()
+
 # ! cmt_project_dependency_graph
 # Builds a dependency graph of the active code targets using the `dot` application
 #
@@ -48,7 +99,7 @@ macro(cmt_project_dependency_graph)
     cmt_default_argument(_PDG_ARGS OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR})
     if (CMT_ENABLE_DEPENDENCY_GRAPH)
         set(BUILD_DEP_GRAPH ON)
-        cmt_find_program(DOT_PROGRAM dot)
+        cmt_find_dot(EXECUTABLE _)
         gen_dep_graph("png" TARGET_NAME dependency-graph-${PROJECT_NAME}  OUTPUT_DIR ${_PDG_ARGS_OUTPUT_DIR} ADD_TO_DEP_GRAPH)
         cmt_log("Generating a dependency graph for the project ${PROJECT_NAME}")
     endif()

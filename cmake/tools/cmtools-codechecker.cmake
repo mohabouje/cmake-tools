@@ -31,6 +31,57 @@ cmt_disable_logger()
 include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/codechecker.cmake)
 cmt_enable_logger()
 
+# ! cmt_find_codechecker
+# Try to find the codechecker executable.
+# If the executable is not found, the function will throw an error.
+#
+# cmt_find_codechecker(
+#   EXECUTABLE
+#   CODECHECKER_FOUND
+# )
+#
+# \output EXECUTABLE The path to the codechecker executable.
+# \output CODECHECKER_FOUND - True if the executable is found, false otherwise.
+# \param BIN_SUBDIR - The subdirectory where the executable is located.
+# \group NAMES - The name of the executable.
+#
+function (cmt_find_codechecker EXECUTABLE CODECHECKER_FOUND)
+    cmake_parse_arguments(ARGS "" "BIN_SUBDIR" "NAMES" ${ARGN})
+    cmt_default_argument(ARGS NAMES "codechecker;")
+    cmt_default_argument(ARGS BIN_SUBDIR bin)
+
+    foreach (CODECHECKER_EXECUTABLE_NAME ${ARGS_NAMES})
+         cmt_find_tool_executable (${CODECHECKER_EXECUTABLE_NAME}
+                                  CODECHECKER_EXECUTABLE
+                                  PATHS ${CODECHECKER_SEARCH_PATHS}
+                                  PATH_SUFFIXES "${ARGS_BIN_SUBDIR}")
+        if (CODECHECKER_EXECUTABLE)
+            break ()
+        endif ()
+    endforeach ()
+
+    cmt_report_not_found_if_not_quiet (codechecker CODECHECKER_EXECUTABLE
+        "The 'codechecker' executable was not found in any search or system paths.\n"
+        "Please adjust CODECHECKER_SEARCH_PATHS to the installation prefix of the 'codechecker' executable or install codechecker")
+
+    if (CODECHECKER_EXECUTABLE)
+        set (CODECHECKER_VERSION_HEADER "LLVM version ")
+        cmt_find_tool_extract_version("${CODECHECKER_EXECUTABLE}"
+                                      CODECHECKER_VERSION
+                                      VERSION_ARG --version
+                                      VERSION_HEADER
+                                      "${CODECHECKER_VERSION_HEADER}"
+                                      VERSION_END_TOKEN "\n")
+    endif()
+
+    cmt_check_and_report_tool_version(codechecker
+                                      "${CODECHECKER_VERSION}"
+                                      REQUIRED_VARS
+                                      CODECHECKER_EXECUTABLE
+                                      CODECHECKER_VERSION)
+    set (EXECUTABLE ${CODECHECKER_EXECUTABLE} PARENT_SCOPE)
+endfunction ()
+
 # Functions summary:
 # - cmt_target_generate_codechecker
 
@@ -51,7 +102,7 @@ function(cmt_target_generate_codechecker TARGET)
         return()
     endif()
 
-    cmt_find_program(CODECHECKER_PROGRAM codechecker)
+    cmt_find_codechecker(EXECUTABLE _)
     codechecker(TARGET ${TARGET})
     cmt_log("Target ${TARGET}: generate target to run codechecker")
 endfunction()

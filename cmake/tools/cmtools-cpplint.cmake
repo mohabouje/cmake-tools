@@ -27,6 +27,60 @@ include_guard(GLOBAL)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-args.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
 
+# Functions summary:
+# - cmt_target_use_cpplint
+
+# ! cmt_find_cpplint
+# Try to find the cpplint executable.
+# If the executable is not found, the function will throw an error.
+#
+# cmt_find_cpplint(
+#   EXECUTABLE
+#   EXECUTABLE_FOUND
+# )
+#
+# \output EXECUTABLE The path to the cpplint executable.
+# \output EXECUTABLE_FOUND - True if the executable is found, false otherwise.
+# \param BIN_SUBDIR - The subdirectory where the executable is located.
+# \group NAMES - The name of the executable.
+#
+function (cmt_fint_cpplint EXECUTABLE EXECUTABLE_FOUND)
+    cmake_parse_arguments(ARGS "" "BIN_SUBDIR" "NAMES" ${ARGN})
+    cmt_default_argument(ARGS NAMES "cpplint;")
+    cmt_default_argument(ARGS BIN_SUBDIR bin)
+
+    foreach (CPPLINT_EXECUTABLE_NAME ${ARGS_NAMES})
+         cmt_find_tool_executable (${CPPLINT_EXECUTABLE_NAME}
+                                  CPPLINT_EXECUTABLE
+                                  PATHS ${CPPLINT_SEARCH_PATHS}
+                                  PATH_SUFFIXES "${ARGS_BIN_SUBDIR}")
+        if (CPPLINT_EXECUTABLE)
+            break ()
+        endif ()
+    endforeach ()
+
+    cmt_report_not_found_if_not_quiet (cpplint CPPLINT_EXECUTABLE
+        "The 'cpplint' executable was not found in any search or system paths.\n"
+        "Please adjust CPPLINT_SEARCH_PATHS to the installation prefix of the 'cpplint' executable or install cpplint")
+
+    if (CPPLINT_EXECUTABLE)
+        set (CPPLINT_VERSION_HEADER "Cpplint fork (https://github.com/cpplint/cpplint)\ncpplint ")
+        cmt_find_tool_extract_version("${CPPLINT_EXECUTABLE}"
+                                      CPPLINT_VERSION
+                                      VERSION_ARG --version
+                                      VERSION_HEADER
+                                      "${CPPLINT_VERSION_HEADER}"
+                                      VERSION_END_TOKEN "\n")
+    endif()
+
+    cmt_check_and_report_tool_version(cpplint
+                                      "${CPPLINT_VERSION}"
+                                      REQUIRED_VARS
+                                      CPPLINT_EXECUTABLE
+                                      CPPLINT_VERSION)
+    set (EXECUTABLE ${CPPLINT_EXECUTABLE} PARENT_SCOPE)
+endfunction ()
+
 # ! cmt_target_enable_cpplint
 # Enable include-what-you-use checks on the given target
 #
@@ -43,8 +97,8 @@ function(cmt_target_enable_cpplint TARGET)
         return()
     endif()
 
-    cmt_find_program(CPPLINT_PROGRAM cpplint)
-    set_property(TARGET ${TARGET} PROPERTY CMAKE_CXX_CPPLINT ${CPPLINT_PROGRAM})
-    set_property(TARGET ${TARGET} PROPERTY CMAKE_C_CPPLINT ${CPPLINT_PROGRAM})
+    cmt_fint_cpplint(EXECUTABLE _)
+    set_property(TARGET ${TARGET} PROPERTY CMAKE_CXX_CPPLINT ${EXECUTABLE})
+    set_property(TARGET ${TARGET} PROPERTY CMAKE_C_CPPLINT ${EXECUTABLE})
     cmt_log("Target ${TARGET}: enabling extension cpplint")
 endfunction()

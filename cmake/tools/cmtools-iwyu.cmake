@@ -35,6 +35,57 @@ cmt_enable_logger()
 # - cmt_target_generate_iwyu
 # - cmt_target_enable_iwyu
 
+# ! cmt_find_iwyu
+# Try to find the include-what-you-use executable.
+# If the executable is not found, the function will throw an error.
+#
+# cmt_find_iwyu(
+#   EXECUTABLE
+#   EXECUTABLE_FOUND
+# )
+#
+# \output EXECUTABLE The path to the include-what-you-use executable.
+# \output EXECUTABLE_FOUND - True if the executable is found, false otherwise.
+# \param BIN_SUBDIR - The subdirectory where the executable is located.
+# \group NAMES - The name of the executable.
+#
+function (cmt_find_iwyu EXECUTABLE EXECUTABLE_FOUND)
+    cmake_parse_arguments(ARGS "" "BIN_SUBDIR" "NAMES" ${ARGN})
+    cmt_default_argument(ARGS NAMES "include-what-you-use;iwyu")
+    cmt_default_argument(ARGS BIN_SUBDIR bin)
+
+    foreach (IWYU_EXECUTABLE_NAME ${ARGS_NAMES})
+         cmt_find_tool_executable (${IWYU_EXECUTABLE_NAME}
+                                  IWYU_EXECUTABLE
+                                  PATHS ${IWYU_SEARCH_PATHS}
+                                  PATH_SUFFIXES "${ARGS_BIN_SUBDIR}")
+        if (IWYU_EXECUTABLE)
+            break ()
+        endif ()
+    endforeach ()
+
+    cmt_report_not_found_if_not_quiet (include-what-you-use IWYU_EXECUTABLE
+        "The 'include-what-you-use' executable was not found in any search or system paths.\n"
+        "Please adjust IWYU_SEARCH_PATHS to the installation prefix of the 'include-what-you-use' executable or install include-what-you-use")
+
+    if (IWYU_EXECUTABLE)
+        set (IWYU_VERSION_HEADER "include-what-you-use ")
+        cmt_find_tool_extract_version("${IWYU_EXECUTABLE}"
+                                      IWYU_VERSION
+                                      VERSION_ARG --version
+                                      VERSION_HEADER
+                                      "${IWYU_VERSION_HEADER}"
+                                      VERSION_END_TOKEN "\n")
+    endif()
+
+    cmt_check_and_report_tool_version(include-what-you-use
+                                      "${IWYU_VERSION}"
+                                      REQUIRED_VARS
+                                      IWYU_EXECUTABLE
+                                      IWYU_VERSION)
+    set (EXECUTABLE ${IWYU_EXECUTABLE} PARENT_SCOPE)
+endfunction ()
+
 # ! cmt_target_generate_iwyu\
 # Generate a include-what-you-use target for the target.
 # The generated target lanch include-what-you-use on all the target sources in the specified working directory.
@@ -52,7 +103,7 @@ function(cmt_target_generate_iwyu TARGET)
         return()
     endif()
 
-    cmt_find_program(IWYU_PROGRAM include-what-you-use ALIAS iwyu)
+    cmt_find_iwyu(EXECUTABLE _)
     iwyu(TARGET ${TARGET})
     cmt_log("Target ${TARGET}: generate target to run include-what-you-use")
 endfunction()
@@ -74,8 +125,8 @@ function(cmt_target_enable_iwyu TARGET)
         return()
     endif()
 
-    cmt_find_program(IWYU_PROGRAM include-what-you-use ALIAS iwyu)
-    set_property(TARGET ${TARGET} PROPERTY CMAKE_CXX_INCLUDE_WHAT_YOU_USE ${IWYU_PROGRAM})
-    set_property(TARGET ${TARGET} PROPERTY CMAKE_C_INCLUDE_WHAT_YOU_USE ${IWYU_PROGRAM})
+    cmt_find_iwyu(EXECUTABLE _)
+    set_property(TARGET ${TARGET} PROPERTY CMAKE_CXX_INCLUDE_WHAT_YOU_USE ${EXECUTABLE})
+    set_property(TARGET ${TARGET} PROPERTY CMAKE_C_INCLUDE_WHAT_YOU_USE ${EXECUTABLE})
     cmt_log("Target ${TARGET}: enabling extension include-what-you-use")
 endfunction()

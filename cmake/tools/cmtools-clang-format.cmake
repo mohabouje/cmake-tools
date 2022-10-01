@@ -31,6 +31,57 @@ include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-fsystem.cmake)
 # Functions summary:
 # - cmt_target_generate_clang_format(target [STYLE style] [WORKING_DIRECTORY work_dir])
 
+# ! cmt_find_clang_format
+# Try to find the clang_format executable.
+# If the executable is not found, the function will throw an error.
+#
+# cmt_find_clang_format(
+#   EXECUTABLE
+#   EXECUTABLE_FOUND
+# )
+#
+# \output EXECUTABLE The path to the clang-format executable.
+# \output EXECUTABLE_FOUND - True if the executable is found, false otherwise.
+# \param BIN_SUBDIR - The subdirectory where the executable is located.
+# \group NAMES - The name of the executable.
+#
+function (cmt_find_clang_format EXECUTABLE EXECUTABLE_FOUND)
+    cmake_parse_arguments(ARGS "" "BIN_SUBDIR" "NAMES" ${ARGN})
+    cmt_default_argument(ARGS NAMES "clang-format;")
+    cmt_default_argument(ARGS BIN_SUBDIR bin)
+
+    foreach (CLANG_FORMAT_EXECUTABLE_NAME ${ARGS_NAMES})
+         cmt_find_tool_executable (${CLANG_FORMAT_EXECUTABLE_NAME}
+                                  CLANG_FORMAT_EXECUTABLE
+                                  PATHS ${CLANG_FORMAT_SEARCH_PATHS}
+                                  PATH_SUFFIXES "${ARGS_BIN_SUBDIR}")
+        if (CLANG_FORMAT_EXECUTABLE)
+            break ()
+        endif ()
+    endforeach ()
+
+    cmt_report_not_found_if_not_quiet (clang-format CLANG_FORMAT_EXECUTABLE
+        "The 'clang-format' executable was not found in any search or system paths.\n"
+        "Please adjust CLANG_FORMAT_SEARCH_PATHS to the installation prefix of the 'clang-format' executable or install clang-format")
+
+    if (CLANG_FORMAT_EXECUTABLE)
+        set (CLANG_FORMAT_VERSION_HEADER "clang-format version ")
+        cmt_find_tool_extract_version("${CLANG_FORMAT_EXECUTABLE}"
+                                      CLANG_FORMAT_VERSION
+                                      VERSION_ARG --version
+                                      VERSION_HEADER
+                                      "${CLANG_FORMAT_VERSION_HEADER}"
+                                      VERSION_END_TOKEN "\n")
+    endif()
+	cmt_check_and_report_tool_version(clang-format
+									  "${CLANG_FORMAT_VERSION}"
+								      REQUIRED_VARS
+									  CLANG_FORMAT_EXECUTABLE
+								      CLANG_FORMAT_VERSION)
+
+    set (EXECUTABLE ${CLANG_FORMAT_EXECUTABLE} PARENT_SCOPE)
+endfunction ()
+
 
 # ! cmt_target_generate_clang_format
 # Generate a format target for the target (clang-format-${TARGET}).
@@ -57,16 +108,17 @@ function(cmt_target_generate_clang_format TARGET)
     	return()
 	endif()
 
+	cmt_find_clang_format(EXECUTABLE _)
+
 	set(FORMAT_TARGET "clang-format-${TARGET}")
 	if (TARGET ${FORMAT_TARGET})
 		cmt_fatal("${FORMAT_TARGET} already exists")
 	endif()
 
-    cmt_find_program(CLANG_FORMAT_PROGRAM clang-format)
 	get_property(FORMAT_TARGET_SOURCES TARGET ${TARGET} PROPERTY SOURCES)
 	add_custom_target(
 		${FORMAT_TARGET}
-		COMMAND "${CLANG_FORMAT_PROGRAM}" -style=${ARGS_STYLE} -i ${FORMAT_TARGET_SOURCES}
+		COMMAND "${EXECUTABLE}" -style=${ARGS_STYLE} -i ${FORMAT_TARGET_SOURCES}
 		WORKING_DIRECTORY "${ARGS_WORKING_DIRECTORY}"
 		VERBATIM
 	)

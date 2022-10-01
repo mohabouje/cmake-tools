@@ -26,14 +26,67 @@ include_guard(GLOBAL)
 
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-args.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-finder.cmake)
 
 cmt_disable_logger()
 include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/clang-tidy.cmake)
 cmt_enable_logger()
 
 # Functions summary:
+# - cmt_find_clang_tidy
 # - cmt_target_generate_clang_tidy
 # - cmt_target_enable_clang_tidy
+
+# ! cmt_find_clang_tidy
+# Try to find the clang-tidy executable.
+# If the executable is not found, the function will throw an error.
+#
+# cmt_find_clang_tidy(
+#   EXECUTABLE
+#   CLANG_TIDY_FOUND
+# )
+#
+# \output EXECUTABLE The path to the clang-tidy executable.
+# \output CLANG_TIDY_FOUND - True if the executable is found, false otherwise.
+# \param BIN_SUBDIR - The subdirectory where the executable is located.
+# \group NAMES - The name of the executable.
+#
+function (cmt_find_clang_tidy EXECUTABLE CLANG_TIDY_FOUND)
+    cmake_parse_arguments(ARGS "" "BIN_SUBDIR" "NAMES" ${ARGN})
+    cmt_default_argument(ARGS NAMES "clang-tidy;")
+    cmt_default_argument(ARGS BIN_SUBDIR bin)
+
+    foreach (CLANG_TIDY_EXECUTABLE_NAME ${ARGS_NAMES})
+         cmt_find_tool_executable (${CLANG_TIDY_EXECUTABLE_NAME}
+                                  CLANG_TIDY_EXECUTABLE
+                                  PATHS ${CLANG_TIDY_SEARCH_PATHS}
+                                  PATH_SUFFIXES "${ARGS_BIN_SUBDIR}")
+        if (CLANG_TIDY_EXECUTABLE)
+            break ()
+        endif ()
+    endforeach ()
+
+    cmt_report_not_found_if_not_quiet (clang-tidy CLANG_TIDY_EXECUTABLE
+        "The 'clang-tidy' executable was not found in any search or system paths.\n"
+        "Please adjust CLANG_TIDY_SEARCH_PATHS to the installation prefix of the 'clang-tidy' executable or install clang-tidy")
+
+    if (CLANG_TIDY_EXECUTABLE)
+        set (CLANG_TIDY_VERSION_HEADER "LLVM version ")
+        cmt_find_tool_extract_version("${CLANG_TIDY_EXECUTABLE}"
+                                      CLANG_TIDY_VERSION
+                                      VERSION_ARG --version
+                                      VERSION_HEADER
+                                      "${CLANG_TIDY_VERSION_HEADER}"
+                                      VERSION_END_TOKEN "\n")
+    endif()
+
+    cmt_check_and_report_tool_version(clang-tidy
+                                      "${CLANG_TIDY_VERSION}"
+                                      REQUIRED_VARS
+                                      CLANG_TIDY_EXECUTABLE
+                                      CLANG_TIDY_VERSION)
+    set (EXECUTABLE ${CLANG_TIDY_EXECUTABLE} PARENT_SCOPE)
+endfunction ()
 
 # ! cmt_target_generate_clang_tidy
 # Generate a clang-tidy target for the target.
@@ -53,7 +106,7 @@ function(cmt_target_generate_clang_tidy TARGET)
     endif()
 
     
-    cmt_find_program(CLANG_TIDY_PROGRAM clang-tidy)
+    cmt_find_clang_tidy(EXECUTABLE _)
     clang_tidy(TARGET ${TARGET})
     cmt_log("Target ${TARGET}: generate target to run clang-tidy")
 endfunction()
@@ -75,8 +128,8 @@ function(cmt_target_enable_clang_tidy TARGET)
         return()
     endif()
 
-    cmt_find_program(CLANG_TIDY_PROGRAM clang-tidy)
-    set_property(TARGET ${TARGET} PROPERTY CMAKE_CXX_INCLUDE_CLANG_TIDY ${CLANG_TIDY_PROGRAM})
-    set_property(TARGET ${TARGET} PROPERTY CMAKE_C_INCLUDE_CLANG_TIDY ${CLANG_TIDY_PROGRAM})
+    cmt_find_clang_tidy(EXECUTABLE _)
+    set_property(TARGET ${TARGET} PROPERTY CMAKE_CXX_INCLUDE_CLANG_TIDY ${EXECUTABLE})
+    set_property(TARGET ${TARGET} PROPERTY CMAKE_C_INCLUDE_CLANG_TIDY ${EXECUTABLE})
     cmt_log("Target ${TARGET}: enabling extension clang-tidy")
 endfunction()

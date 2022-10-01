@@ -33,6 +33,57 @@ cmt_enable_logger()
 # Functions summary:
 # - cmt_target_generate_cppcheck
 
+# ! cmt_find_cppcheck
+# Try to find the cppcheck executable.
+# If the executable is not found, the function will throw an error.
+#
+# cmt_find_cppcheck(
+#   EXECUTABLE
+#   EXECUTABLE_FOUND
+# )
+#
+# \output EXECUTABLE The path to the cppcheck executable.
+# \output EXECUTABLE_FOUND - True if the executable is found, false otherwise.
+# \param BIN_SUBDIR - The subdirectory where the executable is located.
+# \group NAMES - The name of the executable.
+#
+function (cmt_find_cppcheck EXECUTABLE EXECUTABLE_FOUND)
+    cmake_parse_arguments(ARGS "" "BIN_SUBDIR" "NAMES" ${ARGN})
+    cmt_default_argument(ARGS NAMES "cppcheck;")
+    cmt_default_argument(ARGS BIN_SUBDIR bin)
+
+    foreach (CPPCHECK_EXECUTABLE_NAME ${ARGS_NAMES})
+         cmt_find_tool_executable (${CPPCHECK_EXECUTABLE_NAME}
+                                  CPPCHECK_EXECUTABLE
+                                  PATHS ${CPPCHECK_SEARCH_PATHS}
+                                  PATH_SUFFIXES "${ARGS_BIN_SUBDIR}")
+        if (CPPCHECK_EXECUTABLE)
+            break ()
+        endif ()
+    endforeach ()
+
+    cmt_report_not_found_if_not_quiet (cppcheck CPPCHECK_EXECUTABLE
+        "The 'cppcheck' executable was not found in any search or system paths.\n"
+        "Please adjust CPPCHECK_SEARCH_PATHS to the installation prefix of the 'cppcheck' executable or install cppcheck")
+
+    if (CPPCHECK_EXECUTABLE)
+        set (CPPCHECK_VERSION_HEADER "Cppcheck ")
+        cmt_find_tool_extract_version("${CPPCHECK_EXECUTABLE}"
+                                      CPPCHECK_VERSION
+                                      VERSION_ARG --version
+                                      VERSION_HEADER
+                                      "${CPPCHECK_VERSION_HEADER}"
+                                      VERSION_END_TOKEN "\n")
+    endif()
+
+    cmt_check_and_report_tool_version(cppcheck
+                                      "${CPPCHECK_VERSION}"
+                                      REQUIRED_VARS
+                                      CPPCHECK_EXECUTABLE
+                                      CPPCHECK_VERSION)
+    set (EXECUTABLE ${CPPCHECK_EXECUTABLE} PARENT_SCOPE)
+endfunction ()
+
 # ! cmt_target_generate_cppcheck
 # Generate a cppcheck target for the target.
 # The generated target lanch cppcheck on all the target sources in the specified working directory.
@@ -71,9 +122,9 @@ function(cmt_target_enable_cppcheck TARGET)
         return()
     endif()
 
-    cmt_find_program(CPPCHECK_PROGRAM cppcheck)
-    set_property(TARGET ${TARGET} PROPERTY CMAKE_CXX_CPPCHECK ${CPPCHECK_PROGRAM})
-    set_property(TARGET ${TARGET} PROPERTY CMAKE_C_CPPCHECK ${CPPCHECK_PROGRAM})
+    cmt_find_cppcheck(EXECUTABLE _)
+    set_property(TARGET ${TARGET} PROPERTY CMAKE_CXX_CPPCHECK ${EXECUTABLE})
+    set_property(TARGET ${TARGET} PROPERTY CMAKE_C_CPPCHECK ${EXECUTABLE})
     cmt_log("Target ${TARGET}: enabling extension cppcheck")
 endfunction()
 
@@ -179,13 +230,6 @@ endfunction ()
 #          This option works independently of the CHECK_GENERATED option.
 #
 function (cmt_cppcheck_generate_for_sources TARGET)
-
-    # cppcheck_validate (CPPCHECK_AVAILABLE)
-
-    if (NOT CMT_ENABLE_CPPCHECK)
-        return()
-    endif()
-
     set (OPTIONAL_OPTIONS  WARN_ONLY NO_CHECK_STYLE NO_CHECK_UNUSED CHECK_GENERATED CHECK_GENERATED_FOR_UNUSED)
     set (SINGLEVALUE_OPTIONS FORCE_LANGUAGE)
     set (MULTIVALUE_OPTIONS INCLUDES DEFINITIONS SOURCES CPP_IDENTIFIERS DEPENDENCIES)
@@ -195,6 +239,11 @@ function (cmt_cppcheck_generate_for_sources TARGET)
                            "${MULTIVALUE_OPTIONS}"
                            ${ARGN})
 
+    cmt_ensure_target(${TARGET})
+    if (NOT CMT_ENABLE_CPPCHECK)
+        return()
+    endif()
+    cmt_find_cppcheck(EXECUTABLE _)
 
     if (DEFINED ${CPPCHECK_CHECK_GENERATED})
         cmt_filter_out_generated_sources(FILTERED_CHECK_SOURCES
@@ -239,6 +288,10 @@ endfunction ()
 #
 function (cmt_target_generate_cppcheck_ TARGET)
     cmt_ensure_target(${TARGET})
+    if (NOT CMT_ENABLE_CPPCHECK)
+        return()
+    endif()
+    cmt_find_cppcheck(EXECUTABLE _)
     cmt_strip_extraneous_sources (${TARGET} FILES_TO_CHECK)
     cmt_cppcheck_generate_for_sources (${TARGET} SOURCES ${FILES_TO_CHECK} ${ARGN})
 endfunction ()
