@@ -314,3 +314,64 @@ function (cmt_add_switch ALL_OPTIONS OPTION_NAME)
     endif ()
     set (${ALL_OPTIONS} ${${ALL_OPTIONS}} PARENT_SCOPE)
 endfunction ()
+
+# ! cmake_unit_parse_args_key
+#
+# This is an optimization on cmake_parse_arguments which should
+# help to reduce the number of times which it is called. Effectively,
+# it hashes its arguments and then checks to see if we've called
+# cmake_parse_arguments with this kind of hash. If we have, it uses
+# the cached values.
+#
+# \input  PREFIX: cmake_parse_arguments PREFIX
+# \input  OPTION_ARGS_STRING: "Option" like arguments, which are either present or not present.
+# \input  SINGLEVAR_ARGS_STRING: "Single variable" like arguments, which only have one value.
+# \input  MULTIVAR_ARGS_STRING: "Multiple variable" like arguments, which can have multiple variables.
+# \output RETURN_KEY: A variable to store the computed key for later use with cmake_fetch_parsed_arg.
+#
+function (cmake_parse_args_key PREFIX
+                               OPTION_ARGS_STRING
+                               SINGLEVAR_ARGS_STRING
+                               MULTIVAR_ARGS_STRING
+                               RETURN_KEY)
+
+    # First get the key for this variable length arguments set
+    string (MD5 CACHE_KEY "${ARGV}")
+
+    # Lookup to see if we've parsed arguments like these before
+    get_property (CACHE_KEY_IS_SET GLOBAL PROPERTY _CMAKE_OPT_PARSE_ARGS_CACHED_${CACHE_KEY})
+    if (NOT CACHE_KEY_IS_SET)
+        # Cache key was not set. Parse arguments and then store the
+        # results in global properties.
+        cmake_parse_arguments (${PREFIX} "${OPTION_ARGS_STRING}" "${SINGLEVAR_ARGS_STRING}" "${MULTIVAR_ARGS_STRING}" ${ARGN})
+        set (VARIABLES ${OPTION_ARGS_STRING} ${SINGLEVAR_ARGS_STRING} ${MULTIVAR_ARGS_STRING})
+        foreach (VAR ${VARIABLES})
+            set_property (GLOBAL
+                          PROPERTY
+                          _CMAKE_OPT_PARSE_ARGS_CACHED_${CACHE_KEY}_${VAR}
+                          "${${PREFIX}_${VAR}}")
+        endforeach ()
+        set_property (GLOBAL PROPERTY _CMAKE_OPT_PARSE_ARGS_CACHED_${CACHE_KEY} TRUE)
+    endif ()
+
+    set (${RETURN_KEY} ${CACHE_KEY} PARENT_SCOPE)
+endfunction ()
+
+# ! cmake_fetch_parsed_arg
+#
+# Fetch the value of a parsed argument from cmake_parse_args_key.
+#
+# A value named ${PREFIX}_${ARGUMENT} will be set in the PARENT_SCOPE
+# after calling this function, much like cmake_parse_arguments.
+#
+# \input CACHE_KEY: The key returned by cmake_parse_args_key
+# \input PREFIX: The argument prefix as passed to cmake_parse_args_key
+# \input ARGUMENT: The name of the argument (not the return value).
+function (cmake_fetch_parsed_arg CACHE_KEY PREFIX ARGUMENT)
+
+    get_property (VALUE GLOBAL
+                  PROPERTY
+                  _CMAKE_OPT_PARSE_ARGS_CACHED_${CACHE_KEY}_${ARGUMENT})
+    set (${PREFIX}_${ARGUMENT} "${VALUE}" PARENT_SCOPE)
+
+endfunction ()
