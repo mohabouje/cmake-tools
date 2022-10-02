@@ -24,40 +24,39 @@
 
 include_guard(GLOBAL)
 
-include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-args.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/cmtools-clang-format.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/cmtools-clang-tidy.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/cmtools-iwyu.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/cmtools-lizard.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/cmtools-codechecker.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/cmtools-cppcheck.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/cmtools-cpplint.cmake)
 
-cmt_disable_logger()
-include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/cmake-precompiled-header/PrecompiledHeader.cmake)
-cmt_enable_logger()
+function (cmt_target_enable_static_analysis TARGET)
+    cmake_parse_arguments (CHECKS "" "" "TOOLS" ${ARGN})
+    cmt_required_arguments(CHECKS "" "" "TOOLS")
+    cmt_ensure_target(TARGET ${TARGET})
 
-# Functions summary:
-# - cmt_target_add_precompiled_headers
-
-# ! cmt_target_add_precompiled_headers 
-# Adds precompiled headers to the target.
-#
-# cmt_target_add_precompiled_headers(
-#   <FORCEINCLUDE>
-#   TARGET
-#   [HEADERS <header1> <header2> ...]
-# )
-#
-# \input TARGET The target to configure
-# \group HEADERS The list of headers to include
-# \option FORCEINCLUDE Force the inclusion of the headers
-#
-function(cmt_target_add_precompiled_headers TARGET)
-    cmake_parse_arguments(ARGS "FORCEINCLUDE" "" "HEADERS" ${ARGN})
-    cmt_required_arguments(ARGS "" "" "HEADERS")
-    cmt_ensure_targets(${TARGET}) 
-
-    if (NOT CMT_ENABLE_PRECOMPILED_HEADERS)
-        return()
-    endif()
-
-    cmt_forward_options(ARGS "FORCEINCLUDE" "" "" ADD_PRECOMPILED_HEADER)
-    foreach (HEADER ${ARGS_HEADERS})
-        add_precompiled_header(${TARGET} ${HEADER} ${ADD_PRECOMPILED_HEADER})
-    endforeach()
-endfunction()
+    set(SUPPORTED_TOOLS "cppcheck" "clang-tidy" "iwyu" "cpplint" "ccache" "lizard" "codechecker")
+    foreach (TOOL ${CHECKS_TOOLS})
+        string(TOUPPER ${TOOL} TOOL)
+        string(REGEX REPLACE "-" "_" TOOL ${TOOL})
+        if (TOOL STREQUAL "CPPCHECK")
+            cmt_target_enable_cppcheck(${TARGET})
+        elseif (TOOL STREQUAL "CPPLINT")
+            cmt_target_enable_cpplint(${TARGET})
+        elseif (TOOL STREQUAL "CLANG_TIDY")
+            cmt_target_enable_clang_tidy(${TARGET})
+        elseif (TOOL STREQUAL "IWYU")
+            cmt_target_enable_iwyu(${TARGET})
+        elseif (TOOL STREQUAL "CCACHE")
+            cmt_target_enable_ccache(${TARGET})
+        elseif (TOOL STREQUAL "CODECHECKER")
+            cmt_target_enable_codechecker(${TARGET})
+        elseif (TOOL STREQUAL "LIZARD")
+            cmt_target_enable_lizard(${TARGET})
+        else()
+            message(FATAL_ERROR "Unknown tool ${TOOL}")
+        endif()
+    endforeach ()
+endfunction ()

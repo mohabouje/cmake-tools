@@ -59,10 +59,6 @@ cmt_target_generate_clang_format(${TEST_TARGET})
 # Integration with cotire
 # cmt_target_enable_cotire(${TEST_TARGET})
 
-# Integration with dependency graph
-cmt_dependency_graph()
-
-
 
 # Print information about target
 cmt_target_print_compiler_options(${TEST_TARGET} CONFIG Debug Release)

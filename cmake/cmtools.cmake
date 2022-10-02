@@ -43,6 +43,9 @@ include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-compiler.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-finder.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-cache.cmake)
 
+
+
+include(${CMAKE_CURRENT_LIST_DIR}/tools/cmtools-integration.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/tools/cmtools-pch.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/tools/cmtools-ccache.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/tools/cmtools-clang-format.cmake)
@@ -56,5 +59,5 @@ include(${CMAKE_CURRENT_LIST_DIR}/tools/cmtools-cpplint.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/tools/cmtools-coverage.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/tools/cmtools-sanitizers.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/tools/cmtools-cotire.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/tools/cmtools-dependency-graph.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/tools/cmtools-link-time-optimization.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/tools/cmtools-doc.cmake)

@@ -58,4 +58,8 @@ cmt_add_release_compiler_option(-mpopcnt)
 cmt_print_compiler_options(LANG CXX CONFIG Debug Release)
 cmt_print_linker_options(CONFIG Debug Release)
 
+# Integration with doxygen
+cmt_generate_doxygen_documentation(doxygen)
+cmt_generate_dependency_graph(dependency-graph)
+
 add_subdirectory(integration)

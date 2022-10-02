@@ -103,14 +103,14 @@ function upgrade_github_main {
 }
 
 upgrade_github_master onqtam ucm  cmake/ucm.cmake "${CURRENT_DIRECTORY}/cmake/third_party/ucm.cmake"
+
 upgrade_github_master sakra cotire  CMake/cotire.cmake "${CURRENT_DIRECTORY}/cmake/third_party/cotire.cmake"
+
 upgrade_github_master sbellus json-cmake  JSONParser.cmake "${CURRENT_DIRECTORY}/cmake/third_party/json-parse.cmake"
-upgrade_github_main conformism cmake-utils  Modules/Doxygen.cmake "${CURRENT_DIRECTORY}/cmake/third_party/doxygen.cmake"
+
 upgrade_github_main conformism cmake-utils  Modules/ClangBuildAnalyzer.cmake "${CURRENT_DIRECTORY}/cmake/third_party/clang-build-analyzer.cmake"
-upgrade_github_main conformism cmake-utils  Modules/CodeChecker.cmake "${CURRENT_DIRECTORY}/cmake/third_party/codechecker.cmake"
-upgrade_github_main conformism cmake-utils  Modules/Lizard.cmake "${CURRENT_DIRECTORY}/cmake/third_party/lizard.cmake"
+
 upgrade_github_main StableCoder cmake-scripts code-coverage.cmake "${CURRENT_DIRECTORY}/cmake/third_party/coverage.cmake"
-upgrade_github_main StableCoder cmake-scripts dependency-graph.cmake "${CURRENT_DIRECTORY}/cmake/third_party/dependency-graph.cmake"
 
 # This is a set of CMake scripts that are meant to be used to generate and upload coverage data to http://coveralls.io/.
 upgrade_github_master JoakimSoderberg coveralls-cmake cmake/Coveralls.cmake "${CURRENT_DIRECTORY}/cmake/third_party/coveralls/Coveralls.cmake"

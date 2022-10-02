@@ -27,10 +27,6 @@ include_guard(GLOBAL)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-args.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
 
-cmt_disable_logger()
-include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/lizard.cmake)
-cmt_enable_logger()
-
 # Functions summary:
 # - cmt_target_generate_lizard
 # - cmt_find_lizard
@@ -98,16 +94,62 @@ endfunction()
 #
 # cmt_target_generate_lizard(
 #   TARGET
+#   <STATIC_ERROR>
+#   [SUFFIX <SUFFIX>] # The suffix of the target. Default: lizard
+#   [GLOBAL_TARGET <GLOBAL_TARGET>] # The global target to which the target will be added. Default: lizard
+#   [ADDITIONAL_FILES <file> ...]
+#   [ADDITIONAL_ARGS <arg> ...]
 # )
 #
 # \input TARGET The target to generate the lizard target for.
+# \option STATIC_ERROR The error to be thrown if the target is not found.
+# \param SUFFIX The suffix of the target. Default: lizard
+# \param GLOBAL_TARGET The global target to which the target will be added. Default: lizard
+# \group ADDITIONAL_FILES Additional files to be added to the lizard target.
+# \group ADDITIONAL_ARGS Additional arguments to be passed to the lizard target.
 #
 function(cmt_target_generate_lizard TARGET)
+	cmake_parse_arguments(ARGS "STATIC_ERROR" "SUFFIX;GLOBAL_TARGET" "ADITIONAL_FILES;ADDITIONAL_ARGS" ${ARGN})
+    cmt_default_argument(ARGS SUFFIX "lizard")
+    cmt_default_argument(ARGS GLOBAL_TARGET "lizard")
     cmt_ensure_target(${TARGET})
+    
     if (NOT CMT_ENABLE_LIZARD)
         return()
     endif()
 
-    cmt_find_lizard(EXECUTABLE)
-    lizard(TARGET ${TARGET})
+    if (NOT TARGET ${ARGS_GLOBAL_TARGET})
+        add_custom_target(${ARGS_GLOBAL_TARGET})
+    endif()
+
+    cmt_find_lizard(LIZARD_EXECUTABLE)
+    cmt_strip_extraneous_sources(${TARGET} SOURCES)
+
+    set(ALL_ARGS)
+	foreach(ARG ${ARGS_ADDITIONAL_ARGS})
+		list(APPEND ALL_ARGS ${ARG} )
+	endforeach()
+
+	if (DEFINED ARGS_STATIC_ERROR )
+		set( LIZARD_ERROR 1 )
+	else()
+		set( LIZARD_ERROR 0 )
+	endif()
+
+    set(TARGET_NAME "${TARGET}-${ARGS_SUFFIX}")
+    message(STATUS "Generating lizard target ${TARGET_NAME}")
+    add_custom_target(
+        ${TARGET_NAME}
+        SOURCES ${SOURCES} ${ARGS_ADDITIONAL_FILES}
+        COMMENT "Running lizard on ${TARGET}"
+        COMMAND ${LIZARD_EXECUTABLE} ${ALL_ARGS} ${SOURCES} ${ARGS_ADDITIONAL_FILES} || exit ${LIZARD_ERROR}
+    )
+
+    add_dependencies( ${ARGS_GLOBAL_TARGET} ${TARGET_NAME})
+    add_custom_command( TARGET ${TARGET_NAME} POST_BUILD
+      COMMAND ;
+      COMMENT "Lizard checks for target ${TARGET} completed."
+    )
+
 endfunction()
+

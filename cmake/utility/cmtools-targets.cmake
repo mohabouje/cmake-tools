@@ -757,6 +757,105 @@ function(cmt_target_configure_compiler_optimization_options TARGET)
 	endif()
 endfunction()
 
+# ! cmt_target_configure_gcc_compiler_coverage_options 
+# Configure the compiler options to generate coverage informations
+#
+# cmt_target_configure_gcc_compiler_coverage_options(
+#   TARGET
+# )
+#
+# \input TARGET Target to configure
+#
+function(cmt_target_configure_gcc_compiler_coverage_options TARGET)
+	cmt_ensure_target(${TARGET})
+	cmt_define_compiler()
+	if (NOT CMT_COMPILER MATCHES "GCC")
+		cmt_warn("cmt_target_configure_gcc_compiler_coverage_options: target ${TARGET} is not a gcc target")
+		return()
+	endif()
+
+	if (CMT_ENABLE_COVERAGE OR CMT_ENABLE_PROFILING)
+		cmt_target_add_compiler_option(${TARGET} -g -O0)
+    endif ()
+
+    if (CMT_ENABLE_COVERAGE)
+		cmt_target_add_compiler_option(${TARGET} -ftest-coverage -fprofile-arcs)
+		cmt_target_add_linker_option(${TARGET} -fprofile-arcs -lgcov)
+    endif ()
+
+endfunction()
+
+# ! cmt_target_configure_clang_compiler_coverage_options 
+# Configure the compiler options to generate coverage informations
+#
+# cmt_target_configure_clang_compiler_coverage_options(
+#   TARGET
+# )
+#
+# \input TARGET Target to configure
+#
+function(cmt_target_configure_clang_compiler_coverage_options TARGET)
+	cmt_ensure_target(${TARGET})
+	cmt_define_compiler()
+	if (NOT CMT_COMPILER MATCHES "CLANG")
+		cmt_warn("cmt_target_configure_clang_compiler_coverage_options: target ${TARGET} is not a clang target")
+		return()
+	endif()
+
+	if (CMT_ENABLE_COVERAGE OR CMT_ENABLE_PROFILING)
+		cmt_target_add_compiler_option(${TARGET} -g -O0)
+    endif ()
+
+    if (CMT_ENABLE_COVERAGE)
+		cmt_target_add_compiler_option(${TARGET} -ftest-coverage -fprofile-arcs)
+		cmt_target_add_linker_option(${TARGET} -fprofile-arcs -lgcov)
+    endif ()
+endfunction()
+
+# ! cmt_target_configure_mvsc_compiler_coverage_options 
+# Configure the compiler options to generate coverage informations
+#
+# cmt_target_configure_mvsc_compiler_coverage_options(
+#   TARGET
+# )
+#
+# \input TARGET Target to configure
+#
+function(cmt_target_configure_mvsc_compiler_coverage_options TARGET)
+	cmt_ensure_target(${TARGET})
+	cmt_define_compiler()
+	if (NOT CMT_COMPILER MATCHES "MVSC")
+		cmt_warn("cmt_target_configure_mvsc_compiler_coverage_options: target ${TARGET} is not a msvc target")
+		return()
+	endif()
+
+	cmt_fatal("cmt_target_configure_mvsc_compiler_coverage_options: not implemented")
+endfunction()
+
+
+# ! cmt_target_configure_compiler_coverage_options 
+# Configure the compiler options to generate coverage informations
+#
+# cmt_target_configure_compiler_coverage_options(
+#   TARGET
+# )
+#
+# \input TARGET Target to configure
+#
+function(cmt_target_configure_compiler_coverage_options TARGET)
+	cmt_ensure_target(${TARGET})
+	cmt_define_compiler()
+	if (CMT_COMPILER MATCHES "MVSC")
+		cmt_target_configure_mvsc_compiler_coverage_options(${TARGET})
+	elseif(CMT_COMPILER MATCHES "GCC")
+		cmt_target_configure_gcc_compiler_coverage_options(${TARGET})
+	elseif(CMT_COMPILER MATCHES "CLANG")
+		cmt_target_configure_clang_compiler_coverage_options(${TARGET})
+	else()
+		cmt_warn("Unsupported compiler (${CMAKE_CXX_COMPILER_ID}), compile options not configured")
+	endif()
+endfunction()
+
 # ! cmt_target_set_runtime 
 # Set target run-time: determine if the target should be linked statically
 # or dynamically to the run-time library.
@@ -1086,7 +1185,7 @@ function(cmt_add_target)
 	cmt_ensure_on_of_argument(ARGS HEADERS SOURCES)
 	cmt_default_argument(ARGS CPP_PER_UNITY 100)
 
-    set(DO_UNITY ${CMT_ENABLE_COTIRE_UNITY_BUILD})
+    set(DO_UNITY ${CMT_ENABLE_UNITY_BUILDS})
 	if (NOT ARGS_UNITY)
         set(DO_UNITY OFF)
     endif()
@@ -1111,7 +1210,7 @@ function(cmt_add_target)
     endif()
     
 	# Inform the developer that the current target might benefit from a unity build
-	if(NOT ARGS_UNITY AND ${CMT_ENABLE_COTIRE_UNITY_BUILD})
+	if(NOT ARGS_UNITY AND ${CMT_ENABLE_UNITY_BUILDS})
 		ucm_count_sources(${ARGS_SOURCES} RESULT NUM_SOURCES)
 		if( ${num_sources} GREATER 1)
 			cmt_warning("Target '${ARGS_NAME}' may benefit from a unity build.\nIt has ${NUM_SOURCES} sources - enable it with UNITY flag")
