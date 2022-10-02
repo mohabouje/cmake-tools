@@ -48,10 +48,10 @@ cmt_enable_logger()
 # - cmt_enable_all_warnings
 # - cmt_enable_effective_cxx_warnings
 # - cmt_enable_generation_header_dependencies
-# - cmt_configure_gcc_compiler_options
-# - cmt_configure_clang_compiler_options
-# - cmt_configure_msvc_compiler_options
-# - cmt_configure_compiler_options
+# - cmt_configure_gcc_compiler_optimization_options
+# - cmt_configure_clang_compiler_optimization_options
+# - cmt_configure_mvsc_compiler_optimization_options
+# - cmt_configure_compiler_optimization_options
 
 function(cmt_check_compiler_option RESULT)
     cmake_parse_arguments(ARGS "" "OPTION;LANG" "" ${ARGN})
@@ -487,12 +487,12 @@ macro(cmt_enable_generation_header_dependencies)
 endmacro()
 
 
-# ! cmt_configure_gcc_compiler_options 
+# ! cmt_configure_gcc_compiler_optimization_options 
 # Configure gcc compile oprions for the target like debug informations, optimisation...
 #
-# cmt_configure_gcc_compiler_options()
+# cmt_configure_gcc_compiler_optimization_options()
 #
-macro(cmt_configure_gcc_compiler_options)
+macro(cmt_configure_gcc_compiler_optimization_options)
 	cmt_define_compiler()
 	if (CMT_COMPILER MATCHES "GCC")
 		cmt_add_compiler_option("-g3" CONFIG Debug RelWithDebInfo)
@@ -503,16 +503,16 @@ macro(cmt_configure_gcc_compiler_options)
         # cmt_add_compile_definition(DEFINITION "NDEBUG" CONFIG Release)
         cmt_log("Configured gcc options for all targets")	
     else()
-        cmt_warn("cmt_configure_gcc_compiler_options: target ${ARGS_TARGET} is not a gcc target")
+        cmt_warn("cmt_configure_gcc_compiler_optimization_options: target ${ARGS_TARGET} is not a gcc target")
     endif()
 endmacro()
 
-# ! cmt_configure_clang_compiler_options 
+# ! cmt_configure_clang_compiler_optimization_options 
 # Configure clang compile oprions for the target like debug informations, optimisation...
 #
-# cmt_configure_clang_compiler_options()
+# cmt_configure_clang_compiler_optimization_options()
 #
-macro(cmt_configure_clang_compiler_options)
+macro(cmt_configure_clang_compiler_optimization_options)
 	cmt_define_compiler()
 	if (CMT_COMPILER MATCHES "CLANG")
         cmt_add_compiler_option(-g3 CONFIG Debug RelWithDebInfo)
@@ -524,16 +524,16 @@ macro(cmt_configure_clang_compiler_options)
         # cmt_add_compile_definition(DEFINITION "NDEBUG" CONFIG Release)
         cmt_log("Configured clang options for all targets")
     else()
-		cmt_warn("cmt_configure_clang_compiler_options: target ${ARGS_TARGET} is not a clang target")
+		cmt_warn("cmt_configure_clang_compiler_optimization_options: target ${ARGS_TARGET} is not a clang target")
     endif()
 endmacro()
 
-# ! cmt_configure_msvc_compiler_options 
+# ! cmt_configure_mvsc_compiler_optimization_options 
 # Configure MVSC compile oprions for the target like debug informations, optimisation...
 #
-# cmt_configure_msvc_compiler_options()
+# cmt_configure_mvsc_compiler_optimization_options()
 #
-macro(cmt_configure_msvc_compiler_options target)
+macro(cmt_configure_mvsc_compiler_optimization_options target)
 	cmt_define_compiler()
 	if (NOT CMT_COMPILER MATCHES "MVSC")
         cmt_add_compiler_options(/utf-8 /MP)
@@ -546,24 +546,24 @@ macro(cmt_configure_msvc_compiler_options target)
         # cmt_add_compile_definition(DEFINITION "NDEBUG" CONFIG Release)
 	    cmt_log("Configured mvsc options for all targets")
     else()
-		cmt_warn("cmt_configure_msvc_compiler_options: target ${ARGS_TARGET} is not a msvc target")
+		cmt_warn("cmt_configure_mvsc_compiler_optimization_options: target ${ARGS_TARGET} is not a msvc target")
 		return()
 	endif()
 endmacro()
 
-# ! cmt_configure_compiler_options 
+# ! cmt_configure_compiler_optimization_options 
 # Configure compile options for all targets like debug information, optimisation...
 #
-# cmt_configure_compiler_options()
+# cmt_configure_compiler_optimization_options()
 #
-macro(cmt_configure_compiler_options)
+macro(cmt_configure_compiler_optimization_options)
 	cmt_define_compiler()
 	if (CMT_COMPILER MATCHES "MVSC")
-		cmt_configure_msvc_compiler_options(${ARGN})
+		cmt_configure_mvsc_compiler_optimization_options(${ARGN})
 	elseif(CMT_COMPILER MATCHES "GCC")
-		cmt_configure_gcc_compiler_options(${ARGN})
+		cmt_configure_gcc_compiler_optimization_options(${ARGN})
 	elseif(CMT_COMPILER MATCHES "CLANG")
-		cmt_configure_clang_compiler_options(${ARGN})
+		cmt_configure_clang_compiler_optimization_options(${ARGN})
 	else()
 		cmt_warn("Unsupported compiler (${CMAKE_CXX_COMPILER_ID}), compile options not configured")
 	endif()

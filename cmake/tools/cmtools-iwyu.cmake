@@ -90,9 +90,9 @@ endfunction ()
 # ! cmt_target_generate_iwyu\
 # Enable include-what-you-use in all targets.
 #
-# cmt_project_enable_iwyu()
+# cmt_enable_iwyu()
 #
-macro(cmt_project_enable_iwyu)
+macro(cmt_enable_iwyu)
     cmt_ensure_target(${TARGET})
 
     if (NOT CMT_ENABLE_IWYU)

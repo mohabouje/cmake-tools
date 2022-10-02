@@ -84,9 +84,9 @@ endfunction ()
 # ! cmt_target_generate_cpplint
 # Enable include-what-you-use in all targets.
 #
-# cmt_project_enable_cpplint()
+# cmt_enable_cpplint()
 #
-macro(cmt_project_enable_cpplint)
+macro(cmt_enable_cpplint)
     cmt_ensure_target(${TARGET})
 
     if (CMT_ENABLE_IWYU)

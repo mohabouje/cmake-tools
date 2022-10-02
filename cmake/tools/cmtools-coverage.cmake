@@ -264,10 +264,10 @@ function(cmt_target_generate_coverage TARGET)
 endfunction()
 
 
-# ! cmt_project_coverage
+# ! cmt_coverage
 # Generate code coverage for all the targets.
 #
-macro(cmt_project_coverage)
+macro(cmt_coverage)
     if (CMT_ENABLE_COVERAGE)
 
         cmt_find_lcov(_ _)

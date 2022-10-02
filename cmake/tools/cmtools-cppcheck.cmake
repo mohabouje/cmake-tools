@@ -83,9 +83,9 @@ endfunction ()
 # ! cmt_target_generate_cppcheck
 # Enable include-what-you-use in all targets.
 #
-# cmt_project_enable_cppcheck()
+# cmt_enable_cppcheck()
 #
-macro(cmt_project_enable_cppcheck)
+macro(cmt_enable_cppcheck)
     cmt_ensure_target(${TARGET})
 
     if (CMT_ENABLE_IWYU)

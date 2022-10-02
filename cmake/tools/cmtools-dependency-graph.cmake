@@ -32,7 +32,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/dependency-graph.cmake)
 cmt_enable_logger()
 
 # Functions summary:
-# - cmt_project_dependency_graph
+# - cmt_dependency_graph
 
 # ! cmt_find_dot
 # Try to find the dot executable.
@@ -85,16 +85,16 @@ function (cmt_find_dot EXECUTABLE EXECUTABLE_FOUND)
     set (EXECUTABLE ${DOT_EXECUTABLE} PARENT_SCOPE)
 endfunction ()
 
-# ! cmt_project_dependency_graph
+# ! cmt_dependency_graph
 # Builds a dependency graph of the active code targets using the `dot` application
 #
-# cmt_project_dependency_graph(
+# cmt_dependency_graph(
 #   [OUTPUT_DIR <output>] # Default: ${CMAKE_CURRENT_BINARY_DIR} 
 # )
 #
 # \param OUTPUT_DIR The output directory where the generated files will be stored.
 #
-macro(cmt_project_dependency_graph)
+macro(cmt_dependency_graph)
     cmake_parse_arguments(_PDG_ARGS "" "OUTPUT_DIR" "" ${ARGN})
     cmt_default_argument(_PDG_ARGS OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR})
     if (CMT_ENABLE_DEPENDENCY_GRAPH)

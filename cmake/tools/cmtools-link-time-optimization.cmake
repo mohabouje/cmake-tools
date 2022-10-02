@@ -27,39 +27,56 @@ include_guard(GLOBAL)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-args.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
 
-cmt_disable_logger()
-include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/link-time-optimization.cmake)
-cmt_enable_logger()
+include(CheckIPOSupported)
 
 # Functions summary:
+# - cmt_enable_lto
 # - cmt_target_enable_lto
-# - cmt_project_lto
+
+# !cmt_enable_lto
+# Checks for, and enables IPO/LTO for all following targets
+#
+# WARNING: Running with GCC seems to have no effect
+#
+# \option REQUIRED - If this is passed in, CMake configuration will fail with an error if LTO/IPO is not supported
+#
+macro(cmt_enable_lto)
+    cmake_parse_arguments(LTO "REQUIRED" "" "" ${ARGN})
+    check_ipo_supported(RESULT RESULT OUTPUT OUTPUT)
+    if (RESULT)
+        set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
+    else()
+        if(DEFINED LTO_REQUIRED)
+            cmt_fatal("LTO not supported, but listed as REQUIRED: ${OUTPUT}")
+        else()
+            cmt_warn("LTO not supported: ${OUTPUT}")
+        endif()
+    endif()
+endmacro()
 
 # ! cmt_target_enable_lto
-# Enables link-time-optimization for the target.
+# Checks for, and enables IPO/LTO for the specified target
 #
 # cmt_target_enable_lto(
 #   TARGET
 # )
 #
-# \input TARGET The target to enable link-time-optimization.
+# \input TARGET The target to enable link-time-optimization
+# \option REQUIRED - If this is passed in, CMake configuration will fail with an error if LTO/IPO is not supported
 #
 function(cmt_target_enable_lto TARGET)
+    cmake_parse_arguments(LTO "REQUIRED" "" "" ${ARGN})
     cmt_ensure_target(${TARGET})
-
-    if (NOT CMT_ENABLE_LTO)
-        return()
+    check_ipo_supported(RESULT RESULT OUTPUT OUTPUT)
+    if (RESULT)
+        set_property(TARGET ${TARGET} PROPERTY INTERPROCEDURAL_OPTIMIZATION ON)
+    else()
+        if(DEFINED  LTO_REQUIRED)
+            cmt_fatal("LTO not supported, but listed as REQUIRED: ${OUTPUT}")
+        else()
+            cmt_warn("LTO not supported: ${OUTPUT}")
+        endif()
     endif()
-
-    target_link_time_optimization(${TARGET})
 endfunction()
 
 
-# ! cmt_project_lto
-# Generate code lto for all the targets.
-#
-macro(cmt_project_lto)
-    if (NOT CMT_ENABLE_LTO)
-        link_time_optimization()
-    endif()
-endmacro()

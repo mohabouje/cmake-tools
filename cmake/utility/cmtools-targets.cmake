@@ -50,10 +50,10 @@ include(${CMAKE_CURRENT_LIST_DIR}/./../tools/cmtools-cotire.cmake)
 # - cmt_target_set_runtime_output_directory
 # - cmt_target_set_library_output_directory
 # - cmt_target_set_archive_output_directory
-# - cmt_target_configure_gcc_compiler_options
-# - cmt_target_configure_clang_compiler_options
-# - cmt_target_configure_msvc_compiler_options
-# - cmt_target_configure_compiler_options
+# - cmt_target_configure_gcc_compiler_optimization_options
+# - cmt_target_configure_clang_compiler_optimization_options
+# - cmt_target_configure_mvsc_compiler_optimization_options
+# - cmt_target_configure_compiler_optimization_options
 # - cmt_target_set_runtime
 # - cmt_target_enable_warnings_as_errors
 # - cmt_target_enable_all_warnings
@@ -657,20 +657,20 @@ function(cmt_target_set_archive_output_directory TARGET DIRECTORY)
 endfunction()
 
 
-# ! cmt_target_configure_gcc_compiler_options 
+# ! cmt_target_configure_gcc_compiler_optimization_options 
 # Configure gcc compile oprions for the target like debug informations, optimisation...
 #
-# cmt_target_configure_gcc_compiler_options(
+# cmt_target_configure_gcc_compiler_optimization_options(
 #   TARGET
 # )
 #
 # \input TARGET Target to configure
 #
-function(cmt_target_configure_gcc_compiler_options TARGET)
+function(cmt_target_configure_gcc_compiler_optimization_options TARGET)
 	cmt_ensure_target(${TARGET})
 	cmt_define_compiler()
 	if (NOT CMT_COMPILER MATCHES "GCC")
-		cmt_warn("cmt_target_configure_gcc_compiler_options: target ${TARGET} is not a gcc target")
+		cmt_warn("cmt_target_configure_gcc_compiler_optimization_options: target ${TARGET} is not a gcc target")
 		return()
 	endif()
 
@@ -682,20 +682,20 @@ function(cmt_target_configure_gcc_compiler_options TARGET)
 	cmt_log("Target ${TARGET}: configured gcc options")
 endfunction()
 
-# ! cmt_target_configure_clang_compiler_options 
+# ! cmt_target_configure_clang_compiler_optimization_options 
 # Configure clang compile oprions for the target like debug informations, optimisation...
 #
-# cmt_target_configure_clang_compiler_options(
+# cmt_target_configure_clang_compiler_optimization_options(
 #   TARGET
 # )
 #
 # \input TARGET Target to configure
 #
-function(cmt_target_configure_clang_compiler_options TARGET)
+function(cmt_target_configure_clang_compiler_optimization_options TARGET)
 	cmt_ensure_target(${TARGET})
 	cmt_define_compiler()
 	if (NOT CMT_COMPILER MATCHES "CLANG")
-		cmt_warn("cmt_target_configure_clang_compiler_options: target ${TARGET} is not a clang target")
+		cmt_warn("cmt_target_configure_clang_compiler_optimization_options: target ${TARGET} is not a clang target")
 		return()
 	endif()
 
@@ -707,20 +707,20 @@ function(cmt_target_configure_clang_compiler_options TARGET)
 	cmt_log("Target ${TARGET}: configured clang options")
 endfunction()
 
-# ! cmt_target_configure_msvc_compiler_options 
+# ! cmt_target_configure_mvsc_compiler_optimization_options 
 # Configure MVSC compile oprions for the target like debug informations, optimisation...
 #
-# cmt_target_configure_msvc_compiler_options(
+# cmt_target_configure_mvsc_compiler_optimization_options(
 #   TARGET
 # )
 #
 # \input TARGET Target to configure
 #
-function(cmt_target_configure_msvc_compiler_options TARGET)
+function(cmt_target_configure_mvsc_compiler_optimization_options TARGET)
 	cmt_ensure_target(${TARGET})
 	cmt_define_compiler()
 	if (NOT CMT_COMPILER MATCHES "MVSC")
-		cmt_warn("cmt_target_configure_msvc_compiler_options: target ${TARGET} is not a msvc target")
+		cmt_warn("cmt_target_configure_mvsc_compiler_optimization_options: target ${TARGET} is not a msvc target")
 		return()
 	endif()
 
@@ -734,24 +734,24 @@ function(cmt_target_configure_msvc_compiler_options TARGET)
 	cmt_log("Target ${TARGET}: configured msvc options")
 endfunction()
 
-# ! cmt_target_configure_compiler_options 
+# ! cmt_target_configure_compiler_optimization_options 
 # Configure compile options for the target like debug information, optimisation...
 #
-# cmt_target_configure_compiler_options(
+# cmt_target_configure_compiler_optimization_options(
 #   TARGET
 # )
 #
 # \input TARGET Target to configure
 #
-function(cmt_target_configure_compiler_options TARGET)
+function(cmt_target_configure_compiler_optimization_options TARGET)
 	cmt_ensure_target(${TARGET})
 	cmt_define_compiler()
 	if (CMT_COMPILER MATCHES "MVSC")
-		cmt_target_configure_msvc_compiler_options(${TARGET})
+		cmt_target_configure_mvsc_compiler_optimization_options(${TARGET})
 	elseif(CMT_COMPILER MATCHES "GCC")
-		cmt_target_configure_gcc_compiler_options(${TARGET})
+		cmt_target_configure_gcc_compiler_optimization_options(${TARGET})
 	elseif(CMT_COMPILER MATCHES "CLANG")
-		cmt_target_configure_clang_compiler_options(${TARGET})
+		cmt_target_configure_clang_compiler_optimization_options(${TARGET})
 	else()
 		cmt_warn("Unsupported compiler (${CMAKE_CXX_COMPILER_ID}), compile options not configured")
 	endif()

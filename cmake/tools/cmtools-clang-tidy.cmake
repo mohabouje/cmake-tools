@@ -87,9 +87,9 @@ endfunction ()
 # ! cmt_target_generate_clang_tidy
 # Enable include-what-you-use in all targets.
 #
-# cmt_project_enable_clang_tidy()
+# cmt_enable_clang_tidy()
 #
-macro(cmt_project_enable_clang_tidy)
+macro(cmt_enable_clang_tidy)
     cmt_ensure_target(${TARGET})
 
     if (CMT_ENABLE_IWYU)

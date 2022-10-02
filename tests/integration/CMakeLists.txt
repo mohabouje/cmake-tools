@@ -17,7 +17,7 @@ cmt_target_enable_all_warnings(${TEST_TARGET})
 cmt_target_enable_effective_cxx_warnings(${TEST_TARGET})
 cmt_target_enable_generation_header_dependencies(${TEST_TARGET})
 cmt_target_enable_warnings_as_errors(${TEST_TARGET})
-cmt_target_configure_compiler_options(${TEST_TARGET})
+cmt_target_configure_compiler_optimization_options(${TEST_TARGET})
 
 # Integration test for ccache
 cmt_target_enable_ccache(${TEST_TARGET})
@@ -44,13 +44,13 @@ cmt_target_generate_lizard(${TEST_TARGET})
 cmt_target_generate_codechecker(${TEST_TARGET})
 
 # Integration with lto
-cmt_target_enable_lto(${TEST_TARGET})
+# cmt_target_enable_lto(${TEST_TARGET})
 
 # Integration with sanitizers
 cmt_target_enable_sanitizer(${TEST_TARGET} UBSAN)
 
 # Integration with code coverage tools
-cmt_project_coverage()
+cmt_coverage()
 cmt_target_generate_coverage(${TEST_TARGET} DEPENDENCIES ${TEST_TARGET})
 
 # Integration test for clang-format
@@ -60,7 +60,7 @@ cmt_target_generate_clang_format(${TEST_TARGET})
 # cmt_target_enable_cotire(${TEST_TARGET})
 
 # Integration with dependency graph
-cmt_project_dependency_graph()
+cmt_dependency_graph()
 
 
 

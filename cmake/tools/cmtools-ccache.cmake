@@ -86,9 +86,9 @@ endfunction ()
 # ! cmt_target_generate_ccache\
 # Enable include-what-you-use in all targets.
 #
-# cmt_project_enable_ccache()
+# cmt_enable_ccache()
 #
-macro(cmt_project_enable_ccache)
+macro(cmt_enable_ccache)
     cmt_ensure_target(${TARGET})
 
     if (CMT_ENABLE_IWYU)
