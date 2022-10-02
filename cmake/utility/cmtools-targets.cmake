@@ -1086,7 +1086,7 @@ function(cmt_add_target)
 	cmt_ensure_on_of_argument(ARGS HEADERS SOURCES)
 	cmt_default_argument(ARGS CPP_PER_UNITY 100)
 
-    set(DO_UNITY ${CMT_ENABLE_UNITY_BUILD})
+    set(DO_UNITY ${CMT_ENABLE_COTIRE_UNITY_BUILD})
 	if (NOT ARGS_UNITY)
         set(DO_UNITY OFF)
     endif()
@@ -1111,7 +1111,7 @@ function(cmt_add_target)
     endif()
     
 	# Inform the developer that the current target might benefit from a unity build
-	if(NOT ARGS_UNITY AND ${CMT_ENABLE_UNITY_BUILD})
+	if(NOT ARGS_UNITY AND ${CMT_ENABLE_COTIRE_UNITY_BUILD})
 		ucm_count_sources(${ARGS_SOURCES} RESULT NUM_SOURCES)
 		if( ${num_sources} GREATER 1)
 			cmt_warning("Target '${ARGS_NAME}' may benefit from a unity build.\nIt has ${NUM_SOURCES} sources - enable it with UNITY flag")

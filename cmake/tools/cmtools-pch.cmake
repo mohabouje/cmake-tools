@@ -52,7 +52,7 @@ function(cmt_target_add_precompiled_headers TARGET)
     cmt_required_arguments(ARGS "" "" "HEADERS")
     cmt_ensure_targets(${TARGET}) 
 
-    if (NOT CMT_ENABLE_PCH)
+    if (NOT CMT_ENABLE_COTIRE_PCH)
         return()
     endif()
 

@@ -34,25 +34,35 @@ cmt_enable_logger()
 # Functions summary:
 # - cmt_target_enable_cotire
 
-# ! cmt_target_enable_cotire
-# Enable cotire compilation boost on the given target
+# !cmt_target_enable_cotire:
 #
-# cmt_target_enable_cotire(
-#   TARGET
-# )
+# For a target TARGET, adds a prefix header with all found headers used in this TARGET, cause it to be included when
+# building TARGET and precompile the prefix header before building TARGET. Also adds a new target TARGET_unity with a
+# single-source file which includes every other source file in one compilation unit.
 #
-# \input TARGET Target to enable cotire compilation boost
+# The TARGET_unity target will be set up to depend on any libraries this TARGET links to, and will prefer _unity versions of those libraries if  Davailable.
 #
-function(cmt_target_enable_cotire TARGET)
+# \input TARGET: Target to accelerate
+# \option NO_UNITY_BUILD: Don't generate TARGET_unity
+# \option NO_PRECOMPILED_HEADERS: Don't generate a precompiled header
+#
+function (cmt_target_enable_cotire TARGET)
+    cmake_parse_arguments (ACCELERATION "NO_UNITY_BUILD;NO_PRECOMPILED_HEADERS" "" "" ${ARGN})
     cmt_ensure_target(${TARGET})
 
     if (NOT CMT_ENABLE_COTIRE)
         return()
     endif()
 
-    cmt_disable_logger()
-    cotire(${TARGET})
-    cmt_enable_logger()
-    cmt_log("Target ${TARGET}: enabling extension cotire")
-endfunction()
+    set (COTIRE_PROPERTIES)
+    cmt_add_switch (COTIRE_PROPERTIES ACCELERATION_NO_UNITY_BUILD ON "COTIRE_ADD_UNITY_BUILD OFF" OFF "COTIRE_ADD_UNITY_BUILD ON")
+    cmt_add_switch (COTIRE_PROPERTIES ACCELERATION_NO_PRECOMPILED_HEADERS ON "COTIRE_ENABLE_PRECOMPILED_HEADER OFF" OFF "COTIRE_ENABLE_PRECOMPILED_HEADER ON")
+    string (REPLACE " " ";" COTIRE_PROPERTIES "${COTIRE_PROPERTIES}")
 
+    set_target_properties (${TARGET} PROPERTIES CMT_ACCELERATED ON ${COTIRE_PROPERTIES})
+    set_target_properties (${TARGET} PROPERTIES COTIRE_PREFIX_HEADER_IGNORE_PATH "")
+
+    cmt_disable_logger()
+    cotire (${TARGET})
+    cmt_enable_logger()
+endfunction ()
