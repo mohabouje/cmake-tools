@@ -66,3 +66,41 @@ function (cmt_target_enable_cotire TARGET)
     cotire (${TARGET})
     cmt_enable_logger()
 endfunction ()
+
+
+
+# !cmt_add_target
+# Generates a target eligible for cotiring - unity build and/or precompiled header
+#
+# cmt_add_target(
+#   TARGET
+#   [CPP_PER_UNIT <cpp per unit>]
+#   [PCH_FILE <pch file>]
+#   [UNITY_EXCLUDE <source1> <source2>...]
+# )
+# \input TARGET Target to add cotiring
+# \param CPP_PER_UNIT The number of cpp files per unity unit
+# \param PCH_FILE The precompiled header file
+# \group UNITY_EXCLUDE The source files to exclude from unity build
+#
+function(cmt_target_generate_cotire TARGET)
+    cmake_parse_arguments(ARGS "" "SUFFIX;GLOBAL;PCH_FILE;CPP_PER_UNITY" "UNITY_EXCLUDED" ${ARGN})
+    cmt_required_arguments(ARGS "" "NAME;TYPE" "")
+    cmt_default_argument(ARGS SUFFIX "cotire")
+    cmt_default_argument(ARGS GLOBAL "cotire")
+	cmt_default_argument(ARGS CPP_PER_UNITY 100)
+    cmt_ensure_target(${TARGET})
+
+
+    if(NOT CMT_ENABLE_COTIRE)
+        return()
+    endif()
+
+    cmt_strip_extraneous_sources(${TARGET} TARGET_SOURCES)
+
+    cmt_count_sources(NUM_SOURCES ${TARGET_SOURCES})
+    if (${NUM_SOURCES} LESS 2)
+        return()
+    endif()
+
+endfunction()

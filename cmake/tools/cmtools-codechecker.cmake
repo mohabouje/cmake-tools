@@ -94,7 +94,7 @@ endfunction()
 #
 # cmt_target_generate_codechecker(
 #   TARGET
-#   [GLOBAL_TARGET target]
+#   [GLOBAL target]
 #   <CTU>
 #   [ADDITIONAL_OPTIONAL_REPORTS dir1 [dir2] ...]
 #   [SKIP arg1 [arg2] ...]
@@ -102,7 +102,7 @@ endfunction()
 # )
 #
 # \input TARGET Target to analyse. Will set codechecker target name in consequences.
-# \param GLOBAL_TARGET  Create a global codechecker target instead of a per-target one, should
+# \param GLOBAL  Create a global codechecker target instead of a per-target one, should
 #       be prefered to cover a whole project.
 # \option CTU Disable cross translation unit analysis.
 # \groupADDITIONAL_OPTIONAL_REPORTS]
@@ -113,9 +113,9 @@ endfunction()
 # \group ARGS Specify 'codechecker analyze' command line arguments.
 #
 function(cmt_target_generate_codechecker TARGET)
-	cmake_parse_arguments(ARGS "CTU" "GLOBAL_TARGET;SUFFIX" "SKIP;ARGS;ADDITIONAL_OPTIONAL_REPORTS" ${ARGN})
+	cmake_parse_arguments(ARGS "CTU" "GLOBAL;SUFFIX" "SKIP;ARGS;ADDITIONAL_OPTIONAL_REPORTS" ${ARGN})
     cmt_default_argument(ARGS SUFFIX "codechecker")
-    cmt_default_argument(ARGS GLOBAL_TARGET "codechecker")
+    cmt_default_argument(ARGS GLOBAL "codechecker")
     cmt_ensure_target(${TARGET})
     
     if (NOT CMT_ENABLE_CODECHECKER)
@@ -123,11 +123,6 @@ function(cmt_target_generate_codechecker TARGET)
     endif()
 
     cmt_find_codechecker(EXECUTABLE)
-
-    if (NOT TARGET ${ARGS_GLOBAL_TARGET})
-        add_custom_target(${ARGS_GLOBAL_TARGET})
-    endif()
-    
 
 	if (DEFINED ARGS_CTU)
 		set(CTU_ARG --ctu)
@@ -196,4 +191,6 @@ function(cmt_target_generate_codechecker TARGET)
 			"${TARGET_DIR}/codechecker_reports"
 			"${TARGET_DIR}/html"
 		)
+    cmt_wire_mirrored_build_target_dependencies(${TARGET} ${ARGS_SUFFIX})
+    cmt_target_register(${TARGET_NAME} ${ARGS_GLOBAL})
 endfunction()

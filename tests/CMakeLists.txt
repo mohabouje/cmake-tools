@@ -56,11 +56,12 @@ cmt_add_release_compiler_options(-O3 -ggdb)
 cmt_add_release_compiler_options(-funroll-loops -Ofast -ffast-math)
 cmt_add_release_compiler_option(-mpopcnt)
 
-cmt_print_compiler_options(LANG CXX CONFIG Debug Release)
-cmt_print_linker_options(CONFIG Debug Release)
+# Print flags and configuration
+# cmt_print_compiler_options(LANG CXX CONFIG Debug Release)
+# cmt_print_linker_options(CONFIG Debug Release)
 
 # Integration with doxygen + graphviz
 cmt_generate_doxygen_documentation(doxygen)
 cmt_generate_dependency_graph(dependency-graph)
 
-add_subdirectory(integration)
+add_subdirectory(example)

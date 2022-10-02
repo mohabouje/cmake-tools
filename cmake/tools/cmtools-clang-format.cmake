@@ -104,9 +104,11 @@ endfunction()
 # \param:WORKING_DIRECTORY WORKING_DIRECTORY The clang-format working directory
 #
 function(cmt_target_generate_clang_format TARGET)
-    cmake_parse_arguments(ARGS "" "" "STYLE;WORKING_DIRECTORY" ${ARGN})
+    cmake_parse_arguments(ARGS "" "STYLE;WORKING_DIRECTORY;GLOBAL;SUFFIX" "" ${ARGN})
     cmt_default_argument(ARGS STYLE "LLVM")
     cmt_default_argument(ARGS WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+    cmt_default_argument(ARGS SUFFIX "clang-format")
+    cmt_default_argument(ARGS GLOBAL "clang-format")
     cmt_ensure_target(${TARGET}) 
 
 	if (NOT CMT_ENABLE_CLANG_FORMAT)
@@ -115,19 +117,26 @@ function(cmt_target_generate_clang_format TARGET)
 
 	cmt_find_clang_format(EXECUTABLE)
 
-	set(FORMAT_TARGET "clang-format-${TARGET}")
-	if (TARGET ${FORMAT_TARGET})
-		cmt_fatal("${FORMAT_TARGET} already exists")
+	set(TARGET_NAME "${TARGET}-${ARGS_SUFFIX}")
+	if (TARGET ${TARGET_NAME})
+		cmt_fatal("${TARGET_NAME} already exists")
 	endif()
 
     cmt_strip_extraneous_sources(${TARGET} FORMAT_TARGET_SOURCES)
 	add_custom_target(
-		${FORMAT_TARGET}
+		${TARGET_NAME}
 		COMMAND "${EXECUTABLE}" -style=${ARGS_STYLE} -i ${FORMAT_TARGET_SOURCES}
 		WORKING_DIRECTORY "${ARGS_WORKING_DIRECTORY}"
         COMMENT "Formatting ${TARGET} sources with clang-format"
 		VERBATIM
 	)
 
-    cmt_target_set_ide_directory(${FORMAT_TARGET} "format")
+    cmt_wire_mirrored_build_target_dependencies(${TARGET} ${ARGS_SUFFIX})
+    cmt_target_register(${TARGET_NAME} ${ARGS_GLOBAL})
+    cmt_target_set_ide_directory(${TARGET_NAME} "format")
+
+    add_custom_command( TARGET ${TARGET_NAME} POST_BUILD
+        COMMAND ;
+        COMMENT "Formatting of files with clang-format for target ${TARGET} completed."
+    )
 endfunction()

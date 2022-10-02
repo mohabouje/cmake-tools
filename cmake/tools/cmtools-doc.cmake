@@ -211,7 +211,7 @@ function(cmt_generate_doxygen_documentation TARGET)
     cmake_parse_arguments(ARGS "HTML;MAN" "PROJECT_NAME;PROJECT_NUMBER;PROJECT_DESCRIPTION;BINARY_DIR;SOURCE_DIR" "" ${ARGN})
     cmt_default_argument(ARGS BINARY_DIR "${CMAKE_BINARY_DIR}/doxygen")
     cmt_default_argument(ARGS SOURCE_DIR ${CMAKE_SOURCE_DIR})
-    cmt_default_argument(ARGS PROJECT_NAME ${PROJECT_NAME})
+    cmt_default_argument(ARGS PROJECT_NAME ${CMAKE_PROJECT_NAME})
     cmt_default_argument(ARGS PROJECT_NUMBER ${PROJECT_VERSION})
     cmt_default_argument(ARGS PROJECT_DESCRIPTION ${PROJECT_DESCRIPTION})
 

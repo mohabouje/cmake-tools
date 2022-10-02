@@ -96,7 +96,7 @@ endfunction()
 #   TARGET
 #   <STATIC_ERROR>
 #   [SUFFIX <SUFFIX>] # The suffix of the target. Default: lizard
-#   [GLOBAL_TARGET <GLOBAL_TARGET>] # The global target to which the target will be added. Default: lizard
+#   [GLOBAL <GLOBAL>] # The global target to which the target will be added. Default: lizard
 #   [ADDITIONAL_FILES <file> ...]
 #   [ADDITIONAL_ARGS <arg> ...]
 # )
@@ -104,22 +104,18 @@ endfunction()
 # \input TARGET The target to generate the lizard target for.
 # \option STATIC_ERROR The error to be thrown if the target is not found.
 # \param SUFFIX The suffix of the target. Default: lizard
-# \param GLOBAL_TARGET The global target to which the target will be added. Default: lizard
+# \param GLOBAL The global target to which the target will be added. Default: lizard
 # \group ADDITIONAL_FILES Additional files to be added to the lizard target.
 # \group ADDITIONAL_ARGS Additional arguments to be passed to the lizard target.
 #
 function(cmt_target_generate_lizard TARGET)
-	cmake_parse_arguments(ARGS "STATIC_ERROR" "SUFFIX;GLOBAL_TARGET" "ADITIONAL_FILES;ADDITIONAL_ARGS" ${ARGN})
+	cmake_parse_arguments(ARGS "STATIC_ERROR" "SUFFIX;GLOBAL" "ADITIONAL_FILES;ADDITIONAL_ARGS" ${ARGN})
     cmt_default_argument(ARGS SUFFIX "lizard")
-    cmt_default_argument(ARGS GLOBAL_TARGET "lizard")
+    cmt_default_argument(ARGS GLOBAL "lizard")
     cmt_ensure_target(${TARGET})
     
     if (NOT CMT_ENABLE_LIZARD)
         return()
-    endif()
-
-    if (NOT TARGET ${ARGS_GLOBAL_TARGET})
-        add_custom_target(${ARGS_GLOBAL_TARGET})
     endif()
 
     cmt_find_lizard(LIZARD_EXECUTABLE)
@@ -137,6 +133,10 @@ function(cmt_target_generate_lizard TARGET)
 	endif()
 
     set(TARGET_NAME "${TARGET}-${ARGS_SUFFIX}")
+	if (TARGET ${TARGET_NAME})
+		cmt_fatal("${TARGET_NAME} already exists")
+	endif()
+
     add_custom_target(
         ${TARGET_NAME}
         SOURCES ${SOURCES} ${ARGS_ADDITIONAL_FILES}
@@ -144,11 +144,13 @@ function(cmt_target_generate_lizard TARGET)
         COMMAND ${LIZARD_EXECUTABLE} ${ALL_ARGS} ${SOURCES} ${ARGS_ADDITIONAL_FILES} || exit ${LIZARD_ERROR}
     )
 
-    add_dependencies( ${ARGS_GLOBAL_TARGET} ${TARGET_NAME})
+    add_dependencies( ${TARGET_NAME} ${TARGET})
     add_custom_command( TARGET ${TARGET_NAME} POST_BUILD
       COMMAND ;
       COMMENT "Lizard checks for target ${TARGET} completed."
     )
+    cmt_wire_mirrored_build_target_dependencies(${TARGET} ${ARGS_SUFFIX})
+    cmt_target_register(${TARGET_NAME} ${ARGS_GLOBAL})
 
 endfunction()
 

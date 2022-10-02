@@ -24,15 +24,12 @@
 
 include_guard(GLOBAL)
 
-
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/./../third_party/cmake-coverage/" ${CMAKE_MODULE_PATH})
-
-
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-args.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
 
 set(ENABLE_COVERAGE ON)
 mark_as_advanced(ENABLE_COVERAGE)
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/./../third_party/cmake-coverage/" ${CMAKE_MODULE_PATH})
 include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/cmake-coverage/Findcodecov.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/cmake-coverage/FindLcov.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/cmake-coverage/FindGcov.cmake)
@@ -189,7 +186,7 @@ function (cmt_find_llvm_cov EXECUTABLE)
         "Please adjust LLVM_COV_SEARCH_PATHS to the installation prefix of the 'llvm-cov' executable or install llvm-cov")
 
     if (LLVM_COV_EXECUTABLE)
-        set (LLVM_COV_VERSION_HEADER "LCOV version")
+        set (LLVM_COV_VERSION_HEADER "LLVM version ")
         cmt_find_tool_extract_version("${LLVM_COV_EXECUTABLE}"
                                       LLVM_COV_VERSION
                                       VERSION_ARG --version
@@ -287,21 +284,11 @@ function(cmt_target_generate_coverage TARGET)
     cmt_find_llvm_cov(_)
     cmt_find_llvm_profdata(_)
 
-    set(ENABLE_COVERAGE TRUE)
     add_coverage_target(${TARGET})
+    cmt_wire_mirrored_build_target_dependencies(${TARGET} gcov)
+    cmt_wire_mirrored_build_target_dependencies(${TARGET} genhtml)
+
+    cmt_target_register("${TARGET}-gcov" "gcov")
+    cmt_target_register("${TARGET}-genhtml" "genhtml")
+
 endfunction()
-
-
-# ! cmt_generate_coverage
-# Generate code coverage for all the targets.
-#
-macro(cmt_generate_coverage)
-    if (CMT_ENABLE_COVERAGE)
-
-        cmt_find_lcov(_)
-        cmt_find_genhtml(_)
-        cmt_find_llvm_cov(_)
-        cmt_find_llvm_profdata(_)
-
-    endif()
-endmacro()

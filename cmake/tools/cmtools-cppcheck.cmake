@@ -120,3 +120,30 @@ function(cmt_target_enable_cppcheck TARGET)
     set_property(TARGET ${TARGET} PROPERTY CMAKE_CXX_CPPCHECK ${EXECUTABLE})
     set_property(TARGET ${TARGET} PROPERTY CMAKE_C_CPPCHECK ${EXECUTABLE})
 endfunction()
+
+# ! cmt_target_generate_cppcheck
+# Generates a new target that compiles with cppcheck
+#
+# cmt_target_generate_cppcheck(
+#   TARGET
+# )
+#
+# \input TARGET The target to configure
+#
+function(cmt_target_generate_cppcheck TARGET)
+    cmake_parse_arguments(ARGS "" "SUFFIX;GLOBAL" "" ${ARGN})
+    cmt_default_argument(ARGS SUFFIX "cppcheck")
+    cmt_default_argument(ARGS GLOBAL "cppcheck")
+    cmt_ensure_target(${TARGET})
+    
+    if (NOT CMT_ENABLE_CCACHE)
+        return()
+    endif()
+
+    cmt_find_cppcheck(EXECUTABLE)
+
+    set(TARGET_NAME ${TARGET}-${ARGS_SUFFIX})
+    cmt_create_mirrored_build_target(${TARGET} ${ARGS_SUFFIX})
+    cmt_target_enable_cppcheck(${TARGET_NAME})
+    cmt_target_register(${TARGET_NAME} ${ARGS_GLOBAL})
+endfunction()

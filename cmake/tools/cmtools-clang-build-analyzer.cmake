@@ -40,7 +40,6 @@ include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
 # )
 #
 # \output EXECUTABLE The path to the clang-build-analyzer executable.
-# \output CBA_FOUND - True if the executable is found, false otherwise.
 # \param BIN_SUBDIR - The subdirectory where the executable is located.
 # \group NAMES - The name of the executable.
 #
@@ -49,44 +48,44 @@ function (cmt_find_clang_build_analyzer EXECUTABLE)
     cmt_default_argument(ARGS NAMES "clang-build-analyzer;")
     cmt_default_argument(ARGS BIN_SUBDIR bin)
 
-    cmt_cache_get_tool(CBA EXECUTABLE_FOUND EXECUTABLE_PATH EXECUTABLE_VERSION)
+    cmt_cache_get_tool(CLANG_BUILD_ANALYZER EXECUTABLE_FOUND EXECUTABLE_PATH EXECUTABLE_VERSION)
     if (${EXECUTABLE_FOUND})
         set(${EXECUTABLE} ${EXECUTABLE_PATH} PARENT_SCOPE)
         return()
     endif()
 
-    foreach (CBA_EXECUTABLE_NAME ${ARGS_NAMES})
-         cmt_find_tool_executable (${CBA_EXECUTABLE_NAME}
-                                  CBA_EXECUTABLE
-                                  PATHS ${CBA_SEARCH_PATHS}
+    foreach (CLANG_BUILD_ANALYZER_EXECUTABLE_NAME ${ARGS_NAMES})
+         cmt_find_tool_executable (${CLANG_BUILD_ANALYZER_EXECUTABLE_NAME}
+                                  CLANG_BUILD_ANALYZER_EXECUTABLE
+                                  PATHS ${CLANG_BUILD_ANALYZER_SEARCH_PATHS}
                                   PATH_SUFFIXES "${ARGS_BIN_SUBDIR}")
-        if (CBA_EXECUTABLE)
+        if (CLANG_BUILD_ANALYZER_EXECUTABLE)
             break()
         endif()
     endforeach()
 
-    cmt_report_not_found_if_not_quiet (clang-build-analyzer CBA_EXECUTABLE
+    cmt_report_not_found_if_not_quiet (clang-build-analyzer CLANG_BUILD_ANALYZER_EXECUTABLE
         "The 'clang-build-analyzer' executable was not found in any search or system paths.\n"
-        "Please adjust CBA_SEARCH_PATHS to the installation prefix of the 'clang-build-analyzer' executable or install clang-build-analyzer")
+        "Please adjust CLANG_BUILD_ANALYZER_SEARCH_PATHS to the installation prefix of the 'clang-build-analyzer' executable or install clang-build-analyzer")
 
-    if (CBA_EXECUTABLE)
-        set (CBA_VERSION_HEADER "LLVM version ")
-        cmt_find_tool_extract_version("${CBA_EXECUTABLE}"
-                                      CBA_VERSION
+    if (CLANG_BUILD_ANALYZER_EXECUTABLE)
+        set (CLANG_BUILD_ANALYZER_VERSION_HEADER "LLVM version ")
+        cmt_find_tool_extract_version("${CLANG_BUILD_ANALYZER_EXECUTABLE}"
+                                      CLANG_BUILD_ANALYZER_VERSION
                                       VERSION_ARG --version
                                       VERSION_HEADER
-                                      "${CBA_VERSION_HEADER}"
+                                      "${CLANG_BUILD_ANALYZER_VERSION_HEADER}"
                                       VERSION_END_TOKEN "\n")
     endif()
 
     cmt_check_and_report_tool_version(clang-build-analyzer
-                                      "${CBA_VERSION}"
+                                      "${CLANG_BUILD_ANALYZER_VERSION}"
                                       REQUIRED_VARS
-                                      CBA_EXECUTABLE
-                                      CBA_VERSION)
+                                      CLANG_BUILD_ANALYZER_EXECUTABLE
+                                      CLANG_BUILD_ANALYZER_VERSION)
 
-    cmt_cache_set_tool(CBA TRUE ${CBA_EXECUTABLE} ${CBA_VERSION})
-    set (EXECUTABLE ${CBA_EXECUTABLE} PARENT_SCOPE)
+    cmt_cache_set_tool(CLANG_BUILD_ANALYZER TRUE ${CLANG_BUILD_ANALYZER_EXECUTABLE} ${CLANG_BUILD_ANALYZER_VERSION})
+    set (EXECUTABLE ${CLANG_BUILD_ANALYZER_EXECUTABLE} PARENT_SCOPE)
 endfunction()
 
 # ! cmt_target_generate_clang_build_analyzer
@@ -99,9 +98,9 @@ endfunction()
 # \input TARGET The target to configure
 #
 function(cmt_target_generate_clang_build_analyzer TARGET)
-    cmake_parse_arguments(ARGS "" "SUFFIX;GLOBAL_TARGET;BINARY_DIR" "" ${ARGN})
-    cmt_default_argument(ARGS SUFFIX "cba")
-    cmt_default_argument(ARGS GLOBAL_TARGET "cba")
+    cmake_parse_arguments(ARGS "" "SUFFIX;GLOBAL;BINARY_DIR" "" ${ARGN})
+    cmt_default_argument(ARGS SUFFIX "clang-build-analyzer")
+    cmt_default_argument(ARGS GLOBAL "${PROJECT}-clang-build-analyzer")
     cmt_default_argument(ARGS BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}")
     cmt_ensure_target(${TARGET})
 
@@ -109,17 +108,12 @@ function(cmt_target_generate_clang_build_analyzer TARGET)
         return()
     endif()
 
-    if (NOT TARGET ${ARGS_GLOBAL_TARGET})
-        add_custom_target(${ARGS_GLOBAL_TARGET})
-    endif()
-
-
     cmt_define_compiler()
     if (NOT ${CMT_COMPILER} STREQUAL "CLANG")
         return()
     endif()
 
-    cmt_find_clang_build_analyzer(CBA_EXECUTABLE)
+    cmt_find_clang_build_analyzer(CLANG_BUILD_ANALYZER_EXECUTABLE)
 
     set(TARGET_NAME "${TARGET}-${ARGS_SUFFIX}")
     set(TARGET_DIR "${ARGS_BINARY_DIR}/CMakeFiles/${TARGET}_build_analyzer.dir" )
@@ -128,14 +122,15 @@ function(cmt_target_generate_clang_build_analyzer TARGET)
 
     add_custom_target(${TARGET_NAME}
         COMMENT "${TARGET_NAME} Clang build statistics"
-        COMMAND ${CBA_EXECUTABLE} --all
+        COMMAND ${CLANG_BUILD_ANALYZER_EXECUTABLE} --all
                 "${ARGS_BINARY_DIR}/CMakeFiles/${TARGET}.dir"
                 "${TARGET_DIR}/build_analysis"
-        COMMAND ${CBA_EXECUTABLE} --analyze
+        COMMAND ${CLANG_BUILD_ANALYZER_EXECUTABLE} --analyze
                 "${TARGET_DIR}/build_analysis"
         BYPRODUCTS
                 "${TARGET_DIR}/build_analysis"
     )
+    cmt_wire_mirrored_build_target_dependencies(${TARGET} ${ARGS_SUFFIX})
     add_dependencies(${TARGET_NAME} ${TARGET})
-    add_dependencies(${ARGS_GLOBAL_TARGET} ${TARGET_NAME} )
+    cmt_target_register(${TARGET_NAME} ${ARGS_GLOBAL})
 endfunction()
