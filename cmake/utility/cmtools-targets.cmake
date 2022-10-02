@@ -807,8 +807,8 @@ function(cmt_target_configure_clang_compiler_coverage_options TARGET)
     endif ()
 
     if (CMT_ENABLE_COVERAGE)
-		cmt_target_add_compiler_option(${TARGET} -ftest-coverage -fprofile-arcs)
-		cmt_target_add_linker_option(${TARGET} -fprofile-arcs -lgcov)
+		cmt_target_add_compiler_option(${TARGET} -fprofile-instr-generate -fcoverage-mapping)
+		cmt_target_add_linker_option(${TARGET} -fprofile-instr-generate -fcoverage-mapping)
     endif ()
 endfunction()
 

@@ -96,7 +96,7 @@ endfunction()
 # cmt_target_generate_clang_format(
 #   TARGET
 #   [STYLE <style>] ('file' style by default)
-#   [WORKING_DIRECTORY <work_dir>] (${CMAKE_CURRENT_SOURCE_DIR} by default}).
+#   [WORKING_DIRECTORY <work_dir>] (${CMAKE_PROJECT_SOURCE_DIR} by default}).
 # )
 #
 # \param:TARGET TARGET The target to configure
@@ -105,8 +105,8 @@ endfunction()
 #
 function(cmt_target_generate_clang_format TARGET)
     cmake_parse_arguments(ARGS "" "" "STYLE;WORKING_DIRECTORY" ${ARGN})
-    cmt_default_argument(ARGS STYLE "file")
-    cmt_default_argument(ARGS WORKING_DIRECTORY VALUE ${CMAKE_CURRENT_SOURCE_DIR})
+    cmt_default_argument(ARGS STYLE "LLVM")
+    cmt_default_argument(ARGS WORKING_DIRECTORY ${CMAKE_PROJECT_SOURCE_DIR})
     cmt_ensure_target(${TARGET}) 
 
 	if (NOT CMT_ENABLE_CLANG_FORMAT)
@@ -120,11 +120,12 @@ function(cmt_target_generate_clang_format TARGET)
 		cmt_fatal("${FORMAT_TARGET} already exists")
 	endif()
 
-	get_property(FORMAT_TARGET_SOURCES TARGET ${TARGET} PROPERTY SOURCES)
+    cmt_strip_extraneous_sources(${TARGET} FORMAT_TARGET_SOURCES)
 	add_custom_target(
 		${FORMAT_TARGET}
 		COMMAND "${EXECUTABLE}" -style=${ARGS_STYLE} -i ${FORMAT_TARGET_SOURCES}
 		WORKING_DIRECTORY "${ARGS_WORKING_DIRECTORY}"
+        COMMENT "Formatting ${TARGET} sources with clang-format"
 		VERBATIM
 	)
 

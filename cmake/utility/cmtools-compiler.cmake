@@ -569,6 +569,31 @@ macro(cmt_configure_compiler_optimization_options)
 	endif()
 endmacro()
 
+# ! cmt_configure_compiler_coverage_options
+# Adds code coverage instrumentation to all targets in the current directory and
+# any subdirectories.
+#
+macro(cmt_configure_compiler_coverage_options)
+    if (NOT CMT_ENABLE_COVERAGE)
+        return()
+    endif()
+
+	cmt_define_compiler()
+	if (CMT_COMPILER MATCHES "MVSC")
+        cmt_fatal("Code coverage is not supported on msvc")
+    elseif(CMT_COMPILER MATCHES "CLANG")
+        cmt_add_compiler_option(-fprofile-instr-generate)
+        cmt_add_compiler_option(-fcoverage-mapping)
+        cmt_add_linker_option(-fprofile-instr-generate)
+        cmt_add_linker_option(-fcoverage-mapping)
+    elseif(CMT_COMPILER MATCHES "GNU")
+        cmt_add_compiler_option(-fprofile-arcs)
+        cmt_add_compiler_option(-ftest-coverage)
+        cmt_add_linker_option(-lgcov)
+    endif()
+endmacro()
+
+
 # ! cmt_print_compiler_options 
 # Prints the compiler options for all targets
 #

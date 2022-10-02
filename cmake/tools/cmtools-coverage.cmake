@@ -280,14 +280,14 @@ function(cmt_target_generate_coverage TARGET)
     cmt_find_llvm_profdata(_)
 
     set(CODE_COVERAGE ON)
-    target_code_coverage(${TARGET} OBJECTS ${ARGS_DEPENDENCIES} AUTO ALL)
+    target_code_coverage(${TARGET} OBJECTS ${ARGS_DEPENDENCIES} AUTO EXTERNAL)
 endfunction()
 
 
-# ! cmt_coverage
+# ! cmt_generate_coverage
 # Generate code coverage for all the targets.
 #
-macro(cmt_coverage)
+macro(cmt_generate_coverage)
     if (CMT_ENABLE_COVERAGE)
 
         cmt_find_lcov(_)
