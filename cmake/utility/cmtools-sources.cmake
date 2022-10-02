@@ -157,18 +157,18 @@ function (cmt_sort_sources_to_languages C_SOURCES CXX_SOURCES HEADERS)
         list (FIND LANGUAGE "CXX" CXX_INDEX)
         if (NOT C_INDEX EQUAL -1)
             list (APPEND _C_SOURCES "${SOURCE}")
-        endif ()
+        endif()
         if (NOT CXX_INDEX EQUAL -1)
             list (APPEND _CXX_SOURCES "${SOURCE}")
-        endif ()
+        endif()
         if (SOURCE_WAS_HEADER)
             list (APPEND _HEADERS "${SOURCE}")
-        endif ()
-    endforeach ()
+        endif()
+    endforeach()
     set(${C_SOURCES} ${_C_SOURCES} PARENT_SCOPE)
     set(${CXX_SOURCES} ${_CXX_SOURCES} PARENT_SCOPE)
     set(${HEADERS} ${_HEADERS} PARENT_SCOPE)
-endfunction ()
+endfunction()
 
 
 # !cmt_strip_extraneous_sources
@@ -197,7 +197,7 @@ function (cmt_strip_extraneous_sources TARGET RETURN_SOURCES)
         endif()
     endforeach()
     set(${RETURN_SOURCES} ${STRIPPED_SOURCES} PARENT_SCOPE)
-endfunction ()
+endfunction()
 
 # cmt_filter_out_generated_sources
 #
@@ -220,10 +220,10 @@ function (cmt_filter_out_generated_sources RESULT_VARIABLE)
         get_property (SOURCE_IS_GENERATED SOURCE "${SOURCE}" PROPERTY GENERATED)
         if (NOT SOURCE_IS_GENERATED)
             list (APPEND FILTERED_SOURCES "${SOURCE}")
-        endif ()
-    endforeach ()
+        endif()
+    endforeach()
     set (${RESULT_VARIABLE} ${FILTERED_SOURCES} PARENT_SCOPE)
-endfunction ()
+endfunction()
 
 
 # ! cmt_count_sources
@@ -255,4 +255,4 @@ function (cmt_get_target_command_attach_point TARGET ATTACH_POINT_RETURN)
     endif()
 
     set (${ATTACH_POINT_RETURN} ${_ATTACH_POINT} PARENT_SCOPE)
-endfunction ()
+endfunction()

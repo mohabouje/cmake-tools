@@ -16,7 +16,7 @@ if (POLICY CMP0054)
 
     cmake_policy (SET CMP0054 NEW)
 
-endif ()
+endif()
 
 function (_psq_get_absolute_path_to_header_file_language ABSOLUTE_PATH_TO_HEADER
                                                          LANGUAGE)
@@ -50,13 +50,13 @@ function (_psq_get_absolute_path_to_header_file_language ABSOLUTE_PATH_TO_HEADER
 
             list (APPEND HEADER_FILE_LANGUAGE "CXX")
 
-        endif ()
+        endif()
 
-    endif ()
+    endif()
 
     set (${LANGUAGE} ${HEADER_FILE_LANGUAGE} PARENT_SCOPE)
 
-endfunction ()
+endfunction()
 
 # psq_source_type_from_source_file_extension:
 #
@@ -79,9 +79,9 @@ function (psq_source_type_from_source_file_extension SOURCE RETURN_TYPE)
     if (HEADER_FILE_ONLY)
 
         set (${RETURN_TYPE} "HEADER" PARENT_SCOPE)
-        return ()
+        return()
 
-    endif ()
+    endif()
 
     # Try and detect the language based on the file's extension
     get_filename_component (EXTENSION "${SOURCE}" EXT)
@@ -94,18 +94,18 @@ function (psq_source_type_from_source_file_extension SOURCE RETURN_TYPE)
         if (NOT C_INDEX EQUAL -1)
 
             set (${RETURN_TYPE} "C_SOURCE" PARENT_SCOPE)
-            return ()
+            return()
 
-        endif ()
+        endif()
 
         list (FIND CMAKE_CXX_SOURCE_FILE_EXTENSIONS ${EXTENSION} CXX_INDEX)
 
         if (NOT CXX_INDEX EQUAL -1)
 
             set (${RETURN_TYPE} "CXX_SOURCE" PARENT_SCOPE)
-            return ()
+            return()
 
-        endif ()
+        endif()
 
         # CMake doesn't provide a list of header file extensions. Here are
         # some common ones.
@@ -123,16 +123,16 @@ function (psq_source_type_from_source_file_extension SOURCE RETURN_TYPE)
         if (NOT HEADER_INDEX EQUAL -1)
 
             set (${RETURN_TYPE} "HEADER" PARENT_SCOPE)
-            return ()
+            return()
 
-        endif ()
+        endif()
 
-    endif ()
+    endif()
 
     # If we got to this point, then we don't know, set UNKNOWN
     set (${RETURN_TYPE} "UNKNOWN" PARENT_SCOPE)
 
-endfunction ()
+endfunction()
 
 function (_psq_language_from_source SOURCE
                                     RETURN_LANGUAGE
@@ -173,7 +173,7 @@ function (_psq_language_from_source SOURCE
                  "header. It should not be passed to "
                  "psq_scan_source_for_headers")
 
-    endif ()
+    endif()
 
     # Override language based on option here after we've scanned everything
     # and worked out if this was a header or not
@@ -181,7 +181,7 @@ function (_psq_language_from_source SOURCE
 
         set (_RETURN_LANGUAGE ${LANG_FROM_SOURCE_FORCE_LANGUAGE})
 
-    else ()
+    else()
 
         get_property (LANGUAGE SOURCE "${SOURCE}" PROPERTY SET_LANGUAGE)
 
@@ -190,13 +190,13 @@ function (_psq_language_from_source SOURCE
 
             set (_RETURN_LANGUAGE ${SET_LANGUAGE})
 
-        endif ()
+        endif()
 
-    endif ()
+    endif()
 
     set (${RETURN_LANGUAGE} ${_RETURN_LANGUAGE} PARENT_SCOPE)
 
-endfunction ()
+endfunction()
 
 function (_psq_process_include_statement_path INCLUDE_PATH
                                               UPDATE_HEADERS_RETURN)
@@ -237,15 +237,15 @@ function (_psq_process_include_statement_path INCLUDE_PATH
 
                 list (APPEND HEADERS_TO_UPDATE_LIST "${ABSOLUTE_PATH}")
 
-            endif ()
+            endif()
 
-        endif ()
+        endif()
 
-    endforeach ()
+    endforeach()
 
     set (${UPDATE_HEADERS_RETURN} ${HEADERS_TO_UPDATE_LIST} PARENT_SCOPE)
 
-endfunction ()
+endfunction()
 
 # psq_scan_source_for_headers
 #
@@ -285,7 +285,7 @@ function (psq_scan_source_for_headers)
         message (FATAL_ERROR "SOURCE ${SCAN_SOURCE} must be "
                              "set to use this function")
 
-    endif ()
+    endif()
 
     # Source doesn't exist. This is fine, we might be recursively scanning
     # a header path which is generated. If it is generated, gracefully bail
@@ -297,17 +297,17 @@ function (psq_scan_source_for_headers)
 
         if (SOURCE_IS_GENERATED)
 
-            return ()
+            return()
 
-        else ()
+        else()
 
             message (FATAL_ERROR "_scan_source_file_for_headers called with "
                                  "a source file that does not exist or was "
                                  "not generated as part of a build rule")
 
-        endif ()
+        endif()
 
-    endif ()
+    endif()
 
     # We've already scanned this source file in this pass, bail out
     get_property (ALREADY_SCANNED GLOBAL
@@ -316,9 +316,9 @@ function (psq_scan_source_for_headers)
 
     if (NOT SOURCE_INDEX EQUAL -1)
 
-        return ()
+        return()
 
-    endif ()
+    endif()
 
     set_property (GLOBAL APPEND PROPERTY _PSQ_ALREADY_SCANNED_SOURCES
                   "${SCAN_SOURCE}")
@@ -390,7 +390,7 @@ function (psq_scan_source_for_headers)
 
                     list (APPEND SCAN_INCLUDES "${CMAKE_CURRENT_SOURCE_DIR}")
 
-                endif ()
+                endif()
 
                 _psq_process_include_statement_path ("${HEADER}" UPDATE_HEADERS
                                                      INCLUDES ${SCAN_INCLUDES})
@@ -415,7 +415,7 @@ function (psq_scan_source_for_headers)
                              "${${HEADER_PATHS_MAP_KEY}}"
                              CACHE INTERNAL "" FORCE)
 
-                    endif ()
+                    endif()
 
                     # Append the header to the list of candidate headers
                     # globally
@@ -430,11 +430,11 @@ function (psq_scan_source_for_headers)
                                       _PSQ_CANDIDATE_HEADERS
                                       "${HEADER}")
 
-                    endif ()
+                    endif()
 
-                endforeach ()
+                endforeach()
 
-            endif ()
+            endif()
 
             if (SCAN_FOR_CXX_IDENTIFIERS)
 
@@ -453,13 +453,13 @@ function (psq_scan_source_for_headers)
                              CACHE INTERNAL "" FORCE)
                         set (SCAN_FOR_CXX_IDENTIFIERS FALSE)
 
-                    endif ()
+                    endif()
 
-                endforeach ()
+                endforeach()
 
-            endif ()
+            endif()
 
-        endforeach ()
+        endforeach()
 
     endif (NOT "${FILE_TIMESTAMP}" STREQUAL "${${FILE_TIMESTAMP_MAP_KEY}}" OR
            NOT "${CPP_IDENTIFIERS}" STREQUAL "${${SCANNED_CXX_TOKENS_MAP_KEY}}")
@@ -474,9 +474,9 @@ function (psq_scan_source_for_headers)
                                             CPP_IDENTIFIERS
                                             ${SCAN_CPP_IDENTIFIERS})
 
-    endforeach ()
+    endforeach()
 
-endfunction ()
+endfunction()
 
 # psq_determine_language_for_source
 #
@@ -513,7 +513,7 @@ function (psq_determine_language_for_source SOURCE
         set (LANG_FROM_SOURCE_FORCE_LANGUAGE_OPT
              FORCE_LANGUAGE ${DETERMINE_LANG_FORCE_LANGUAGE})
 
-    endif ()
+    endif()
 
     _psq_language_from_source ("${SOURCE}" LANGUAGE WAS_HEADER
                                ${LANG_FROM_SOURCE_FORCE_LANGUAGE_OPT})
@@ -525,9 +525,9 @@ function (psq_determine_language_for_source SOURCE
     if (NOT WAS_HEADER OR DETERMINE_LANG_FORCE_LANGUAGE)
 
         set (${LANGUAGE_RETURN} ${LANGUAGE} PARENT_SCOPE)
-        return ()
+        return()
 
-    else ()
+    else()
 
         set (${SOURCE_WAS_HEADER_RETURN} TRUE PARENT_SCOPE)
 
@@ -569,22 +569,22 @@ function (psq_determine_language_for_source SOURCE
 
                 set (ERROR_MESSAGE "${ERROR_MESSAGE} - ${SOURCE}\n")
 
-            endforeach ()
+            endforeach()
 
             set (ERROR_MESSAGE "${ERROR_MESSAGE}\n The following headers are "
                                "marked as potential includes:\n")
 
             message (SEND_ERROR ${ERROR_MESSAGE})
 
-            return ()
+            return()
 
-        endif ()
+        endif()
 
         set (${LANGUAGE_RETURN} ${HEADER_LANGUAGE} PARENT_SCOPE)
-        return ()
+        return()
 
-    endif ()
+    endif()
 
     message (FATAL_ERROR "This section should not be reached")
 
-endfunction ()
+endfunction()

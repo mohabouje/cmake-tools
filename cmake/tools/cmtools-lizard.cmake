@@ -41,18 +41,22 @@ cmt_enable_logger()
 #
 # cmt_find_lizard(
 #   EXECUTABLE
-#   EXECUTABLE_FOUND
 # )
 #
 # \output EXECUTABLE The path to the lizard executable.
-# \output EXECUTABLE_FOUND - True if the executable is found, false otherwise.
 # \param BIN_SUBDIR - The subdirectory where the executable is located.
 # \group NAMES - The name of the executable.
 #
-function (cmt_find_lizard EXECUTABLE EXECUTABLE_FOUND)
+function (cmt_find_lizard EXECUTABLE)
     cmake_parse_arguments(ARGS "" "BIN_SUBDIR" "NAMES" ${ARGN})
     cmt_default_argument(ARGS NAMES "lizard")
     cmt_default_argument(ARGS BIN_SUBDIR bin)
+
+    cmt_cache_get_tool(LIZARD EXECUTABLE_FOUND EXECUTABLE_PATH EXECUTABLE_VERSION)
+    if (${EXECUTABLE_FOUND})
+        set(${EXECUTABLE} ${EXECUTABLE_PATH} PARENT_SCOPE)
+        return()
+    endif()
 
     foreach (LIZARD_EXECUTABLE_NAME ${ARGS_NAMES})
          cmt_find_tool_executable (${LIZARD_EXECUTABLE_NAME}
@@ -60,31 +64,33 @@ function (cmt_find_lizard EXECUTABLE EXECUTABLE_FOUND)
                                   PATHS ${LIZARD_SEARCH_PATHS}
                                   PATH_SUFFIXES "${ARGS_BIN_SUBDIR}")
         if (LIZARD_EXECUTABLE)
-            break ()
-        endif ()
-    endforeach ()
+            break()
+        endif()
+    endforeach()
 
     cmt_report_not_found_if_not_quiet (lizard LIZARD_EXECUTABLE
         "The 'lizard' executable was not found in any search or system paths.\n"
         "Please adjust LIZARD_SEARCH_PATHS to the installation prefix of the 'lizard' executable or install lizard")
 
     # if (LIZARD_EXECUTABLE)
-    #     set (LIZARD_VERSION_HEADER "Lizard command line interface 64-bit")
+    #     set (LIZARD_VERSION_HEADER "")
     #     cmt_find_tool_extract_version("${LIZARD_EXECUTABLE}"
     #                                   LIZARD_VERSION
     #                                   VERSION_ARG -V
     #                                   VERSION_HEADER
     #                                   "${LIZARD_VERSION_HEADER}"
-    #                                   VERSION_END_TOKEN "by Y.Collet & P.Skibinski (Oct 29 2021)")
+    #                                   VERSION_END_TOKEN "\n")
     # endif()
+
     set(LIZARD_VERSION "Unknown")
     cmt_check_and_report_tool_version(lizard
                                       "${LIZARD_VERSION}"
                                       REQUIRED_VARS
                                       LIZARD_EXECUTABLE
                                       LIZARD_VERSION)
+    cmt_cache_set_tool(LIZARD TRUE ${LIZARD_EXECUTABLE} ${LIZARD_VERSION})
     set (EXECUTABLE ${LIZARD_EXECUTABLE} PARENT_SCOPE)
-endfunction ()
+endfunction()
 
 # ! cmt_target_generate_lizard
 # Generate a lizard target for the target.
@@ -102,6 +108,6 @@ function(cmt_target_generate_lizard TARGET)
         return()
     endif()
 
-    cmt_find_lizard(EXECUTABLE _)
+    cmt_find_lizard(EXECUTABLE)
     lizard(TARGET ${TARGET})
 endfunction()

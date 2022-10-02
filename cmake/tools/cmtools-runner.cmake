@@ -72,7 +72,7 @@ function (cmt_run_tool_on_source TARGET SOURCE TOOL_NAME)
     if (DEFINED RUN_TOOL_ON_SOURCE_WORKING_DIRECTORY)
         set (WORKING_DIRECTORY_OPTION
              WORKING_DIRECTORY "${RUN_TOOL_ON_SOURCE_WORKING_DIRECTORY}")
-    endif ()
+    endif()
 
     # Get all the sources on this target and make the new check depend on the
     # generated ones. The reason being that the source that we are checking
@@ -91,16 +91,16 @@ function (cmt_run_tool_on_source TARGET SOURCE TOOL_NAME)
 
             if (NOT SIG_IDX EQUAL -1)
                 math (EXPR SIG_SIZE "${TARGET_SOURCE_LEN} - ${SIG_IDX}")
-            else ()
+            else()
                 set (SIG_SIZE 0)
-            endif ()
+            endif()
 
             # Exclude any
             if (SIG_IDX EQUAL -1 OR NOT SIG_SIZE EQUAL 5)
                 list (APPEND TARGET_SOURCES_TO_GENERATE "${TARGET_SOURCE}")
-            endif ()
-        endif ()
-    endforeach ()
+            endif()
+        endif()
+    endforeach()
 
     add_custom_command (OUTPUT ${STAMPFILE}
                         COMMAND ${COMMAND}
@@ -118,7 +118,7 @@ function (cmt_run_tool_on_source TARGET SOURCE TOOL_NAME)
     set_property (SOURCE "${SOURCE}"
                   APPEND PROPERTY OBJECT_DEPENDENCIES ${STAMPFILE})
 
-endfunction ()
+endfunction()
 
 
 # ! cmt_target_run_tool
@@ -160,8 +160,8 @@ function (cmt_target_run_tool TARGET TOOL_NAME)
     # depending on the generation of the source file.
     foreach (SOURCE ${FILTERED_SOURCES})
         cmt_run_tool_on_source (${TARGET} "${SOURCE}" ${TOOL_NAME} ${RUN_ON_SOURCE_FORWARD})
-    endforeach ()
-endfunction ()
+    endforeach()
+endfunction()
 
 
 # ! cmt_target_add_compilation_db:
@@ -199,11 +199,11 @@ function (cmt_target_add_compilation_db TARGET
 
     foreach (C_SOURCE ${COMPDB_C_SOURCES})
         list (APPEND SOURCES_LANGUAGES "C,${C_SOURCE}")
-    endforeach ()
+    endforeach()
 
     foreach (CXX_SOURCE ${COMPDB_CXX_SOURCES})
         list (APPEND SOURCES_LANGUAGES "CXX,${CXX_SOURCE}")
-    endforeach ()
+    endforeach()
 
     foreach (SOURCE_LANGUAGE ${SOURCES_LANGUAGES})
         string (REPLACE "," ";" SOURCE_LANGUAGE "${SOURCE_LANGUAGE}")
@@ -222,15 +222,15 @@ function (cmt_target_add_compilation_db TARGET
             list (APPEND COMPILER_COMMAND_LINE "\\\"${CMAKE_CXX_COMPILER}\\\"")
             if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
                 list (APPEND COMPILER_COMMAND_LINE "--driver-mode=cl")
-            else ()
+            else()
                 list (APPEND COMPILER_COMMAND_LINE -x c++)
-            endif ()
+            endif()
         elseif (LANGUAGE STREQUAL "C")
             list (APPEND COMPILER_COMMAND_LINE "\\\"${CMAKE_C_COMPILER}\\\"")
             if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
                 list (APPEND COMPILER_COMMAND_LINE "--driver-mode=cl")
-            endif ()
-        endif ()
+            endif()
+        endif()
 
         # Fake output file etc.
         list (APPEND COMPILER_COMMAND_LINE  -o "CMakeFiles/${TARGET}.dir/${BASENAME}.o" -c "\\\"${FULL_PATH}\\\"")
@@ -243,7 +243,7 @@ function (cmt_target_add_compilation_db TARGET
         elseif (LANGUAGE STREQUAL "CXX" AND
                 CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
             set (SYSTEM_INCLUDE_FLAG "-I")
-        endif ()
+        endif()
 
         cmt_append_each_to_options_with_prefix (COMPILER_COMMAND_LINE
                                                 "${SYSTEM_INCLUDE_FLAG}"
@@ -266,7 +266,7 @@ function (cmt_target_add_compilation_db TARGET
             list (APPEND COMPILER_COMMAND_LINE ${CMAKE_CXX_FLAGS})
         elseif (LANGUAGE STREQUAL "C")
             list (APPEND COMPILER_COMMAND_LINE ${CMAKE_C_FLAGS})
-        endif ()
+        endif()
 
         get_property (COMPILE_FLAGS TARGET "${TARGET}" PROPERTY COMPILE_FLAGS)
         list (APPEND COMPILER_COMMAND_LINE "${COMPILE_FLAGS}")
@@ -274,7 +274,7 @@ function (cmt_target_add_compilation_db TARGET
         string (REPLACE ";" " " COMPILER_COMMAND_LINE "${COMPILER_COMMAND_LINE}")
         set (COMPILATION_DB_FILE_CONTENTS "${COMPILATION_DB_FILE_CONTENTS}${COMPILER_COMMAND_LINE}")
         set (COMPILATION_DB_FILE_CONTENTS "${COMPILATION_DB_FILE_CONTENTS}\",\n" "\"file\": \"${FULL_PATH}\"\n" "},")
-    endforeach ()
+    endforeach()
 
     # Get rid of all the semicolons
     string (REPLACE ";" "" COMPILATION_DB_FILE_CONTENTS "${COMPILATION_DB_FILE_CONTENTS}")
@@ -292,4 +292,4 @@ function (cmt_target_add_compilation_db TARGET
 
     set (${CUSTOM_COMPILATION_DB_DIR_RETURN} "${CUSTOM_COMPILATION_DB_DIR}" PARENT_SCOPE)
 
-endfunction ()
+endfunction()

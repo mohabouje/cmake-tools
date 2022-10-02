@@ -27,11 +27,6 @@ include_guard(GLOBAL)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-args.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
 
-set (IWYU_EXIT_STATUS_WRAPPER
-     "${CMAKE_CURRENT_LIST_DIR}/internal/cmtools-iwyu-exit.cmake")
-set (_IWYU_LIST_DIR "${CMAKE_CURRENT_LIST_DIR}")
-
-
 # Functions summary:
 # - cmt_target_generate_iwyu
 # - cmt_target_enable_iwyu
@@ -42,18 +37,22 @@ set (_IWYU_LIST_DIR "${CMAKE_CURRENT_LIST_DIR}")
 #
 # cmt_find_iwyu(
 #   EXECUTABLE
-#   EXECUTABLE_FOUND
 # )
 #
 # \output EXECUTABLE The path to the include-what-you-use executable.
-# \output EXECUTABLE_FOUND - True if the executable is found, false otherwise.
 # \param BIN_SUBDIR - The subdirectory where the executable is located.
 # \group NAMES - The name of the executable.
 #
-function (cmt_find_iwyu EXECUTABLE EXECUTABLE_FOUND)
+function (cmt_find_iwyu EXECUTABLE)
     cmake_parse_arguments(ARGS "" "BIN_SUBDIR" "NAMES" ${ARGN})
     cmt_default_argument(ARGS NAMES "include-what-you-use;iwyu")
     cmt_default_argument(ARGS BIN_SUBDIR bin)
+
+    cmt_cache_get_tool(IWYU EXECUTABLE_FOUND EXECUTABLE_PATH EXECUTABLE_VERSION)
+    if (${EXECUTABLE_FOUND})
+        set(${EXECUTABLE} ${EXECUTABLE_PATH} PARENT_SCOPE)
+        return()
+    endif()
 
     foreach (IWYU_EXECUTABLE_NAME ${ARGS_NAMES})
          cmt_find_tool_executable (${IWYU_EXECUTABLE_NAME}
@@ -61,9 +60,9 @@ function (cmt_find_iwyu EXECUTABLE EXECUTABLE_FOUND)
                                   PATHS ${IWYU_SEARCH_PATHS}
                                   PATH_SUFFIXES "${ARGS_BIN_SUBDIR}")
         if (IWYU_EXECUTABLE)
-            break ()
-        endif ()
-    endforeach ()
+            break()
+        endif()
+    endforeach()
 
     cmt_report_not_found_if_not_quiet (include-what-you-use IWYU_EXECUTABLE
         "The 'include-what-you-use' executable was not found in any search or system paths.\n"
@@ -84,8 +83,9 @@ function (cmt_find_iwyu EXECUTABLE EXECUTABLE_FOUND)
                                       REQUIRED_VARS
                                       IWYU_EXECUTABLE
                                       IWYU_VERSION)
+    cmt_cache_set_tool(IWYU TRUE ${IWYU_EXECUTABLE} ${IWYU_VERSION})
     set (EXECUTABLE ${IWYU_EXECUTABLE} PARENT_SCOPE)
-endfunction ()
+endfunction()
 
 # ! cmt_target_generate_iwyu\
 # Enable include-what-you-use in all targets.
@@ -95,8 +95,8 @@ endfunction ()
 macro(cmt_enable_iwyu)
     cmt_ensure_target(${TARGET})
 
-    if (NOT CMT_ENABLE_IWYU)
-        cmt_find_iwyu(EXECUTABLE _)
+    if (CMT_ENABLE_IWYU)
+        cmt_find_iwyu(EXECUTABLE)
         set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE ${EXECUTABLE})
         set(CMAKE_C_INCLUDE_WHAT_YOU_USE ${EXECUTABLE})
     endif()
@@ -108,7 +108,7 @@ endmacro()
 # Enable include-what-you-use checks on the given target
 #
 # cmt_target_use_iwyu(
-#   <target>
+#   TARGET
 # )
 #
 # \input TARGET The target to configure
@@ -120,7 +120,7 @@ function(cmt_target_enable_iwyu TARGET)
         return()
     endif()
 
-    cmt_find_iwyu(EXECUTABLE _)
+    cmt_find_iwyu(EXECUTABLE)
     set_property(TARGET ${TARGET} PROPERTY CMAKE_CXX_INCLUDE_WHAT_YOU_USE ${EXECUTABLE})
     set_property(TARGET ${TARGET} PROPERTY CMAKE_C_INCLUDE_WHAT_YOU_USE ${EXECUTABLE})
 endfunction()

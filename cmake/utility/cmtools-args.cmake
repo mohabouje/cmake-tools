@@ -86,8 +86,8 @@ function (cmt_forward_options PREFIX OPTION_ARGS SINGLEVAR_ARGS MULTIVAR_ARGS RE
         set (PREFIXED_OPTION_ARG ${PREFIX}_${OPTION_ARG})
         if (${PREFIXED_OPTION_ARG})
             list (APPEND RETURN_LIST ${OPTION_ARG})
-        endif ()
-    endforeach ()
+        endif()
+    endforeach()
 
     # Single-variable arguments - add the name of the argument and its value to
     # the return list
@@ -96,8 +96,8 @@ function (cmt_forward_options PREFIX OPTION_ARGS SINGLEVAR_ARGS MULTIVAR_ARGS RE
         if (${PREFIXED_SINGLEVAR_ARG})
             list (APPEND RETURN_LIST ${SINGLEVAR_ARG})
             list (APPEND RETURN_LIST ${${PREFIXED_SINGLEVAR_ARG}})
-        endif ()
-    endforeach ()
+        endif()
+    endforeach()
 
     # Multi-variable arguments - add the name of the argument and all its values
     # to the return-list
@@ -106,11 +106,11 @@ function (cmt_forward_options PREFIX OPTION_ARGS SINGLEVAR_ARGS MULTIVAR_ARGS RE
         list (APPEND RETURN_LIST ${MULTIVAR_ARG})
         foreach (VALUE ${${PREFIXED_MULTIVAR_ARG}})
             list (APPEND RETURN_LIST ${VALUE})
-        endforeach ()
-    endforeach ()
+        endforeach()
+    endforeach()
 
     set (${RETURN_LIST_NAME} ${RETURN_LIST} PARENT_SCOPE)
-endfunction ()
+endfunction()
 
 # cmt_append_each_to_options_with_prefix
 #
@@ -132,12 +132,12 @@ function (cmt_append_each_to_options_with_prefix MAIN_LIST PREFIX)
     foreach (ITEM ${APPEND_LIST})
         if (APPEND_WRAP_IN_QUOTES)
             list (APPEND ${MAIN_LIST} "\\\"${PREFIX}${ITEM}\\\"")
-        else ()
+        else()
             list (APPEND ${MAIN_LIST} ${PREFIX}${ITEM})
-        endif ()
-    endforeach ()
+        endif()
+    endforeach()
     set (${MAIN_LIST} ${${MAIN_LIST}} PARENT_SCOPE)
-endfunction ()
+endfunction()
 
 
 # ! cmt_ensure_on_of_argument
@@ -267,28 +267,100 @@ function (cmt_append_to_global_property_unique PROPERTY ITEM)
         if (LIST_ITEM STREQUAL ${ITEM})
             set(LIST_CONTAINS_ITEM TRUE)
             break()
-        endif ()
-    endforeach ()
+        endif()
+    endforeach()
 
     if(NOT LIST_CONTAINS_ITEM)
         set_property (GLOBAL APPEND PROPERTY ${PROPERTY}  ${ITEM})
     endif()
-endfunction ()
+endfunction()
 
+# ! cmt_set_global_property
+#
+# Set PROPERTY_VALUE to the global property PROPERTY, only if it is not already defined
+# If the property is already defined, it will not be overwritten and an error will be raised
+#
+# \input  PROPERTY Global property to append to.
+# \input  PROPERTY_VALUE Item to append, only if not present.
+#
+function (cmt_set_global_property PROPERTY PROPERTY_VALUE)
+    get_property (GLOBAL_PROPERTY GLOBAL PROPERTY ${PROPERTY})
+    if (DEFINED GLOBAL_PROPERTY)
+        cmt_fatal("The global property ${PROPERTY} is already defined.")
+    endif()
+
+    set_property (GLOBAL PROPERTY ${PROPERTY}  ${PROPERTY_VALUE})
+endfunction()
+
+# ! cmt_try_set_global_property
+#
+# Set PROPERTY_VALUE to the global property PROPERTY, only if it is not already defined
+# If the property is already defined, it will not be overwritten and be ignored
+#
+# \input  PROPERTY Global property to append to.
+# \input  PROPERTY_VALUE Item to append, only if not present.
+# \output PROPERTY_FOUND True if the property is defined, false otherwise
+#
+macro (cmt_try_set_global_property PROPERTY PROPERTY_VALUE PROPERTY_FOUND)
+    get_property (GLOBAL_PROPERTY GLOBAL PROPERTY ${PROPERTY})
+    if (DEFINED GLOBAL_PROPERTY)
+        set(${PROPERTY_FOUND} TRUE PARENT_SCOPE)
+    else()
+        set(${PROPERTY_FOUND} FALSE PARENT_SCOPE)
+        set_property (GLOBAL PROPERTY ${PROPERTY}  ${PROPERTY_VALUE})
+    endif()
+endmacro()
+
+
+# ! cmt_get_global_property
+#
+# Load in PROPERTY_VALUE the valie of the global property PROPERTY, only if it is not already defined.
+# Throw an error if the property is not defined
+#
+# \input  PROPERTY Global property to append to.
+# \output PROPERTY_VALUE The value of the property
+#
+function (cmt_get_global_property PROPERTY PROPERTY_VALUE)
+    get_property (GLOBAL_PROPERTY GLOBAL PROPERTY ${PROPERTY})
+    if (DEFINED GLOBAL_PROPERTY)
+        set(${PROPERTY_VALUE} ${GLOBAL_PROPERTY} PARENT_SCOPE)
+    else()
+        cmt_fatal("The global property ${PROPERTY} is not defined.")
+    endif()
+endfunction()
+
+# ! cmt_try_get_global_property
+#
+# Load in PROPERTY_VALUE the valie of the global property PROPERTY, only if it is not already defined.
+#
+# \input  PROPERTY Global property to append to.
+# \output PROPERTY_FOUND True if the property is defined, false otherwise
+# \output PROPERTY_VALUE The value of the property
+#
+function (cmt_try_get_global_property PROPERTY PROPERTY_FOUND PROPERTY_VALUE)
+    get_property (GLOBAL_PROPERTY GLOBAL PROPERTY ${PROPERTY})
+    if (DEFINED GLOBAL_PROPERTY)
+        set(${PROPERTY_FOUND} TRUE PARENT_SCOPE)
+        set(${PROPERTY_VALUE} ${GLOBAL_PROPERTY} PARENT_SCOPE)
+    else()
+        set(${PROPERTY_FOUND} FALSE PARENT_SCOPE)
+        set(${PROPERTY_VALUE} ${GLOBAL_PROPERTY} PARENT_SCOPE)
+    endif()
+endfunction()
 
 # ! cmt_append_to_global_property
 #
 # Append ITEM to the global property PROPERTY.
 #
 # \input    PROPERTY Global property to append to.
-# \input    ITEM Item to append, only if not present.
+# \input    ITEM Item to append
 # \group    LIST List of items to append.
 function (cmt_append_to_global_property PROPERTY)
     cmake_parse_arguments (APPEND "" "" "LIST" ${ARGN})
     foreach (ITEM ${APPEND_LIST})
         set_property (GLOBAL APPEND PROPERTY ${PROPERTY} ${ITEM})
-    endforeach ()
-endfunction ()
+    endforeach()
+endfunction()
 
 # ! cmt_add_switch:
 # Specify certain command line switches depending on value of
@@ -309,11 +381,11 @@ function (cmt_add_switch ALL_OPTIONS OPTION_NAME)
 
     if (${OPTION_NAME})
         list (APPEND ${ALL_OPTIONS} ${ADD_SWITCH_ON})
-    else ()
+    else()
         list (APPEND ${ALL_OPTIONS} ${ADD_SWITCH_OFF})
-    endif ()
+    endif()
     set (${ALL_OPTIONS} ${${ALL_OPTIONS}} PARENT_SCOPE)
-endfunction ()
+endfunction()
 
 # ! cmake_unit_parse_args_key
 #
@@ -350,12 +422,12 @@ function (cmake_parse_args_key PREFIX
                           PROPERTY
                           _CMAKE_OPT_PARSE_ARGS_CACHED_${CACHE_KEY}_${VAR}
                           "${${PREFIX}_${VAR}}")
-        endforeach ()
+        endforeach()
         set_property (GLOBAL PROPERTY _CMAKE_OPT_PARSE_ARGS_CACHED_${CACHE_KEY} TRUE)
-    endif ()
+    endif()
 
     set (${RETURN_KEY} ${CACHE_KEY} PARENT_SCOPE)
-endfunction ()
+endfunction()
 
 # ! cmake_fetch_parsed_arg
 #
@@ -374,4 +446,4 @@ function (cmake_fetch_parsed_arg CACHE_KEY PREFIX ARGUMENT)
                   _CMAKE_OPT_PARSE_ARGS_CACHED_${CACHE_KEY}_${ARGUMENT})
     set (${PREFIX}_${ARGUMENT} "${VALUE}" PARENT_SCOPE)
 
-endfunction ()
+endfunction()

@@ -30,98 +30,56 @@ include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
 
 
 # Functions summary:
-# - cmt_target_use_ccache
+# - cmt_target_use_mdl
 
-# ! cmt_find_ccache
-# Try to find the ccache executable.
+# ! cmt_find_mdl
+# Try to find the mdl executable.
 # If the executable is not found, the function will throw an error.
 #
-# cmt_find_ccache(
+# cmt_find_mdl(
 #   EXECUTABLE
 # )
 #
-# \output EXECUTABLE The path to the ccache executable.
+# \output EXECUTABLE The path to the mdl executable.
 # \param BIN_SUBDIR - The subdirectory where the executable is located.
 # \group NAMES - The name of the executable.
 #
-function (cmt_find_ccache EXECUTABLE)
+function (cmt_find_mdl EXECUTABLE)
     cmake_parse_arguments(ARGS "" "BIN_SUBDIR" "NAMES" ${ARGN})
-    cmt_default_argument(ARGS NAMES "ccache;")
+    cmt_default_argument(ARGS NAMES "mdl;")
     cmt_default_argument(ARGS BIN_SUBDIR bin)
 
-    cmt_cache_get_tool(CCACHE EXECUTABLE_FOUND EXECUTABLE_PATH EXECUTABLE_VERSION)
+    cmt_cache_get_tool(MDL EXECUTABLE_FOUND EXECUTABLE_PATH EXECUTABLE_VERSION)
     if (${EXECUTABLE_FOUND})
         set(${EXECUTABLE} ${EXECUTABLE_PATH} PARENT_SCOPE)
         return()
     endif()
 
-    foreach (CCACHE_EXECUTABLE_NAME ${ARGS_NAMES})
-         cmt_find_tool_executable (${CCACHE_EXECUTABLE_NAME}
-                                  CCACHE_EXECUTABLE
-                                  PATHS ${CCACHE_SEARCH_PATHS}
+    foreach (MDL_EXECUTABLE_NAME ${ARGS_NAMES})
+         cmt_find_tool_executable (${MDL_EXECUTABLE_NAME}
+                                  MDL_EXECUTABLE
+                                  PATHS ${MDL_SEARCH_PATHS}
                                   PATH_SUFFIXES "${ARGS_BIN_SUBDIR}")
-        if (CCACHE_EXECUTABLE)
+        if (MDL_EXECUTABLE)
             break()
         endif()
     endforeach()
 
-    cmt_report_not_found_if_not_quiet (ccache CCACHE_EXECUTABLE
-        "The 'ccache' executable was not found in any search or system paths.\n"
-        "Please adjust CCACHE_SEARCH_PATHS to the installation prefix of the 'ccache' executable or install ccache")
+    cmt_report_not_found_if_not_quiet (mdl MDL_EXECUTABLE
+        "The 'mdl' executable was not found in any search or system paths.\n"
+        "Please adjust MDL_SEARCH_PATHS to the installation prefix of the 'mdl' executable or install mdl")
 
-    if (CCACHE_EXECUTABLE)
-        set (CCACHE_VERSION_HEADER "ccache version ")
-        cmt_find_tool_extract_version("${CCACHE_EXECUTABLE}"
-                                      CCACHE_VERSION
-                                      VERSION_ARG --version
-                                      VERSION_HEADER
-                                      "${CCACHE_VERSION_HEADER}"
-                                      VERSION_END_TOKEN "\n")
+    if (MDL_EXECUTABLE)
+        cmt_find_tool_extract_version("${MDL_EXECUTABLE}"
+                                      MDL_VERSION
+                                      VERSION_ARG --version)
     endif()
 
-    cmt_check_and_report_tool_version(ccache
-                                      "${CCACHE_VERSION}"
+    cmt_check_and_report_tool_version(mdl
+                                      "${MDL_VERSION}"
                                       REQUIRED_VARS
-                                      CCACHE_EXECUTABLE
-                                      CCACHE_VERSION)
-
-    cmt_cache_set_tool(CCACHE TRUE ${CCACHE_EXECUTABLE} ${CCACHE_VERSION})
-    set (EXECUTABLE ${CCACHE_EXECUTABLE} PARENT_SCOPE)
-endfunction()
-
-# ! cmt_target_generate_ccache\
-# Enable include-what-you-use in all targets.
-#
-# cmt_enable_ccache()
-#
-macro(cmt_enable_ccache)
-    cmt_ensure_target(${TARGET})
-
-    if (CMT_ENABLE_IWYU)
-        cmt_find_ccache(EXECUTABLE)
-        set(C_COMPILER_LAUNCHER ${EXECUTABLE})
-        set(CXX_COMPILER_LAUNCHER ${EXECUTABLE})
-    endif()
-
-endmacro()
-
-# ! cmt_target_use_ccache
-# Enable ccache use on the given target
-#
-# cmt_target_use_ccache(
-#   TARGET
-# )
-#
-# \input TARGET The target to configure
-#
-function(cmt_target_enable_ccache TARGET)
-    cmt_ensure_target(${TARGET}) 
-    
-    if (NOT CMT_ENABLE_CCACHE)
-        return()
-    endif()
-    
-    cmt_find_ccache(EXECUTABLE)
-    set_target_properties(${TARGET} PROPERTIES C_COMPILER_LAUNCHER "${EXECUTABLE}")
-    set_target_properties(${TARGET} PROPERTIES CXX_COMPILER_LAUNCHER "${EXECUTABLE}")
+                                      MDL_EXECUTABLE
+                                      MDL_VERSION)
+    cmt_cache_set_tool(MDL ${MDL_EXECUTABLE_FOUND} ${MDL_EXECUTABLE} ${MDL_VERSION})
+    set (EXECUTABLE ${MDL_EXECUTABLE} PARENT_SCOPE)
 endfunction()

@@ -45,10 +45,16 @@ cmt_enable_logger()
 # \param BIN_SUBDIR - The subdirectory where the executable is located.
 # \group NAMES - The name of the executable.
 #
-function (cmt_find_codechecker EXECUTABLE CODECHECKER_FOUND)
+function (cmt_find_codechecker EXECUTABLE)
     cmake_parse_arguments(ARGS "" "BIN_SUBDIR" "NAMES" ${ARGN})
     cmt_default_argument(ARGS NAMES "codechecker;")
     cmt_default_argument(ARGS BIN_SUBDIR bin)
+
+    cmt_cache_get_tool(CODECHECKER EXECUTABLE_FOUND EXECUTABLE_PATH EXECUTABLE_VERSION)
+    if (${EXECUTABLE_FOUND})
+        set(${EXECUTABLE} ${EXECUTABLE_PATH} PARENT_SCOPE)
+        return()
+    endif()
 
     foreach (CODECHECKER_EXECUTABLE_NAME ${ARGS_NAMES})
          cmt_find_tool_executable (${CODECHECKER_EXECUTABLE_NAME}
@@ -56,9 +62,9 @@ function (cmt_find_codechecker EXECUTABLE CODECHECKER_FOUND)
                                   PATHS ${CODECHECKER_SEARCH_PATHS}
                                   PATH_SUFFIXES "${ARGS_BIN_SUBDIR}")
         if (CODECHECKER_EXECUTABLE)
-            break ()
-        endif ()
-    endforeach ()
+            break()
+        endif()
+    endforeach()
 
     cmt_report_not_found_if_not_quiet (codechecker CODECHECKER_EXECUTABLE
         "The 'codechecker' executable was not found in any search or system paths.\n"
@@ -79,8 +85,10 @@ function (cmt_find_codechecker EXECUTABLE CODECHECKER_FOUND)
                                       REQUIRED_VARS
                                       CODECHECKER_EXECUTABLE
                                       CODECHECKER_VERSION)
+
+    cmt_cache_set_tool(CODECHECKER ${CODECHECKER_EXECUTABLE_FOUND} ${CODECHECKER_EXECUTABLE} ${CODECHECKER_VERSION})
     set (EXECUTABLE ${CODECHECKER_EXECUTABLE} PARENT_SCOPE)
-endfunction ()
+endfunction()
 
 # Functions summary:
 # - cmt_target_generate_codechecker
@@ -102,7 +110,7 @@ function(cmt_target_generate_codechecker TARGET)
         return()
     endif()
 
-    cmt_find_codechecker(EXECUTABLE _)
+    cmt_find_codechecker(EXECUTABLE)
     codechecker(TARGET ${TARGET})
     cmt_log("Target ${TARGET}: generate target to run codechecker")
 endfunction()

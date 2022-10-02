@@ -45,15 +45,15 @@ function (cmt_print_if_not_quiet PREFIX)
     set (DEPEND_VARS_STRING "")
     foreach (DEPEND_VAR ${DEPENDS})
         set (DEPEND_VARS_STRING "${DEPEND_VARS_STRING}[${${DEPEND_VAR}}]")
-    endforeach ()
+    endforeach()
     if (DEPEND_VARS_STRING)
         find_package_message(${PREFIX} "${MSG}" "${DEPEND_VARS_STRING}")
-    else ()
+    else()
         if (NOT ${PREFIX}_FIND_QUIETLY)
             cmt_fatal("${MSG}")
-        endif ()
-    endif ()
-endfunction ()
+        endif()
+    endif()
+endfunction()
 
 # ! report_not_found_if_not_quiet
 #
@@ -82,16 +82,16 @@ function (_find_tool_executable_in_custom_paths EXECUTABLE_TO_FIND PATH_RETURN)
     if (PATH_TO_EXECUTABLE)
         set (${PATH_RETURN} "${PATH_TO_EXECUTABLE}" PARENT_SCOPE)
         unset (PATH_TO_EXECUTABLE CACHE)
-    endif ()
-endfunction ()
+    endif()
+endfunction()
 
 function (_find_tool_executable_in_system_paths EXECUTABLE_TO_FIND PATH_RETURN)
     unset (PATH_TO_EXECUTABLE CACHE)
     find_program (PATH_TO_EXECUTABLE ${EXECUTABLE_TO_FIND})
     if (PATH_TO_EXECUTABLE)
         set (${PATH_RETURN} "${PATH_TO_EXECUTABLE}" PARENT_SCOPE)
-    endif ()
-endfunction ()
+    endif()
+endfunction()
 
 # !cmt_find_tool_executable
 #
@@ -114,18 +114,18 @@ function (cmt_find_tool_executable EXECUTABLE_TO_FIND PATH_RETURN)
                                                    ${PATHS}
                                                    PATH_SUFFIXES
                                                    ${PATH_SUFFIXES})
-    endif ()
+    endif()
 
     if (NOT PATH_TO_EXECUTABLE)
         _find_tool_executable_in_system_paths (${EXECUTABLE_TO_FIND}
                                                    PATH_TO_EXECUTABLE)
-    endif ()
+    endif()
 
     if (PATH_TO_EXECUTABLE)
         set (${PATH_RETURN} "${PATH_TO_EXECUTABLE}" PARENT_SCOPE)
-    endif ()
+    endif()
 
-endfunction ()
+endfunction()
 
 # !cmt_find_tool_extract_version
 #
@@ -149,27 +149,27 @@ function (cmt_find_tool_extract_version TOOL_EXECUTABLE VERSION_RETURN)
         string (LENGTH "${FIND_TOOL_VERSION_HEADER}" FIND_TOOL_VHEADER_SIZE)
         math (EXPR FIND_TOOL_VERSION_START "${FIND_TOOL_VHEADER_LOC} + ${FIND_TOOL_VHEADER_SIZE}")
         string (SUBSTRING "${TOOL_VERSION_OUTPUT}" ${FIND_TOOL_VERSION_START} -1 FIND_TOOL_VERSION_TO_END)
-    else ()
+    else()
         set (FIND_TOOL_VERSION_TO_END ${TOOL_VERSION_OUTPUT})
-    endif ()
+    endif()
 
     if (FIND_TOOL_VERSION_END_TOKEN)
         string (FIND "${FIND_TOOL_VERSION_TO_END}" "${FIND_TOOL_VERSION_END_TOKEN}" FIND_TOOL_RETURN_LOC)
         string (SUBSTRING "${FIND_TOOL_VERSION_TO_END}" 0 ${FIND_TOOL_RETURN_LOC} FIND_TOOL_VERSION)
-    else ()
+    else()
         set (FIND_TOOL_VERSION ${FIND_TOOL_VERSION_TO_END})
-    endif ()
+    endif()
 
     if (NOT FIND_TOOL_VERSION)
         cmt_fatal("Failed to find tool version by executing ${TOOL_EXECUTABLE} ${FIND_TOOL_VERSION_ARG} "
                 "and splicing between the header '${FIND_TOOL_VERSION_HEADER}' and footer "
                 "'${FIND_TOOL_VERSION_END_TOKEN}'. The output to  scan was ${TOOL_VERSION_OUTPUT}")
-    endif ()
+    endif()
 
     # Strip out any \n
     string (REPLACE "\n" "" FIND_TOOL_VERSION "${FIND_TOOL_VERSION}")
     set (${VERSION_RETURN} ${FIND_TOOL_VERSION} PARENT_SCOPE)
-endfunction ()
+endfunction()
 
 # ! cmt_check_and_report_tool_version
 #
@@ -195,14 +195,75 @@ macro (cmt_check_and_report_tool_version PREFIX VERSION)
                                        ${_PSQ_CHECK_${PREFIX}_REQUIRED_VARS}
                                        VERSION_VAR VERSION)
     cmt_enable_logger()
-    cmt_log("Found ${PREFIX} (Version ${VERSION})")
 
     if (${PREFIX}_FOUND)
         foreach (VARIABLE ${_PSQ_CHECK_${PREFIX}_REQUIRED_VARS})
             set (${VARIABLE} ${${VARIABLE}} CACHE STRING "" FORCE)
-        endforeach ()
-    endif ()
-endmacro ()
+        endforeach()
+    endif()
+endmacro()
+
+# ! cmt_cache_set_tool
+# Cache the tool information for the given tool
+#
+# It will set:
+#
+# CMT_${TOOL_ID}_FOUND : Whether or not markdownlint is available on the target system
+# CMT_${TOOL_ID}_VERSION : Version of markdownlint
+# CMT_${TOOL_ID}_EXECUTABLE : Fully qualified path to the markdownlint executable
+# 
+# and add it to the CMT_TOOLS list if it is found
+#
+# \input TOOL_ID Unique ID for the tool
+# \input TOOL_EXECUTABLE The path to the tool
+# \input TOOL_VERSION The version of the tool
+# \input TOOL_FOUND If the tool was found
+#
+function (cmt_cache_set_tool TOOL_ID TOOL_FOUND TOOL_EXECUTABLE TOOL_VERSION)
+    if (${TOOL_FOUND})
+        string(TOLOWER ${TOOL_ID} TOOL_ID_CONVERTED)
+        string(REPLACE "_" "-" TOOL_ID_CONVERTED ${TOOL_ID_CONVERTED})
+        cmt_log("Found ${TOOL_ID_CONVERTED} in ${TOOL_EXECUTABLE} (version ${TOOL_VERSION})")
+        cmt_append_to_global_property_unique(CMT_AVAILABLE_TOOLS ${TOOL_ID})
+        cmt_set_global_property(CMT_${TOOL_ID}_FOUND ${TOOL_FOUND})
+        cmt_set_global_property(CMT_${TOOL_ID}_EXECUTABLE ${TOOL_EXECUTABLE})
+        cmt_set_global_property(CMT_${TOOL_ID}_VERSION ${TOOL_VERSION})
+    endif()
+endfunction()
+
+# ! cmt_cache_get_tool
+# Check if the tool is available on the system and cache the information
+#
+# It looks for the variables:
+#
+# CMT_${TOOL_ID}_FOUND : Whether or not markdownlint is available on the target system
+# CMT_${TOOL_ID}_VERSION : Version of markdownlint
+# CMT_${TOOL_ID}_EXECUTABLE : Fully qualified path to the markdownlint executable
+# 
+# if the tool is in the CMT_TOOLS
+#
+# \input TOOL_ID Unique ID for the tool
+# \output TOOL_EXECUTABLE The path to the tool
+# \output TOOL_VERSION The version of the tool
+# \output TOOL_FOUND If the tool was found
+#
+function(cmt_cache_get_tool TOOL_ID TOOL_FOUND TOOL_EXECUTABLE TOOL_VERSION)
+    cmt_try_get_global_property(CMT_AVAILABLE_TOOLS TOOL_LIST_FOUND TOOL_LIST)
+    set(TOOL_FOUND_LOADED FALSE)
+    set(TOOL_EXECUTABLE_LOADED "")
+    set(TOOL_VERSION_LOADED "")
+    if (TOOL_LIST_FOUND)
+        list (FIND TOOL_LIST ${TOOL_ID} TOOL_FOUND_IN_LIST)
+        if (TOOL_FOUND_IN_LIST GREATER -1)
+            cmt_get_global_property(CMT_${TOOL_ID}_FOUND TOOL_FOUND_LOADED)
+            cmt_get_global_property(CMT_${TOOL_ID}_EXECUTABLE TOOL_EXECUTABLE_LOADED)
+            cmt_get_global_property(CMT_${TOOL_ID}_VERSION TOOL_VERSION_LOADED)
+        endif()
+    endif()
+    set (${TOOL_FOUND} ${TOOL_FOUND_LOADED} PARENT_SCOPE)
+    set (${TOOL_EXECUTABLE} ${TOOL_EXECUTABLE_LOADED} PARENT_SCOPE)
+    set (${TOOL_VERSION} ${TOOL_VERSION_LOADED} PARENT_SCOPE)
+endfunction()
 
 # ! cmt_find_executable_installation_root
 #
@@ -225,7 +286,7 @@ function (cmt_find_executable_installation_root TOOL_EXECUTABLE INSTALL_ROOT_RET
     string (LENGTH "${TOOL_EXEC_PATH}" TOOL_EXEC_PATH_LENGTH)
     if (INSTALL_ROOT_PREFIX_SUBDIRECTORY)
         set (PREFIXED_PATH "/${INSTALL_ROOT_PREFIX_SUBDIRECTORY}/")
-    endif ()
+    endif()
     set (PREFIXED_PATH "${PREFIXED_PATH}${TOOL_EXEC_BASE}")
     string (LENGTH "${PREFIXED_PATH}" TOOL_EXEC_SUBDIR_LENGTH)
 
@@ -237,7 +298,7 @@ function (cmt_find_executable_installation_root TOOL_EXECUTABLE INSTALL_ROOT_RET
 
     set (${INSTALL_ROOT_RETURN} ${TOOL_INSTALL_ROOT} PARENT_SCOPE)
 
-endfunction ()
+endfunction()
 
 # ! cmt_find_path_in_installation_root
 #
@@ -254,5 +315,5 @@ function (cmt_find_path_in_installation_root INSTALL_ROOT SUBDIRECTORY_TO_FIND P
         mark_as_advanced (_PATH)
         set (${PATH_RETURN} "${_PATH}/${SUBDIRECTORY_TO_FIND}" PARENT_SCOPE)
         unset (_PATH CACHE)
-    endif ()
-endfunction ()
+    endif()
+endfunction()

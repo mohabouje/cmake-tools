@@ -40,18 +40,22 @@ cmt_enable_logger()
 #
 # cmt_find_dot(
 #   EXECUTABLE
-#   EXECUTABLE_FOUND
 # )
 #
 # \output EXECUTABLE The path to the dot executable.
-# \output EXECUTABLE_FOUND - True if the executable is found, false otherwise.
 # \param BIN_SUBDIR - The subdirectory where the executable is located.
 # \group NAMES - The name of the executable.
 #
-function (cmt_find_dot EXECUTABLE EXECUTABLE_FOUND)
+function (cmt_find_dot EXECUTABLE)
     cmake_parse_arguments(ARGS "" "BIN_SUBDIR" "NAMES" ${ARGN})
     cmt_default_argument(ARGS NAMES "dot;")
     cmt_default_argument(ARGS BIN_SUBDIR bin)
+
+    cmt_cache_get_tool(DOT EXECUTABLE_FOUND EXECUTABLE_PATH EXECUTABLE_VERSION)
+    if (${EXECUTABLE_FOUND})
+        set(${EXECUTABLE} ${EXECUTABLE_PATH} PARENT_SCOPE)
+        return()
+    endif()
 
     foreach (DOT_EXECUTABLE_NAME ${ARGS_NAMES})
          cmt_find_tool_executable (${DOT_EXECUTABLE_NAME}
@@ -59,9 +63,9 @@ function (cmt_find_dot EXECUTABLE EXECUTABLE_FOUND)
                                   PATHS ${DOT_SEARCH_PATHS}
                                   PATH_SUFFIXES "${ARGS_BIN_SUBDIR}")
         if (DOT_EXECUTABLE)
-            break ()
-        endif ()
-    endforeach ()
+            break()
+        endif()
+    endforeach()
 
     cmt_report_not_found_if_not_quiet (dot DOT_EXECUTABLE
         "The 'dot' executable was not found in any search or system paths.\n"
@@ -82,8 +86,9 @@ function (cmt_find_dot EXECUTABLE EXECUTABLE_FOUND)
                                       REQUIRED_VARS
                                       DOT_EXECUTABLE
                                       DOT_VERSION)
+    cmt_cache_set_tool(DOT TRUE ${DOT_EXECUTABLE} ${DOT_VERSION})
     set (EXECUTABLE ${DOT_EXECUTABLE} PARENT_SCOPE)
-endfunction ()
+endfunction()
 
 # ! cmt_dependency_graph
 # Builds a dependency graph of the active code targets using the `dot` application

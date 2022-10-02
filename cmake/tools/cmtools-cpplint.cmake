@@ -36,18 +36,23 @@ include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
 #
 # cmt_find_cpplint(
 #   EXECUTABLE
-#   EXECUTABLE_FOUND
 # )
 #
 # \output EXECUTABLE The path to the cpplint executable.
-# \output EXECUTABLE_FOUND - True if the executable is found, false otherwise.
 # \param BIN_SUBDIR - The subdirectory where the executable is located.
 # \group NAMES - The name of the executable.
 #
-function (cmt_fint_cpplint EXECUTABLE EXECUTABLE_FOUND)
+function (cmt_find_cpplint EXECUTABLE)
     cmake_parse_arguments(ARGS "" "BIN_SUBDIR" "NAMES" ${ARGN})
     cmt_default_argument(ARGS NAMES "cpplint;")
     cmt_default_argument(ARGS BIN_SUBDIR bin)
+
+    cmt_cache_get_tool(CPPLINT EXECUTABLE_FOUND EXECUTABLE_PATH EXECUTABLE_VERSION)
+    if (${EXECUTABLE_FOUND})
+        set(${EXECUTABLE} ${EXECUTABLE_PATH} PARENT_SCOPE)
+        return()
+    endif()
+
 
     foreach (CPPLINT_EXECUTABLE_NAME ${ARGS_NAMES})
          cmt_find_tool_executable (${CPPLINT_EXECUTABLE_NAME}
@@ -55,9 +60,9 @@ function (cmt_fint_cpplint EXECUTABLE EXECUTABLE_FOUND)
                                   PATHS ${CPPLINT_SEARCH_PATHS}
                                   PATH_SUFFIXES "${ARGS_BIN_SUBDIR}")
         if (CPPLINT_EXECUTABLE)
-            break ()
-        endif ()
-    endforeach ()
+            break()
+        endif()
+    endforeach()
 
     cmt_report_not_found_if_not_quiet (cpplint CPPLINT_EXECUTABLE
         "The 'cpplint' executable was not found in any search or system paths.\n"
@@ -78,8 +83,9 @@ function (cmt_fint_cpplint EXECUTABLE EXECUTABLE_FOUND)
                                       REQUIRED_VARS
                                       CPPLINT_EXECUTABLE
                                       CPPLINT_VERSION)
+    cmt_cache_set_tool(CPPLINT TRUE ${CPPLINT_EXECUTABLE} ${CPPLINT_VERSION})
     set (EXECUTABLE ${CPPLINT_EXECUTABLE} PARENT_SCOPE)
-endfunction ()
+endfunction()
 
 # ! cmt_target_generate_cpplint
 # Enable include-what-you-use in all targets.
@@ -90,7 +96,7 @@ macro(cmt_enable_cpplint)
     cmt_ensure_target(${TARGET})
 
     if (CMT_ENABLE_IWYU)
-        cmt_find_cpplint(EXECUTABLE _)
+        cmt_find_cpplint(EXECUTABLE)
         set(CMAKE_CXX_CPPLINT ${EXECUTABLE})
         set(CMAKE_C_CPPLINT ${EXECUTABLE})
     endif()
@@ -113,7 +119,7 @@ function(cmt_target_enable_cpplint TARGET)
         return()
     endif()
 
-    cmt_fint_cpplint(EXECUTABLE _)
+    cmt_find_cpplint(EXECUTABLE)
     set_property(TARGET ${TARGET} PROPERTY CMAKE_CXX_CPPLINT ${EXECUTABLE})
     set_property(TARGET ${TARGET} PROPERTY CMAKE_C_CPPLINT ${EXECUTABLE})
 endfunction()

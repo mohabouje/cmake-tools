@@ -37,18 +37,22 @@ cmt_enable_logger()
 #
 # cmt_find_lcov(
 #   EXECUTABLE
-#   EXECUTABLE_FOUND
 # )
 #
 # \output EXECUTABLE The path to the lcov executable.
-# \output EXECUTABLE_FOUND - True if the executable is found, false otherwise.
 # \param BIN_SUBDIR - The subdirectory where the executable is located.
 # \group NAMES - The name of the executable.
 #
-function (cmt_find_lcov EXECUTABLE EXECUTABLE_FOUND)
+function (cmt_find_lcov EXECUTABLE)
     cmake_parse_arguments(ARGS "" "BIN_SUBDIR" "NAMES" ${ARGN})
     cmt_default_argument(ARGS NAMES "lcov")
     cmt_default_argument(ARGS BIN_SUBDIR bin)
+
+    cmt_cache_get_tool(LCOV EXECUTABLE_FOUND EXECUTABLE_PATH EXECUTABLE_VERSION)
+    if (${EXECUTABLE_FOUND})
+        set(${EXECUTABLE} ${EXECUTABLE_PATH} PARENT_SCOPE)
+        return()
+    endif()
 
     foreach (LCOV_EXECUTABLE_NAME ${ARGS_NAMES})
          cmt_find_tool_executable (${LCOV_EXECUTABLE_NAME}
@@ -56,16 +60,16 @@ function (cmt_find_lcov EXECUTABLE EXECUTABLE_FOUND)
                                   PATHS ${LCOV_SEARCH_PATHS}
                                   PATH_SUFFIXES "${ARGS_BIN_SUBDIR}")
         if (LCOV_EXECUTABLE)
-            break ()
-        endif ()
-    endforeach ()
+            break()
+        endif()
+    endforeach()
 
     cmt_report_not_found_if_not_quiet (lcov LCOV_EXECUTABLE
         "The 'lcov' executable was not found in any search or system paths.\n"
         "Please adjust LCOV_SEARCH_PATHS to the installation prefix of the 'lcov' executable or install lcov")
 
     if (LCOV_EXECUTABLE)
-        set (LCOV_VERSION_HEADER "LLVM version ")
+        set (LCOV_VERSION_HEADER "LCOV version ")
         cmt_find_tool_extract_version("${LCOV_EXECUTABLE}"
                                       LCOV_VERSION
                                       VERSION_ARG --version
@@ -80,7 +84,8 @@ function (cmt_find_lcov EXECUTABLE EXECUTABLE_FOUND)
                                       LCOV_EXECUTABLE
                                       LCOV_VERSION)
     set (EXECUTABLE ${LCOV_EXECUTABLE} PARENT_SCOPE)
-endfunction ()
+    cmt_cache_set_tool(LCOV TRUE ${LCOV_EXECUTABLE} ${LCOV_VERSION})
+endfunction()
 
 # ! cmt_find_genhtml
 # Try to find the genhtml executable.
@@ -88,18 +93,22 @@ endfunction ()
 #
 # cmt_find_genhtml(
 #   EXECUTABLE
-#   EXECUTABLE_FOUND
 # )
 #
 # \output EXECUTABLE The path to the genhtml executable.
-# \output EXECUTABLE_FOUND - True if the executable is found, false otherwise.
 # \param BIN_SUBDIR - The subdirectory where the executable is located.
 # \group NAMES - The name of the executable.
 #
-function (cmt_find_genhtml EXECUTABLE EXECUTABLE_FOUND)
+function (cmt_find_genhtml EXECUTABLE)
     cmake_parse_arguments(ARGS "" "BIN_SUBDIR" "NAMES" ${ARGN})
     cmt_default_argument(ARGS NAMES "genhtml")
     cmt_default_argument(ARGS BIN_SUBDIR bin)
+
+    cmt_cache_get_tool(GENHTML EXECUTABLE_FOUND EXECUTABLE_PATH EXECUTABLE_VERSION)
+    if (${EXECUTABLE_FOUND})
+        set(${EXECUTABLE} ${EXECUTABLE_PATH} PARENT_SCOPE)
+        return()
+    endif()
 
     foreach (GENHTML_EXECUTABLE_NAME ${ARGS_NAMES})
          cmt_find_tool_executable (${GENHTML_EXECUTABLE_NAME}
@@ -107,9 +116,9 @@ function (cmt_find_genhtml EXECUTABLE EXECUTABLE_FOUND)
                                   PATHS ${GENHTML_SEARCH_PATHS}
                                   PATH_SUFFIXES "${ARGS_BIN_SUBDIR}")
         if (GENHTML_EXECUTABLE)
-            break ()
-        endif ()
-    endforeach ()
+            break()
+        endif()
+    endforeach()
 
     cmt_report_not_found_if_not_quiet (genhtml GENHTML_EXECUTABLE
         "The 'genhtml' executable was not found in any search or system paths.\n"
@@ -130,8 +139,9 @@ function (cmt_find_genhtml EXECUTABLE EXECUTABLE_FOUND)
                                       REQUIRED_VARS
                                       GENHTML_EXECUTABLE
                                       GENHTML_VERSION)
+    cmt_cache_set_tool(GENHTML TRUE ${GENHTML_EXECUTABLE} ${GENHTML_VERSION})
     set (EXECUTABLE ${GENHTML_EXECUTABLE} PARENT_SCOPE)
-endfunction ()
+endfunction()
 
 # ! cmt_find_llvm_cov
 # Try to find the llvm-cov executable.
@@ -139,18 +149,22 @@ endfunction ()
 #
 # cmt_find_llvm-cov(
 #   EXECUTABLE
-#   EXECUTABLE_FOUND
 # )
 #
 # \output EXECUTABLE The path to the llvm-cov executable.
-# \output EXECUTABLE_FOUND - True if the executable is found, false otherwise.
 # \param BIN_SUBDIR - The subdirectory where the executable is located.
 # \group NAMES - The name of the executable.
 #
-function (cmt_find_llvm_cov EXECUTABLE EXECUTABLE_FOUND)
+function (cmt_find_llvm_cov EXECUTABLE)
     cmake_parse_arguments(ARGS "" "BIN_SUBDIR" "NAMES" ${ARGN})
     cmt_default_argument(ARGS NAMES "llvm-cov")
     cmt_default_argument(ARGS BIN_SUBDIR bin)
+
+    cmt_cache_get_tool(LLVM_COV EXECUTABLE_FOUND EXECUTABLE_PATH EXECUTABLE_VERSION)
+    if (${EXECUTABLE_FOUND})
+        set(${EXECUTABLE} ${EXECUTABLE_PATH} PARENT_SCOPE)
+        return()
+    endif()
 
     foreach (LLVM_COV_EXECUTABLE_NAME ${ARGS_NAMES})
          cmt_find_tool_executable (${LLVM_COV_EXECUTABLE_NAME}
@@ -158,9 +172,9 @@ function (cmt_find_llvm_cov EXECUTABLE EXECUTABLE_FOUND)
                                   PATHS ${LLVM_COV_SEARCH_PATHS}
                                   PATH_SUFFIXES "${ARGS_BIN_SUBDIR}")
         if (LLVM_COV_EXECUTABLE)
-            break ()
-        endif ()
-    endforeach ()
+            break()
+        endif()
+    endforeach()
 
     cmt_report_not_found_if_not_quiet (llvm-cov LLVM_COV_EXECUTABLE
         "The 'llvm-cov' executable was not found in any search or system paths.\n"
@@ -181,8 +195,9 @@ function (cmt_find_llvm_cov EXECUTABLE EXECUTABLE_FOUND)
                                       REQUIRED_VARS
                                       LLVM_COV_EXECUTABLE
                                       LLVM_COV_VERSION)
+    cmt_cache_set_tool(LLVM_COV TRUE ${LLVM_COV_EXECUTABLE} ${LLVM_COV_VERSION})
     set (EXECUTABLE ${LLVM_COV_EXECUTABLE} PARENT_SCOPE)
-endfunction ()
+endfunction()
 
 # ! cmt_find_llvm_profdata
 # Try to find the llvm-profdata executable.
@@ -190,18 +205,22 @@ endfunction ()
 #
 # cmt_find_llvm-profdata(
 #   EXECUTABLE
-#   EXECUTABLE_FOUND
 # )
 #
 # \output EXECUTABLE The path to the llvm-profdata executable.
-# \output EXECUTABLE_FOUND - True if the executable is found, false otherwise.
 # \param BIN_SUBDIR - The subdirectory where the executable is located.
 # \group NAMES - The name of the executable.
 #
-function (cmt_find_llvm_profdata EXECUTABLE EXECUTABLE_FOUND)
+function (cmt_find_llvm_profdata EXECUTABLE)
     cmake_parse_arguments(ARGS "" "BIN_SUBDIR" "NAMES" ${ARGN})
     cmt_default_argument(ARGS NAMES "llvm-profdata;")
     cmt_default_argument(ARGS BIN_SUBDIR bin)
+
+    cmt_cache_get_tool(LLVM_PROFDATA EXECUTABLE_FOUND EXECUTABLE_PATH EXECUTABLE_VERSION)
+    if (${EXECUTABLE_FOUND})
+        set(${EXECUTABLE} ${EXECUTABLE_PATH} PARENT_SCOPE)
+        return()
+    endif()
 
     foreach (LLVM_PROFDATA_EXECUTABLE_NAME ${ARGS_NAMES})
          cmt_find_tool_executable (${LLVM_PROFDATA_EXECUTABLE_NAME}
@@ -209,9 +228,9 @@ function (cmt_find_llvm_profdata EXECUTABLE EXECUTABLE_FOUND)
                                   PATHS ${LLVM_PROFDATA_SEARCH_PATHS}
                                   PATH_SUFFIXES "${ARGS_BIN_SUBDIR}")
         if (LLVM_PROFDATA_EXECUTABLE)
-            break ()
-        endif ()
-    endforeach ()
+            break()
+        endif()
+    endforeach()
 
     cmt_report_not_found_if_not_quiet (llvm-profdata LLVM_PROFDATA_EXECUTABLE
         "The 'llvm-profdata' executable was not found in any search or system paths.\n"
@@ -226,14 +245,15 @@ function (cmt_find_llvm_profdata EXECUTABLE EXECUTABLE_FOUND)
     #                                   "${LLVM_PROFDATA_VERSION_HEADER}"
     #                                   VERSION_END_TOKEN "\n")
     # endif()
-
+    set(LLVM_PROFDATA_VERSION "Unknown")
     cmt_check_and_report_tool_version(llvm-profdata
                                       "${LLVM_PROFDATA_VERSION}"
                                       REQUIRED_VARS
                                       LLVM_PROFDATA_EXECUTABLE
                                       LLVM_PROFDATA_VERSION)
+    cmt_cache_set_tool(LLVM_PROFDATA TRUE ${LLVM_PROFDATA_EXECUTABLE} ${LLVM_PROFDATA_VERSION})
     set (EXECUTABLE ${LLVM_PROFDATA_EXECUTABLE} PARENT_SCOPE)
-endfunction ()
+endfunction()
 
 # ! cmt_target_generate_coverage
 # Generate a code coverage report for the target.
@@ -254,10 +274,10 @@ function(cmt_target_generate_coverage TARGET)
         return()
     endif()
 
-    cmt_find_lcov(_ _)
-    cmt_find_genhtml(_ _)
-    cmt_find_llvm_cov(_ _)
-    cmt_find_llvm_profdata(_ _)
+    cmt_find_lcov(_)
+    cmt_find_genhtml(_)
+    cmt_find_llvm_cov(_)
+    cmt_find_llvm_profdata(_)
 
     set(CODE_COVERAGE ON)
     target_code_coverage(${TARGET} OBJECTS ${ARGS_DEPENDENCIES} AUTO ALL)
@@ -270,10 +290,10 @@ endfunction()
 macro(cmt_coverage)
     if (CMT_ENABLE_COVERAGE)
 
-        cmt_find_lcov(_ _)
-        cmt_find_genhtml(_ _)
-        cmt_find_llvm_cov(_ _)
-        cmt_find_llvm_profdata(_ _)
+        cmt_find_lcov(_)
+        cmt_find_genhtml(_)
+        cmt_find_llvm_cov(_)
+        cmt_find_llvm_profdata(_)
 
         set(CODE_COVERAGE ON)
         add_code_coverage_all_targets()
