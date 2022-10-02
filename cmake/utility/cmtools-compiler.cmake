@@ -26,6 +26,7 @@ include_guard(GLOBAL)
 
 include(${CMAKE_CURRENT_LIST_DIR}/cmtools-args.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/cmtools-env.cmake)
+include(CheckIPOSupported)
 
 cmt_disable_logger()
 include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/ucm.cmake)
@@ -483,6 +484,25 @@ macro(cmt_enable_generation_header_dependencies)
         cmt_add_compiler_option(-MD)
     else()
         cmt_warn("Cannot generate header dependency on non GCC/Clang compilers.")
+    endif()
+endmacro()
+
+# !cmt_enable_lto
+# Checks for, and enables IPO/LTO for all following targets
+#
+# \option REQUIRED - If this is passed in, CMake configuration will fail with an error if LTO/IPO is not supported
+#
+macro(cmt_enable_lto)
+    cmake_parse_arguments(LTO "REQUIRED" "" "" ${ARGN})
+    check_ipo_supported(RESULT IPO_RESULT OUTPUT IPO_OUTPUT LANGUAGES CXX)
+    if (IPO_RESULT)
+        set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
+    else()
+        if(LTO_REQUIRED)
+            cmt_fatal("LTO not supported, but listed as REQUIRED: ${IPO_OUTPUT}")
+        else()
+            cmt_warning("LTO not supported: ${IPO_OUTPUT}")
+        endif()
     endif()
 endmacro()
 

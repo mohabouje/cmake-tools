@@ -137,7 +137,6 @@ function(cmt_target_generate_lizard TARGET)
 	endif()
 
     set(TARGET_NAME "${TARGET}-${ARGS_SUFFIX}")
-    message(STATUS "Generating lizard target ${TARGET_NAME}")
     add_custom_target(
         ${TARGET_NAME}
         SOURCES ${SOURCES} ${ARGS_ADDITIONAL_FILES}

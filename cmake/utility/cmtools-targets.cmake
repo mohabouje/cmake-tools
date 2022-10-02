@@ -28,6 +28,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/cmtools-env.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/cmtools-fsystem.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/cmtools-compiler.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/./../tools/cmtools-cotire.cmake)
+include(CheckIPOSupported)
 
 # Functions summary:
 # - cmt_append_to_target_property
@@ -996,6 +997,30 @@ function(cmt_target_enable_generation_header_dependencies TARGET)
 	endif()
 endfunction()
 
+# ! cmt_target_enable_lto
+# Checks for, and enables IPO/LTO for the specified target
+#
+# cmt_target_enable_lto(
+#   TARGET
+# )
+#
+# \input TARGET The target to enable link-time-optimization
+# \option REQUIRED - If this is passed in, CMake configuration will fail with an error if LTO/IPO is not supported
+#
+function(cmt_target_enable_lto TARGET)
+    cmake_parse_arguments(LTO "REQUIRED" "" "" ${ARGN})
+    cmt_ensure_target(${TARGET})
+    check_ipo_supported(RESULT IPO_RESULT OUTPUT IPO_OUTPUT LANGUAGES CXX)
+    if (IPO_RESULT)
+        set_property(TARGET ${TARGET} PROPERTY INTERPROCEDURAL_OPTIMIZATION ON)
+    else()
+        if(LTO_REQUIRED)
+            cmt_fatal("LTO not supported, but listed as REQUIRED: ${IPO_OUTPUT}")
+        else()
+            cmt_warning("LTO not supported: ${IPO_OUTPUT}")
+        endif()
+    endif()
+endfunction()
 
 # ! cmt_target_disable_warnings
 # Disable warnings for the specified target.

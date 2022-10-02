@@ -34,11 +34,8 @@ cmt_target_enable_cppcheck(${TEST_TARGET})
 # Integration with cpplint
 cmt_target_enable_cpplint(${TEST_TARGET})
 
-# Integration test for clang-build-analyzer
-cmt_target_enable_clang_build_analyzer(${TEST_TARGET})
-
 # Integration with lto
-# cmt_target_enable_lto(${TEST_TARGET})
+cmt_target_enable_lto(${TEST_TARGET})
 
 # Integration with sanitizers
 cmt_target_enable_sanitizer(${TEST_TARGET} UBSAN)
@@ -55,9 +52,9 @@ cmt_target_generate_coverage(${TEST_TARGET})
 # Integration test for clang-format
 cmt_target_generate_clang_format(${TEST_TARGET})
 
+# Integration test for clang-build-analyzer
+cmt_target_generate_clang_build_analyzer(${TEST_TARGET})
+
 # Print information about target
 cmt_target_print_compiler_options(${TEST_TARGET} CONFIG Debug Release)
 cmt_target_print_linker_options(${TEST_TARGET} CONFIG Debug Release)
-
-
-cmt_generate_coverage()

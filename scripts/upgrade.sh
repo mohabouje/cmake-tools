@@ -102,13 +102,14 @@ function upgrade_github_main {
     upgrade_github "${user}" "${project}" "main" "${file}" "${path}"
 }
 
+# ucm is a collection of cmake macros that help with the build process
 upgrade_github_master onqtam ucm  cmake/ucm.cmake "${CURRENT_DIRECTORY}/cmake/third_party/ucm.cmake"
 
+# Unit build + pre compiled headers integration
 upgrade_github_master sakra cotire  CMake/cotire.cmake "${CURRENT_DIRECTORY}/cmake/third_party/cotire.cmake"
 
+# Module JSONParser.cmake contains macro sbeParseJson to parse JSON string stored in given variable (second argument).
 upgrade_github_master sbellus json-cmake  JSONParser.cmake "${CURRENT_DIRECTORY}/cmake/third_party/json-parse.cmake"
-
-upgrade_github_main conformism cmake-utils  Modules/ClangBuildAnalyzer.cmake "${CURRENT_DIRECTORY}/cmake/third_party/clang-build-analyzer.cmake"
 
 # This is a set of CMake scripts that are meant to be used to generate and upload coverage data to http://coveralls.io/.
 upgrade_github_master JoakimSoderberg coveralls-cmake cmake/Coveralls.cmake "${CURRENT_DIRECTORY}/cmake/third_party/coveralls/Coveralls.cmake"
@@ -118,6 +119,7 @@ upgrade_github_master JoakimSoderberg coveralls-cmake cmake/CoverallsGenerateGco
 # Precompiled header setup for CMake. 
 upgrade_github_master larsch cmake-precompiled-header PrecompiledHeader.cmake "${CURRENT_DIRECTORY}/cmake/third_party/cmake-precompiled-header/PrecompiledHeader.cmake"
 
+# CMake module to enable code coverage easily and generate coverage reports with CMake targets.
 upgrade_github_master RWTH-HPC CMake-codecov cmake/FindGcov.cmake "${CURRENT_DIRECTORY}/cmake/third_party/coverage/FindGcov.cmake"
 upgrade_github_master RWTH-HPC CMake-codecov cmake/FindLcov.cmake "${CURRENT_DIRECTORY}/cmake/third_party/coverage/FindLcov.cmake"
 upgrade_github_master RWTH-HPC CMake-codecov cmake/Findcodecov.cmake "${CURRENT_DIRECTORY}/cmake/third_party/coverage/Findcodecov.cmake"

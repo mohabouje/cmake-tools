@@ -3,6 +3,7 @@ cmt_configure_compiler_optimization_options()
 cmt_enable_warnings_as_errors()
 cmt_enable_all_warnings()
 cmt_enable_effective_cxx_warnings()
+cmt_enable_lto()
 
 cmt_add_compiler_options(
     -Wno-unused-parameter
@@ -58,7 +59,7 @@ cmt_add_release_compiler_option(-mpopcnt)
 cmt_print_compiler_options(LANG CXX CONFIG Debug Release)
 cmt_print_linker_options(CONFIG Debug Release)
 
-# Integration with doxygen
+# Integration with doxygen + graphviz
 cmt_generate_doxygen_documentation(doxygen)
 cmt_generate_dependency_graph(dependency-graph)
 

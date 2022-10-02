@@ -1,5 +1,5 @@
 option(CMT_ENABLE_CCACHE                "Enable the integration of ccache into the build system"                ON)
-option(CMT_ENABLE_CLANG_BUILD_ANALYZER  "Enable the integration of clang-tidy into the build system"            ON)
+option(CMT_ENABLE_CLANG_BUILD_ANALYZER  "Enable the integration of clang-tidy into the build system"            OFF)
 option(CMT_ENABLE_CLANG_FORMAT          "Enable the integration of clang-format into the build system"          ON)
 option(CMT_ENABLE_CLANG_TIDY            "Enable the integration of clang-tidy into the build system"            ON)
 option(CMT_ENABLE_CODECHECKER           "Enable the integration of codechecker into the build system"           ON)
