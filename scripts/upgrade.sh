@@ -110,8 +110,6 @@ upgrade_github_master sbellus json-cmake  JSONParser.cmake "${CURRENT_DIRECTORY}
 
 upgrade_github_main conformism cmake-utils  Modules/ClangBuildAnalyzer.cmake "${CURRENT_DIRECTORY}/cmake/third_party/clang-build-analyzer.cmake"
 
-upgrade_github_main StableCoder cmake-scripts code-coverage.cmake "${CURRENT_DIRECTORY}/cmake/third_party/coverage.cmake"
-
 # This is a set of CMake scripts that are meant to be used to generate and upload coverage data to http://coveralls.io/.
 upgrade_github_master JoakimSoderberg coveralls-cmake cmake/Coveralls.cmake "${CURRENT_DIRECTORY}/cmake/third_party/coveralls/Coveralls.cmake"
 upgrade_github_master JoakimSoderberg coveralls-cmake cmake/CoverallsClear.cmake "${CURRENT_DIRECTORY}/cmake/third_party/coveralls/CoverallsClear.cmake"
@@ -120,3 +118,7 @@ upgrade_github_master JoakimSoderberg coveralls-cmake cmake/CoverallsGenerateGco
 # Precompiled header setup for CMake. 
 upgrade_github_master larsch cmake-precompiled-header PrecompiledHeader.cmake "${CURRENT_DIRECTORY}/cmake/third_party/cmake-precompiled-header/PrecompiledHeader.cmake"
 
+upgrade_github_master RWTH-HPC CMake-codecov cmake/FindGcov.cmake "${CURRENT_DIRECTORY}/cmake/third_party/coverage/FindGcov.cmake"
+upgrade_github_master RWTH-HPC CMake-codecov cmake/FindLcov.cmake "${CURRENT_DIRECTORY}/cmake/third_party/coverage/FindLcov.cmake"
+upgrade_github_master RWTH-HPC CMake-codecov cmake/Findcodecov.cmake "${CURRENT_DIRECTORY}/cmake/third_party/coverage/Findcodecov.cmake"
+upgrade_github_master RWTH-HPC CMake-codecov cmake/llvm-cov-wrapper "${CURRENT_DIRECTORY}/cmake/third_party/coverage/llvm-cov-wrapper"

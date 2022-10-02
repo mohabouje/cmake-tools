@@ -24,11 +24,19 @@
 
 include_guard(GLOBAL)
 
+
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/./../third_party/cmake-coverage/" ${CMAKE_MODULE_PATH})
+
+
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-args.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
 
-cmt_disable_logger()
-include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/coverage.cmake)
+set(ENABLE_COVERAGE ON)
+mark_as_advanced(ENABLE_COVERAGE)
+include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/cmake-coverage/Findcodecov.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/cmake-coverage/FindLcov.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/cmake-coverage/FindGcov.cmake)
+
 cmt_enable_logger()
 
 # ! cmt_find_
@@ -279,8 +287,8 @@ function(cmt_target_generate_coverage TARGET)
     cmt_find_llvm_cov(_)
     cmt_find_llvm_profdata(_)
 
-    set(CODE_COVERAGE ON)
-    target_code_coverage(${TARGET} OBJECTS ${ARGS_DEPENDENCIES} AUTO EXTERNAL)
+    set(ENABLE_COVERAGE TRUE)
+    add_coverage_target(${TARGET})
 endfunction()
 
 
@@ -295,7 +303,5 @@ macro(cmt_generate_coverage)
         cmt_find_llvm_cov(_)
         cmt_find_llvm_profdata(_)
 
-        set(CODE_COVERAGE ON)
-        add_code_coverage_all_targets()
     endif()
 endmacro()
