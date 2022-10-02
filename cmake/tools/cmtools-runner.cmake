@@ -58,7 +58,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-sources.cmake)
 function (cmt_run_tool_on_source TARGET SOURCE TOOL_NAME)
 
     cmake_parse_arguments(RUN_TOOL_ON_SOURCE "" "WORKING_DIRECTORY" "COMMAND;DEPENDENCIES" ${ARGN})
-	cmt_required_arguments(FUNCTION cmt_run_tool_on_source PREFIX RUN_COMMAND FIELDS COMMAND)
+	cmt_required_arguments(RUN_TOOL_ON_SOURCE ""  "" "COMMAND")
 
     # Replace @SOURCE@ with SOURCE in RUN_TOOL_ON_SOURCE_COMMAND here
     string (CONFIGURE "${RUN_TOOL_ON_SOURCE_COMMAND}" COMMAND @ONLY)
@@ -66,8 +66,8 @@ function (cmt_run_tool_on_source TARGET SOURCE TOOL_NAME)
     # Get the basename of the file, used for the comment and stamp.
     get_filename_component (SRCNAME "${SOURCE}" NAME)
     set (TOOLING_SIG "stamp")
-    set (STAMPFILE "${CMAKE_CURRENT_BINARY_DIR}/${SRCNAME}.${TOOL}.${TOOLING_SIG}")
-    set (COMMENT "Analyzing ${SRCNAME} with ${TOOL}")
+    set (STAMPFILE "${CMAKE_CURRENT_BINARY_DIR}/${SRCNAME}.${TOOL_NAME}.${TOOLING_SIG}")
+    set (COMMENT "Analyzing ${SRCNAME} with ${TOOL_NAME}")
 
     if (DEFINED RUN_TOOL_ON_SOURCE_WORKING_DIRECTORY)
         set (WORKING_DIRECTORY_OPTION

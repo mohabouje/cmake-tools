@@ -83,6 +83,21 @@ function (cmt_find_ccache EXECUTABLE EXECUTABLE_FOUND)
     set (EXECUTABLE ${CCACHE_EXECUTABLE} PARENT_SCOPE)
 endfunction ()
 
+# ! cmt_target_generate_ccache\
+# Enable include-what-you-use in all targets.
+#
+# cmt_project_enable_ccache()
+#
+macro(cmt_project_enable_ccache)
+    cmt_ensure_target(${TARGET})
+
+    if (CMT_ENABLE_IWYU)
+        cmt_find_ccache(EXECUTABLE _)
+        set(C_COMPILER_LAUNCHER ${EXECUTABLE})
+        set(CXX_COMPILER_LAUNCHER ${EXECUTABLE})
+    endif()
+
+endmacro()
 
 # ! cmt_target_use_ccache
 # Enable ccache use on the given target
@@ -103,5 +118,4 @@ function(cmt_target_enable_ccache TARGET)
     cmt_find_ccache(EXECUTABLE _)
     set_target_properties(${TARGET} PROPERTIES C_COMPILER_LAUNCHER "${EXECUTABLE}")
     set_target_properties(${TARGET} PROPERTIES CXX_COMPILER_LAUNCHER "${EXECUTABLE}")
-    cmt_log("Target ${TARGET}: enabling extension ccache")
 endfunction()

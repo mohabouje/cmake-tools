@@ -52,7 +52,6 @@ function(cmt_target_enable_lto TARGET)
     endif()
 
     target_link_time_optimization(${TARGET})
-    cmt_log("Target ${TARGET}: enabling link-time-optimization")
 endfunction()
 
 
@@ -62,6 +61,5 @@ endfunction()
 macro(cmt_project_lto)
     if (NOT CMT_ENABLE_LTO)
         link_time_optimization()
-        cmt_log("Generating a code-lto report for the project ${PROJECT_NAME}")
     endif()
 endmacro()

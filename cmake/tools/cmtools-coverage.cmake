@@ -115,15 +115,15 @@ function (cmt_find_genhtml EXECUTABLE EXECUTABLE_FOUND)
         "The 'genhtml' executable was not found in any search or system paths.\n"
         "Please adjust GENHTML_SEARCH_PATHS to the installation prefix of the 'genhtml' executable or install genhtml")
 
-    # if (GENHTML_EXECUTABLE)
-    #     set (GENHTML_VERSION_HEADER "LLVM version ")
-    #     cmt_find_tool_extract_version("${GENHTML_EXECUTABLE}"
-    #                                   GENHTML_VERSION
-    #                                   VERSION_ARG --version
-    #                                   VERSION_HEADER
-    #                                   "${GENHTML_VERSION_HEADER}"
-    #                                   VERSION_END_TOKEN "\n")
-    # endif()
+    if (GENHTML_EXECUTABLE)
+        set (GENHTML_VERSION_HEADER "LCOV version ")
+        cmt_find_tool_extract_version("${GENHTML_EXECUTABLE}"
+                                      GENHTML_VERSION
+                                      VERSION_ARG --version
+                                      VERSION_HEADER
+                                      "${GENHTML_VERSION_HEADER}"
+                                      VERSION_END_TOKEN "\n")
+    endif()
 
     cmt_check_and_report_tool_version(genhtml
                                       "${GENHTML_VERSION}"
@@ -167,7 +167,7 @@ function (cmt_find_llvm_cov EXECUTABLE EXECUTABLE_FOUND)
         "Please adjust LLVM_COV_SEARCH_PATHS to the installation prefix of the 'llvm-cov' executable or install llvm-cov")
 
     if (LLVM_COV_EXECUTABLE)
-        set (LLVM_COV_VERSION_HEADER "LLVM version ")
+        set (LLVM_COV_VERSION_HEADER "LCOV version")
         cmt_find_tool_extract_version("${LLVM_COV_EXECUTABLE}"
                                       LLVM_COV_VERSION
                                       VERSION_ARG --version
@@ -254,14 +254,13 @@ function(cmt_target_generate_coverage TARGET)
         return()
     endif()
 
-    # cmt_find_lcov(_ _)
-    # cmt_find_genhtml(_ _)
+    cmt_find_lcov(_ _)
+    cmt_find_genhtml(_ _)
     cmt_find_llvm_cov(_ _)
     cmt_find_llvm_profdata(_ _)
 
     set(CODE_COVERAGE ON)
     target_code_coverage(${TARGET} OBJECTS ${ARGS_DEPENDENCIES} AUTO ALL)
-    cmt_log("Target ${TARGET}: generating coverage for dependencies: ${ARGS_DEPENDENCIES}")
 endfunction()
 
 
@@ -271,13 +270,12 @@ endfunction()
 macro(cmt_project_coverage)
     if (CMT_ENABLE_COVERAGE)
 
-        # cmt_find_lcov(_ _)
-        # cmt_find_genhtml(_ _)
+        cmt_find_lcov(_ _)
+        cmt_find_genhtml(_ _)
         cmt_find_llvm_cov(_ _)
         cmt_find_llvm_profdata(_ _)
 
         set(CODE_COVERAGE ON)
         add_code_coverage_all_targets()
-        cmt_log("Generating a code-coverage report for the project ${PROJECT_NAME}")
     endif()
 endmacro()

@@ -81,6 +81,22 @@ function (cmt_fint_cpplint EXECUTABLE EXECUTABLE_FOUND)
     set (EXECUTABLE ${CPPLINT_EXECUTABLE} PARENT_SCOPE)
 endfunction ()
 
+# ! cmt_target_generate_cpplint
+# Enable include-what-you-use in all targets.
+#
+# cmt_project_enable_cpplint()
+#
+macro(cmt_project_enable_cpplint)
+    cmt_ensure_target(${TARGET})
+
+    if (CMT_ENABLE_IWYU)
+        cmt_find_cpplint(EXECUTABLE _)
+        set(CMAKE_CXX_CPPLINT ${EXECUTABLE})
+        set(CMAKE_C_CPPLINT ${EXECUTABLE})
+    endif()
+
+endmacro()
+
 # ! cmt_target_enable_cpplint
 # Enable include-what-you-use checks on the given target
 #
@@ -100,5 +116,4 @@ function(cmt_target_enable_cpplint TARGET)
     cmt_fint_cpplint(EXECUTABLE _)
     set_property(TARGET ${TARGET} PROPERTY CMAKE_CXX_CPPLINT ${EXECUTABLE})
     set_property(TARGET ${TARGET} PROPERTY CMAKE_C_CPPLINT ${EXECUTABLE})
-    cmt_log("Target ${TARGET}: enabling extension cpplint")
 endfunction()

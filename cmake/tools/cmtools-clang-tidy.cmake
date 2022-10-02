@@ -28,10 +28,6 @@ include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-args.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-finder.cmake)
 
-cmt_disable_logger()
-include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/clang-tidy.cmake)
-cmt_enable_logger()
-
 # Functions summary:
 # - cmt_find_clang_tidy
 # - cmt_target_generate_clang_tidy
@@ -89,27 +85,20 @@ function (cmt_find_clang_tidy EXECUTABLE CLANG_TIDY_FOUND)
 endfunction ()
 
 # ! cmt_target_generate_clang_tidy
-# Generate a clang-tidy target for the target.
-# The generated target lanch clang-tidy on all the target sources in the specified working directory.
+# Enable include-what-you-use in all targets.
 #
-# cmt_target_generate_clang_tidy(
-#   TARGET
-# )
+# cmt_project_enable_clang_tidy()
 #
-# \input TARGET The target to generate the clang-tidy target for.
-#
-function(cmt_target_generate_clang_tidy TARGET)
-    cmt_ensure_target(${TARGET})    
-    
-    if (NOT CMT_ENABLE_CLANG_TIDY)
-        return()
+macro(cmt_project_enable_clang_tidy)
+    cmt_ensure_target(${TARGET})
+
+    if (CMT_ENABLE_IWYU)
+        cmt_find_clang_tidy(EXECUTABLE _)
+        set(CMAKE_CXX_INCLUDE_CLANG_TIDY ${EXECUTABLE})
+        set(CMAKE_C_INCLUDE_CLANG_TIDY ${EXECUTABLE})
     endif()
 
-    
-    cmt_find_clang_tidy(EXECUTABLE _)
-    clang_tidy(TARGET ${TARGET})
-    cmt_log("Target ${TARGET}: generate target to run clang-tidy")
-endfunction()
+endmacro()
 
 
 # ! cmt_target_enable_clang_tidy
@@ -131,5 +120,4 @@ function(cmt_target_enable_clang_tidy TARGET)
     cmt_find_clang_tidy(EXECUTABLE _)
     set_property(TARGET ${TARGET} PROPERTY CMAKE_CXX_INCLUDE_CLANG_TIDY ${EXECUTABLE})
     set_property(TARGET ${TARGET} PROPERTY CMAKE_C_INCLUDE_CLANG_TIDY ${EXECUTABLE})
-    cmt_log("Target ${TARGET}: enabling extension clang-tidy")
 endfunction()

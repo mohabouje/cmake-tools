@@ -1,5 +1,8 @@
 #include "example.hpp"
 
+#include <functional>
+#include <map>
+
 namespace example {
 
 std::vector<int> ExampleClass::generate() const {

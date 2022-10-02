@@ -110,7 +110,7 @@ endfunction()
 function (cmt_determine_language_for_source SOURCE
                                             LANGUAGE_RETURN
                                             SOURCE_WAS_HEADER_RETURN)
-    psq_determine_language_for_source(${SOURCE} ${LANGUAGE_RETURN} ${SOURCE_WAS_HEADER_RETURN})
+    psq_determine_language_for_source(${SOURCE} ${LANGUAGE_RETURN} ${SOURCE_WAS_HEADER_RETURN} ${ARGN})
     set(${RETURN_TYPE} ${RETURN_TYPE} PARENT_SCOPE)
     set(${SOURCE_WAS_HEADER_RETURN} ${SOURCE_WAS_HEADER_RETURN} PARENT_SCOPE)
 endfunction()
@@ -245,3 +245,14 @@ function(cmt_count_sources RESULT)
     endforeach()
     set(${RESULT} ${result} PARENT_SCOPE)
 endfunction()
+
+function (cmt_get_target_command_attach_point TARGET ATTACH_POINT_RETURN)
+    # Figure out if this target is linkable. If it is a UTILITY target then we need to run the checks at the PRE_BUILD stage.
+    set (_ATTACH_POINT PRE_LINK)
+    get_property (TARGET_TYPE TARGET ${TARGET} PROPERTY TYPE)
+    if (TARGET_TYPE STREQUAL "UTILITY")
+        set (_ATTACH_POINT PRE_BUILD)
+    endif()
+
+    set (${ATTACH_POINT_RETURN} ${_ATTACH_POINT} PARENT_SCOPE)
+endfunction ()

@@ -27,9 +27,10 @@ include_guard(GLOBAL)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-args.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
 
-cmt_disable_logger()
-include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/iwyu.cmake)
-cmt_enable_logger()
+set (IWYU_EXIT_STATUS_WRAPPER
+     "${CMAKE_CURRENT_LIST_DIR}/internal/cmtools-iwyu-exit.cmake")
+set (_IWYU_LIST_DIR "${CMAKE_CURRENT_LIST_DIR}")
+
 
 # Functions summary:
 # - cmt_target_generate_iwyu
@@ -69,7 +70,7 @@ function (cmt_find_iwyu EXECUTABLE EXECUTABLE_FOUND)
         "Please adjust IWYU_SEARCH_PATHS to the installation prefix of the 'include-what-you-use' executable or install include-what-you-use")
 
     if (IWYU_EXECUTABLE)
-        set (IWYU_VERSION_HEADER "include-what-you-use ")
+        set (IWYU_VERSION_HEADER "clang version ")
         cmt_find_tool_extract_version("${IWYU_EXECUTABLE}"
                                       IWYU_VERSION
                                       VERSION_ARG --version
@@ -87,26 +88,20 @@ function (cmt_find_iwyu EXECUTABLE EXECUTABLE_FOUND)
 endfunction ()
 
 # ! cmt_target_generate_iwyu\
-# Generate a include-what-you-use target for the target.
-# The generated target lanch include-what-you-use on all the target sources in the specified working directory.
+# Enable include-what-you-use in all targets.
 #
-# cmt_target_generate_iwyu(
-#   TARGET
-# )
+# cmt_project_enable_iwyu()
 #
-# \input TARGET The target to generate the include-what-you-use target for.
-#
-function(cmt_target_generate_iwyu TARGET)
+macro(cmt_project_enable_iwyu)
     cmt_ensure_target(${TARGET})
 
     if (NOT CMT_ENABLE_IWYU)
-        return()
+        cmt_find_iwyu(EXECUTABLE _)
+        set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE ${EXECUTABLE})
+        set(CMAKE_C_INCLUDE_WHAT_YOU_USE ${EXECUTABLE})
     endif()
 
-    cmt_find_iwyu(EXECUTABLE _)
-    iwyu(TARGET ${TARGET})
-    cmt_log("Target ${TARGET}: generate target to run include-what-you-use")
-endfunction()
+endmacro()
 
 
 # ! cmt_target_enable_iwyu
@@ -128,5 +123,4 @@ function(cmt_target_enable_iwyu TARGET)
     cmt_find_iwyu(EXECUTABLE _)
     set_property(TARGET ${TARGET} PROPERTY CMAKE_CXX_INCLUDE_WHAT_YOU_USE ${EXECUTABLE})
     set_property(TARGET ${TARGET} PROPERTY CMAKE_C_INCLUDE_WHAT_YOU_USE ${EXECUTABLE})
-    cmt_log("Target ${TARGET}: enabling extension include-what-you-use")
 endfunction()

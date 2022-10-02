@@ -124,5 +124,4 @@ function(cmt_target_generate_clang_format TARGET)
 	)
 
     cmt_target_set_ide_directory(${FORMAT_TARGET} "format")
-	cmt_log("Target ${TARGET}: generate target to run clang-format")
 endfunction()

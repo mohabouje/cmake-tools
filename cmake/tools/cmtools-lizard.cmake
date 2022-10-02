@@ -104,5 +104,4 @@ function(cmt_target_generate_lizard TARGET)
 
     cmt_find_lizard(EXECUTABLE _)
     lizard(TARGET ${TARGET})
-    cmt_log("Target ${TARGET}: generate target to run lizard")
 endfunction()
