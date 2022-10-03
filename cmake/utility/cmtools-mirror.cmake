@@ -142,6 +142,8 @@ endfunction ()
 
 function (cmt_target_register TARGET GLOBAL)
     cmt_ensure_target(${TARGET})
+    set_target_properties(${TARGET} PROPERTIES EXCLUDE_FROM_ALL 1 EXCLUDE_FROM_DEFAULT_BUILD 1)
+
     if (NOT TARGET ${GLOBAL})
         add_custom_target(${GLOBAL})
     endif()

@@ -32,47 +32,13 @@ include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/cotire.cmake)
 cmt_enable_logger()
 
 # Functions summary:
-# - cmt_target_enable_cotire
-
-# !cmt_target_enable_cotire:
-#
-# For a target TARGET, adds a prefix header with all found headers used in this TARGET, cause it to be included when
-# building TARGET and precompile the prefix header before building TARGET. Also adds a new target TARGET_unity with a
-# single-source file which includes every other source file in one compilation unit.
-#
-# The TARGET_unity target will be set up to depend on any libraries this TARGET links to, and will prefer _unity versions of those libraries if  Davailable.
-#
-# \input TARGET: Target to accelerate
-# \option NO_UNITY_BUILD: Don't generate TARGET_unity
-# \option NO_PRECOMPILED_HEADERS: Don't generate a precompiled header
-#
-function (cmt_target_enable_cotire TARGET)
-    cmake_parse_arguments (ACCELERATION "NO_UNITY_BUILD;NO_PRECOMPILED_HEADERS" "" "" ${ARGN})
-    cmt_ensure_target(${TARGET})
-
-    if (NOT CMT_ENABLE_COTIRE)
-        return()
-    endif()
-
-    set (COTIRE_PROPERTIES)
-    cmt_add_switch (COTIRE_PROPERTIES ACCELERATION_NO_UNITY_BUILD ON "COTIRE_ADD_UNITY_BUILD OFF" OFF "COTIRE_ADD_UNITY_BUILD ON")
-    cmt_add_switch (COTIRE_PROPERTIES ACCELERATION_NO_PRECOMPILED_HEADERS ON "COTIRE_ENABLE_PRECOMPILED_HEADER OFF" OFF "COTIRE_ENABLE_PRECOMPILED_HEADER ON")
-    string (REPLACE " " ";" COTIRE_PROPERTIES "${COTIRE_PROPERTIES}")
-
-    set_target_properties (${TARGET} PROPERTIES CMT_ACCELERATED ON ${COTIRE_PROPERTIES})
-    set_target_properties (${TARGET} PROPERTIES COTIRE_PREFIX_HEADER_IGNORE_PATH "")
-
-    cmt_disable_logger()
-    cotire (${TARGET})
-    cmt_enable_logger()
-endfunction ()
+# - cmt_target_generate_cotire
 
 
-
-# !cmt_add_target
+# !cmt_target_generate_cotire
 # Generates a target eligible for cotiring - unity build and/or precompiled header
 #
-# cmt_add_target(
+# cmt_target_generate_cotire(
 #   TARGET
 #   [CPP_PER_UNIT <cpp per unit>]
 #   [PCH_FILE <pch file>]
@@ -84,23 +50,87 @@ endfunction ()
 # \group UNITY_EXCLUDE The source files to exclude from unity build
 #
 function(cmt_target_generate_cotire TARGET)
-    cmake_parse_arguments(ARGS "" "SUFFIX;GLOBAL;PCH_FILE;CPP_PER_UNITY" "UNITY_EXCLUDED" ${ARGN})
+    cmake_parse_arguments(ARGS "" "SUFFIX;GLOBAL;PCH_FILE;CPP_PER_UNITY" "UNITY_EXCLUDED;LANGUAGES" ${ARGN})
     cmt_required_arguments(ARGS "" "NAME;TYPE" "")
+    cmt_default_argument(ARGS LANGUAGES "CXX;")
     cmt_default_argument(ARGS SUFFIX "cotire")
     cmt_default_argument(ARGS GLOBAL "cotire")
 	cmt_default_argument(ARGS CPP_PER_UNITY 100)
     cmt_ensure_target(${TARGET})
 
-
-    if(NOT CMT_ENABLE_COTIRE)
+    if (NOT CMT_ENABLE_COTIRE)
         return()
     endif()
 
-    cmt_strip_extraneous_sources(${TARGET} TARGET_SOURCES)
+    if (NOT CMT_ENABLE_UNITY_BUILDS AND NOT CMT_ENABLE_PRECOMPILED_HEADERS)
+        cmt_log("Skipping cotire for target ${TARGET}. Precompiled headers and unity build are disabled.")
+        return()
+    endif()
 
+    get_target_property(PREVIOUSLY_ENABLED ${TARGET} CMT_COTIRE_ENABLED)
+    if (PREVIOUSLY_ENABLED)
+        cmt_warning("Target ${TARGET} has already been enabled for cotire")
+        return()
+    endif()
+
+    set(MIRROR_TARGET "${TARGET}-original")
+    if (TARGET ${MIRROR_TARGET})
+        cmt_warning("Target ${MIRROR_TARGET} already exists")
+        return()
+    endif()
+
+    set_target_properties(${TARGET} PROPERTIES CMT_COTIRE_ENABLED ON)
+    cmt_create_mirrored_build_target(${TARGET} "original")
+    cmt_ensure_target(${MIRROR_TARGET})
+
+    cmt_strip_extraneous_sources(${MIRROR_TARGET} TARGET_SOURCES)
     cmt_count_sources(NUM_SOURCES ${TARGET_SOURCES})
     if (${NUM_SOURCES} LESS 2)
+        cmt_info("Skipping cotire for ${TARGET} because it has less than 2 sources")
         return()
     endif()
+
+    foreach(EXCLUDE_FILE ${ARGS_UNITY_EXCLUDED})
+        set_source_files_properties(${EXCLUDE_FILE} PROPERTIES COTIRE_EXCLUDED TRUE)
+    endforeach()
+    
+    set(UNITY_TARGET ${TARGET}-${ARGS_SUFFIX})
+    if (TARGET ${UNITY_TARGET})
+        cmt_warning("Target ${UNITY_TARGET} already exists")
+        return()
+    endif()
+    
+    set(COTIRE_PROPERTIES)
+    cmt_boolean(ENABLE_UNITY_BUILDS ${CMT_ENABLE_UNITY_BUILDS})
+    cmt_boolean(ENABLE_PRECOMPILED_HEADERS ${CMT_ENABLE_PRECOMPILED_HEADERS} AND DEFINED ARGS_PCH_FILE)
+    cmt_boolean(VALID_PCH_FILE ${ENABLE_PRECOMPILED_HEADERS} AND EXISTS ${ARGS_PCH_FILE})
+    cmt_add_switch(COTIRE_PROPERTIES ENABLE_UNITY_BUILDS ON "COTIRE_ADD_UNITY_BUILD ON" OFF "COTIRE_ADD_UNITY_BUILD OFF")
+    cmt_add_switch(COTIRE_PROPERTIES VALID_PCH_FILE ON "COTIRE_ENABLE_PRECOMPILED_HEADER ON" OFF "COTIRE_ENABLE_PRECOMPILED_HEADER OFF")
+    cmt_add_switch(COTIRE_PROPERTIES VALID_PCH_FILE ON "COTIRE_CXX_PREFIX_HEADER_INIT ${ARGS_PCH_FILE}" OFF "")
+    string (REPLACE " " ";" COTIRE_PROPERTIES "${COTIRE_PROPERTIES}")
+
+    set_target_properties(${MIRROR_TARGET} PROPERTIES CMT_COTIRE_ENABLED ON ${COTIRE_PROPERTIES})
+    set_target_properties(${MIRROR_TARGET} PROPERTIES COTIRE_PREFIX_HEADER_IGNORE_PATH "")
+    set_target_properties(${MIRROR_TARGET} PROPERTIES COTIRE_UNITY_TARGET_NAME ${UNITY_TARGET})
+
+    cmt_forward_options(ARGS "" "" "LANGUAGES" COTIRE_ARGS)
+    cotire (${MIRROR_TARGET} ${COTIRE_ARGS} CONFIGURATIONS ${CMAKE_BUILD_TYPE})
+    cmt_ensure_target(${UNITY_TARGET})
+    set_target_properties(clean_cotire PROPERTIES FOLDER "CMakePredefinedTargets")
+
+
+    # Disable the original target and enable the unity one
+    get_target_property(COTIRE_TARGET ${MIRROR_TARGET} COTIRE_UNITY_TARGET_NAME)
+    set_target_properties(${MIRROR_TARGET} PROPERTIES EXCLUDE_FROM_ALL 1 EXCLUDE_FROM_DEFAULT_BUILD 1)
+    set_target_properties(${COTIRE_TARGET} PROPERTIES EXCLUDE_FROM_ALL 0 EXCLUDE_FROM_DEFAULT_BUILD 0)
+
+    # Also set the name of the target output as the original one
+    set_target_properties(${COTIRE_TARGET} PROPERTIES OUTPUT_NAME ${UNITY_TARGET})
+    set_target_properties(${COTIRE_TARGET} PROPERTIES FOLDER "")
+    set_target_properties(all_unity PROPERTIES FOLDER "CMakePredefinedTargets")
+
+    cmt_wire_mirrored_build_target_dependencies(${TARGET} ${ARGS_SUFFIX})
+    cmt_target_register(${UNITY_TARGET} ${ARGS_GLOBAL})
+
 
 endfunction()

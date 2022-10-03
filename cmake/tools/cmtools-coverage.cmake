@@ -290,5 +290,6 @@ function(cmt_target_generate_coverage TARGET)
 
     cmt_target_register("${TARGET}-gcov" "gcov")
     cmt_target_register("${TARGET}-genhtml" "genhtml")
+    cmt_target_register("${TARGET}-capture-init" "capture-init")
 
 endfunction()

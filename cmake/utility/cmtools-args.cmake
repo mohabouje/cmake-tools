@@ -387,7 +387,15 @@ function (cmt_add_switch ALL_OPTIONS OPTION_NAME)
     set (${ALL_OPTIONS} ${${ALL_OPTIONS}} PARENT_SCOPE)
 endfunction()
 
-# ! cmake_unit_parse_args_key
+macro(cmt_boolean var)
+    if(${ARGN})
+        set(${var} ON)
+    else()
+        set(${var} OFF)
+    endif()
+endmacro()
+
+# ! cmake_parse_args_key
 #
 # This is an optimization on cmake_parse_arguments which should
 # help to reduce the number of times which it is called. Effectively,

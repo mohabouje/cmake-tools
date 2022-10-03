@@ -1,11 +1,17 @@
 gitignore:
     languages:
         - python
+        - c++
         - linux
         - macos
     workspace:
         - .vscode
         - .venv
+        - .build
+        -  build
+        - cmake-build-debug
+        - cmake-build-release
+        - .idea
 
 gitlint:
     title:

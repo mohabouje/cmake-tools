@@ -1,4 +1,4 @@
-set(TARGET_NAME cmtools-test)
+set(TARGET_NAME example-test)
 set(TARGET_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/example.hpp)
 set(TARGET_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/example.cpp
                    ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
@@ -20,5 +20,5 @@ cmt_target_configure_compiler_optimization_options(${TARGET_NAME})
 # cmt_target_print_linker_options(${TARGET_NAME} CONFIG Debug Release)
 
 # Hardcore integration of all tools
-cmt_target_enable_all_tool(${TARGET_NAME})
+cmt_target_enable_all_tool(${TARGET_NAME} REQUIRED)
 cmt_target_generate_all_tool(${TARGET_NAME})
