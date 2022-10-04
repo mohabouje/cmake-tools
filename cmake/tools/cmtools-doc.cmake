@@ -52,7 +52,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
 # \group NAMES - The name of the executable.
 #
 function (cmt_find_dot EXECUTABLE)
-    cmake_parse_arguments(ARGS "" "BIN_SUBDIR" "NAMES" ${ARGN})
+    cmt_parse_arguments(ARGS "" "BIN_SUBDIR" "NAMES" ${ARGN})
     cmt_default_argument(ARGS NAMES "dot;")
     cmt_default_argument(ARGS BIN_SUBDIR bin)
 
@@ -108,7 +108,7 @@ endfunction()
 # \group NAMES - The name of the executable.
 #
 function (cmt_find_doxygen EXECUTABLE)
-    cmake_parse_arguments(ARGS "" "BIN_SUBDIR" "NAMES" ${ARGN})
+    cmt_parse_arguments(ARGS "" "BIN_SUBDIR" "NAMES" ${ARGN})
     cmt_default_argument(ARGS NAMES "doxygen;")
     cmt_default_argument(ARGS BIN_SUBDIR bin)
 
@@ -159,7 +159,7 @@ endfunction()
 # \group NAMES - The name of the executable.
 #
 function (cmt_find_latex EXECUTABLE)
-    cmake_parse_arguments(ARGS "" "BIN_SUBDIR" "NAMES" ${ARGN})
+    cmt_parse_arguments(ARGS "" "BIN_SUBDIR" "NAMES" ${ARGN})
     cmt_default_argument(ARGS NAMES "latex;")
     cmt_default_argument(ARGS BIN_SUBDIR bin)
 
@@ -208,7 +208,7 @@ endfunction()
 # This function is intended as a convenience for adding a target for generating documentation with Doxygen. 
 #
 function(cmt_generate_doxygen_documentation TARGET)
-    cmake_parse_arguments(ARGS "HTML;MAN" "PROJECT_NAME;PROJECT_NUMBER;PROJECT_DESCRIPTION;BINARY_DIR;SOURCE_DIR" "" ${ARGN})
+    cmt_parse_arguments(ARGS "HTML;MAN" "PROJECT_NAME;PROJECT_NUMBER;PROJECT_DESCRIPTION;BINARY_DIR;SOURCE_DIR" "" ${ARGN})
     cmt_default_argument(ARGS BINARY_DIR "${CMAKE_BINARY_DIR}/doxygen")
     cmt_default_argument(ARGS SOURCE_DIR ${CMAKE_SOURCE_DIR})
     cmt_default_argument(ARGS PROJECT_NAME ${CMAKE_PROJECT_NAME})
@@ -267,7 +267,7 @@ endfunction()
 # \param OUTPUT_DIR The output directory where the generated files will be stored.
 #
 macro(cmt_generate_dependency_graph TARGET)
-    cmake_parse_arguments(ARGS "" "OUTPUT_DIR;OUTPUT_TYPE" "" ${ARGN})
+    cmt_parse_arguments(ARGS "" "OUTPUT_DIR;OUTPUT_TYPE" "" ${ARGN})
     cmt_default_argument(ARGS OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/graphviz")
     cmt_default_argument(ARGS OUTPUT_TYPE "pdf")
 

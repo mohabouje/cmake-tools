@@ -49,7 +49,7 @@ set(CMT_STATIC_ANALYSIS_TOOLS
         "cotire")
 
 function (cmt_target_enable_tool TARGET TOOL)
-    cmake_parse_arguments(ARGS "REQUIRED" "" "" ${ARGN})
+    cmt_parse_arguments(ARGS "REQUIRED" "" "" ${ARGN})
     cmt_ensure_target(${TARGET})
 
     macro(report_warning)
@@ -88,7 +88,7 @@ function (cmt_target_enable_tool TARGET TOOL)
 endfunction ()
 
 function (cmt_target_enable_all_tool TARGET)
-    cmake_parse_arguments(ARGS "REQUIRED" "" "" ${ARGN})
+    cmt_parse_arguments(ARGS "REQUIRED" "" "" ${ARGN})
     cmt_forward_arguments(ARGS "REQUIRED" "" "" FORWARD_ARGS)
     foreach(TOOL ${CMT_STATIC_ANALYSIS_TOOLS})
         cmt_target_enable_tool(${TARGET} ${TOOL} ${FORWARD_ARGS})
@@ -96,7 +96,7 @@ function (cmt_target_enable_all_tool TARGET)
 endfunction()
 
 function (cmt_target_generate_tool TARGET TOOL)
-    cmake_parse_arguments(ARGS "" "ALL;DEFAULT" "" ${ARGN})
+    cmt_parse_arguments(ARGS "" "ALL;DEFAULT" "" ${ARGN})
     cmt_ensure_target(${TARGET})
 
     string(TOLOWER ${TOOL} TOOL_SUFFIX)
@@ -134,7 +134,7 @@ function (cmt_target_generate_tool TARGET TOOL)
 endfunction ()
 
 function (cmt_target_generate_all_tool TARGET)
-    cmake_parse_arguments(ARGS "" "ALL;DEFAULT" "" ${ARGN})
+    cmt_parse_arguments(ARGS "" "ALL;DEFAULT" "" ${ARGN})
     cmt_ensure_target(${TARGET})
     cmt_forward_arguments(ARGS "ALL;DEFAULT" "" "" FORWARD_ARGS)
     foreach(TOOL ${CMT_STATIC_ANALYSIS_TOOLS})

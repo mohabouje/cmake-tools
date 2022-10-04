@@ -44,7 +44,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
 # \group NAMES - The name of the executable.
 #
 function (cmt_find_lizard EXECUTABLE)
-    cmake_parse_arguments(ARGS "" "BIN_SUBDIR" "NAMES" ${ARGN})
+    cmt_parse_arguments(ARGS "" "BIN_SUBDIR" "NAMES" ${ARGN})
     cmt_default_argument(ARGS NAMES "lizard")
     cmt_default_argument(ARGS BIN_SUBDIR bin)
 
@@ -109,7 +109,7 @@ endfunction()
 # \group ADDITIONAL_ARGS Additional arguments to be passed to the lizard target.
 #
 function(cmt_target_generate_lizard TARGET)
-	cmake_parse_arguments(ARGS "STATIC_ERROR;ALL;DEFAULT" "SUFFIX;GLOBAL" "ADITIONAL_FILES;ADDITIONAL_ARGS" ${ARGN})
+	cmt_parse_arguments(ARGS "STATIC_ERROR;ALL;DEFAULT" "SUFFIX;GLOBAL" "ADITIONAL_FILES;ADDITIONAL_ARGS" ${ARGN})
     cmt_default_argument(ARGS SUFFIX "lizard")
     cmt_default_argument(ARGS GLOBAL "lizard")
     cmt_ensure_target(${TARGET})
@@ -149,9 +149,9 @@ function(cmt_target_generate_lizard TARGET)
       COMMAND ;
       COMMENT "Lizard checks for target ${TARGET} completed."
     )
-    cmt_wire_mirrored_build_target_dependencies(${TARGET} ${ARGS_SUFFIX})
+    cmt_target_wire_dependencies(${TARGET} ${ARGS_SUFFIX})
     cmt_forward_arguments(ARGS "ALL;DEFAULT" "" "" REGISTER_ARGS)
-    cmt_target_register(${TARGET_NAME} ${ARGS_GLOBAL} ${REGISTER_ARGS})
+    cmt_target_register_in_group(${TARGET_NAME} ${ARGS_GLOBAL} ${REGISTER_ARGS})
 
 endfunction()
 

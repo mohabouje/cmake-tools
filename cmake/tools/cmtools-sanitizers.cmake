@@ -63,7 +63,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
 # \option One or more of the sanitizers listed above
 #
 function(cmt_target_enable_sanitizer TARGET)
- 	cmake_parse_arguments(ARGS "ASAN;TSAN;LSAN;UBSAN;MSAN;CFISAN;AUBSAN;MWOSAN" "" "CONFIG" ${ARGN})
+ 	cmt_parse_arguments(ARGS "ASAN;TSAN;LSAN;UBSAN;MSAN;CFISAN;AUBSAN;MWOSAN" "" "CONFIG" ${ARGN})
 	cmt_ensure_on_of_argument(ARGS ASAN TSAN LSAN UBSAN MSAN AUBSAN MWOSAN CFISAN)
 
 	# Incompatibilities documented at:

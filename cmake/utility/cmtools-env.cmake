@@ -198,7 +198,7 @@ endmacro()
 # \param EXTENSIONS If the compiler extensions are allowed
 #
 macro(cmt_set_cpp_standard STANDARD)
-    cmake_parse_arguments(_CPP_FP_CHECK "" "REQUIRED;EXTENSIONS" "" ${ARGN})
+    cmt_parse_arguments(_CPP_FP_CHECK "" "REQUIRED;EXTENSIONS" "" ${ARGN})
     cmt_ensure_choice(STANDARD 98 11 14 17 20 23)
 	cmt_default_argument(_CPP_FP_CHECK EXTENSION OFF)
 	cmt_default_argument(_CPP_FP_CHECK REQUIRED ON)
@@ -228,7 +228,7 @@ endmacro()
 # \param EXTENSIONS If the compiler extensions are allowed
 #
 macro(cmt_set_c_standard STANDARD)
-    cmake_parse_arguments(_C_FP_CHECK "" "REQUIRED;EXTENSIONS" "" ${ARGN})
+    cmt_parse_arguments(_C_FP_CHECK "" "REQUIRED;EXTENSIONS" "" ${ARGN})
     cmt_ensure_choice(STANDARD 98 11 17 23)
 	cmt_default_argument(_C_FP_CHECK FIELD EXTENSION OFF)
 	cmt_default_argument(_C_FP_CHECK FIELD REQUIRED ON)

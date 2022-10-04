@@ -49,7 +49,7 @@ cmt_enable_logger()
 # \group NAMES - The name of the executable.
 #
 function (cmt_find_lcov EXECUTABLE)
-    cmake_parse_arguments(ARGS "" "BIN_SUBDIR" "NAMES" ${ARGN})
+    cmt_parse_arguments(ARGS "" "BIN_SUBDIR" "NAMES" ${ARGN})
     cmt_default_argument(ARGS NAMES "lcov")
     cmt_default_argument(ARGS BIN_SUBDIR bin)
 
@@ -105,7 +105,7 @@ endfunction()
 # \group NAMES - The name of the executable.
 #
 function (cmt_find_genhtml EXECUTABLE)
-    cmake_parse_arguments(ARGS "" "BIN_SUBDIR" "NAMES" ${ARGN})
+    cmt_parse_arguments(ARGS "" "BIN_SUBDIR" "NAMES" ${ARGN})
     cmt_default_argument(ARGS NAMES "genhtml")
     cmt_default_argument(ARGS BIN_SUBDIR bin)
 
@@ -161,7 +161,7 @@ endfunction()
 # \group NAMES - The name of the executable.
 #
 function (cmt_find_llvm_cov EXECUTABLE)
-    cmake_parse_arguments(ARGS "" "BIN_SUBDIR" "NAMES" ${ARGN})
+    cmt_parse_arguments(ARGS "" "BIN_SUBDIR" "NAMES" ${ARGN})
     cmt_default_argument(ARGS NAMES "llvm-cov")
     cmt_default_argument(ARGS BIN_SUBDIR bin)
 
@@ -217,7 +217,7 @@ endfunction()
 # \group NAMES - The name of the executable.
 #
 function (cmt_find_llvm_profdata EXECUTABLE)
-    cmake_parse_arguments(ARGS "" "BIN_SUBDIR" "NAMES" ${ARGN})
+    cmt_parse_arguments(ARGS "" "BIN_SUBDIR" "NAMES" ${ARGN})
     cmt_default_argument(ARGS NAMES "llvm-profdata;")
     cmt_default_argument(ARGS BIN_SUBDIR bin)
 
@@ -273,7 +273,7 @@ endfunction()
 # \group DEPENDENCIES The dependencies of the target.
 #
 function(cmt_target_generate_coverage TARGET)
-    cmake_parse_arguments(ARGS "ALL;DEFAULT;" "" "DEPENDENCIES" ${ARGN})
+    cmt_parse_arguments(ARGS "ALL;DEFAULT;" "" "DEPENDENCIES" ${ARGN})
 
     if (NOT CMT_ENABLE_COVERAGE)
         return()
@@ -285,11 +285,11 @@ function(cmt_target_generate_coverage TARGET)
     cmt_find_llvm_profdata(_)
 
     add_coverage_target(${TARGET})
-    cmt_wire_mirrored_build_target_dependencies(${TARGET} gcov)
-    cmt_wire_mirrored_build_target_dependencies(${TARGET} genhtml)
+    cmt_target_wire_dependencies(${TARGET} gcov)
+    cmt_target_wire_dependencies(${TARGET} genhtml)
 
     cmt_forward_arguments(ARGS "ALL;DEFAULT" "" "" REGISTER_ARGS)
-    cmt_target_register("${TARGET}-gcov" "gcov" ${REGISTER_ARGS})
-    cmt_target_register("${TARGET}-genhtml" "genhtml" ${REGISTER_ARGS} )
-    cmt_target_register("${TARGET}-capture-init" "capture-init" ${REGISTER_ARGS})
+    cmt_target_register_in_group("${TARGET}-gcov" "gcov" ${REGISTER_ARGS})
+    cmt_target_register_in_group("${TARGET}-genhtml" "genhtml" ${REGISTER_ARGS} )
+    cmt_target_register_in_group("${TARGET}-capture-init" "capture-init" ${REGISTER_ARGS})
 endfunction()

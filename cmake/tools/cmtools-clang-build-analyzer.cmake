@@ -44,7 +44,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
 # \group NAMES - The name of the executable.
 #
 function (cmt_find_clang_build_analyzer EXECUTABLE)
-    cmake_parse_arguments(ARGS "" "BIN_SUBDIR" "NAMES" ${ARGN})
+    cmt_parse_arguments(ARGS "" "BIN_SUBDIR" "NAMES" ${ARGN})
     cmt_default_argument(ARGS NAMES "clang-build-analyzer;")
     cmt_default_argument(ARGS BIN_SUBDIR bin)
 
@@ -98,7 +98,7 @@ endfunction()
 # \input TARGET The target to configure
 #
 function(cmt_target_generate_clang_build_analyzer TARGET)
-    cmake_parse_arguments(ARGS "ALL;DEFAULT" "SUFFIX;GLOBAL;BINARY_DIR" "" ${ARGN})
+    cmt_parse_arguments(ARGS "ALL;DEFAULT" "SUFFIX;GLOBAL;BINARY_DIR" "" ${ARGN})
     cmt_default_argument(ARGS SUFFIX "clang-build-analyzer")
     cmt_default_argument(ARGS GLOBAL "${PROJECT}-clang-build-analyzer")
     cmt_default_argument(ARGS BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}")
@@ -130,8 +130,8 @@ function(cmt_target_generate_clang_build_analyzer TARGET)
         BYPRODUCTS
                 "${TARGET_DIR}/build_analysis"
     )
-    cmt_wire_mirrored_build_target_dependencies(${TARGET} ${ARGS_SUFFIX})
+    cmt_target_wire_dependencies(${TARGET} ${ARGS_SUFFIX})
     add_dependencies(${TARGET_NAME} ${TARGET})
     cmt_forward_arguments(ARGS "ALL;DEFAULT" "" "" REGISTER_ARGS)
-    cmt_target_register(${TARGET_NAME} ${ARGS_GLOBAL} ${REGISTER_ARGS})
+    cmt_target_register_in_group(${TARGET_NAME} ${ARGS_GLOBAL} ${REGISTER_ARGS})
 endfunction()

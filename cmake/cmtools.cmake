@@ -38,10 +38,12 @@ include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-config.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-env.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-fsystem.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-lists.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-targets.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-target.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-compiler.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-finder.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-cache.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-properties.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-assert.cmake)
 
 
 

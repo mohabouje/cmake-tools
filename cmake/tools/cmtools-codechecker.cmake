@@ -42,7 +42,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
 # \group NAMES - The name of the executable.
 #
 function (cmt_find_codechecker EXECUTABLE)
-    cmake_parse_arguments(ARGS "" "BIN_SUBDIR" "NAMES" ${ARGN})
+    cmt_parse_arguments(ARGS "" "BIN_SUBDIR" "NAMES" ${ARGN})
     cmt_default_argument(ARGS NAMES "codechecker;")
     cmt_default_argument(ARGS BIN_SUBDIR bin)
 
@@ -113,7 +113,7 @@ endfunction()
 # \group ARGS Specify 'codechecker analyze' command line arguments.
 #
 function(cmt_target_generate_codechecker TARGET)
-	cmake_parse_arguments(ARGS "CTU;ALL;DEFAULT" "GLOBAL;SUFFIX" "SKIP;ARGS;ADDITIONAL_OPTIONAL_REPORTS" ${ARGN})
+	cmt_parse_arguments(ARGS "CTU;ALL;DEFAULT" "GLOBAL;SUFFIX" "SKIP;ARGS;ADDITIONAL_OPTIONAL_REPORTS" ${ARGN})
     cmt_default_argument(ARGS SUFFIX "codechecker")
     cmt_default_argument(ARGS GLOBAL "codechecker")
     cmt_ensure_target(${TARGET})
@@ -191,7 +191,7 @@ function(cmt_target_generate_codechecker TARGET)
 			"${TARGET_DIR}/codechecker_reports"
 			"${TARGET_DIR}/html"
 		)
-    cmt_wire_mirrored_build_target_dependencies(${TARGET} ${ARGS_SUFFIX})
+    cmt_target_wire_dependencies(${TARGET} ${ARGS_SUFFIX})
 	cmt_forward_arguments(ARGS "ALL;DEFAULT" "" "" REGISTER_ARGS)
-	cmt_target_register(${TARGET_NAME} ${ARGS_GLOBAL} ${REGISTER_ARGS})
+	cmt_target_register_in_group(${TARGET_NAME} ${ARGS_GLOBAL} ${REGISTER_ARGS})
 endfunction()

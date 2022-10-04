@@ -50,7 +50,7 @@ cmt_enable_logger()
 # \group UNITY_EXCLUDE The source files to exclude from unity build
 #
 function(cmt_target_generate_cotire TARGET)
-    cmake_parse_arguments(ARGS "ALL;DEFAULT;" "SUFFIX;GLOBAL;PCH_FILE;CPP_PER_UNITY" "UNITY_EXCLUDED;LANGUAGES" ${ARGN})
+    cmt_parse_arguments(ARGS "ALL;DEFAULT;" "SUFFIX;GLOBAL;PCH_FILE;CPP_PER_UNITY" "UNITY_EXCLUDED;LANGUAGES" ${ARGN})
     cmt_required_arguments(ARGS "" "NAME;TYPE" "")
     cmt_default_argument(ARGS LANGUAGES "CXX;")
     cmt_default_argument(ARGS SUFFIX "cotire")
@@ -80,7 +80,7 @@ function(cmt_target_generate_cotire TARGET)
     endif()
 
     set_target_properties(${TARGET} PROPERTIES CMT_COTIRE_ENABLED ON)
-    cmt_create_mirrored_build_target(${TARGET} "original")
+    cmt_target_create_mirror(${TARGET} "original")
     cmt_ensure_target(${TEMPORAL_TARGET})
 
     cmt_strip_extraneous_sources(${TEMPORAL_TARGET} TARGET_SOURCES)
@@ -133,8 +133,8 @@ function(cmt_target_generate_cotire TARGET)
     set_target_properties(clean_cotire PROPERTIES FOLDER "CMakePredefinedTargets")
     set_target_properties(all_unity PROPERTIES FOLDER "CMakePredefinedTargets")
 
-    cmt_wire_mirrored_build_target_dependencies(${TARGET} ${ARGS_SUFFIX})
+    cmt_target_wire_dependencies(${TARGET} ${ARGS_SUFFIX})
     cmt_forward_arguments(ARGS "ALL;DEFAULT" "" "" REGISTER_ARGS)
-    cmt_target_register(${COTIRE_TARGET} ${ARGS_GLOBAL} ${REGISTER_ARGS})
+    cmt_target_register_in_group(${COTIRE_TARGET} ${ARGS_GLOBAL} ${REGISTER_ARGS})
 
 endfunction()

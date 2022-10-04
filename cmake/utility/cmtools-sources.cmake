@@ -80,7 +80,7 @@ endfunction()
 # \group    CPP_IDENTIFIERS CPP_IDENTIFIERS Any identifiers which might indicate that this source can be compiled with both C and CXX.
 #
 function(cmt_scan_source_for_headers)
-    cmake_parse_arguments(ARGS "" "SOURCE" "INCLUDES;CPP_IDENTIFIERS" ${ARGN})
+    cmt_parse_arguments(ARGS "" "SOURCE" "INCLUDES;CPP_IDENTIFIERS" ${ARGN})
 	cmt_required_arguments(FUNCTION cmt_scan_source_for_headers PREFIX ARGS FIELDS SOURCE)
     psq_scan_source_for_headers(${ARGN})
 endfunction()
@@ -139,7 +139,7 @@ endfunction()
 # \group    INCLUDES Include directories to search.
 #
 function (cmt_sort_sources_to_languages C_SOURCES CXX_SOURCES HEADERS)
-    cmake_parse_arguments(SORT_SOURCES "" "FORCE_LANGUAGE" "SOURCES;CPP_IDENTIFIERS;INCLUDES" ${ARGN})
+    cmt_parse_arguments(SORT_SOURCES "" "FORCE_LANGUAGE" "SOURCES;CPP_IDENTIFIERS;INCLUDES" ${ARGN})
 	cmt_required_arguments(SORT_SOURCES "" "" "SOURCES")
     cmt_forward_arguments (SORT_SOURCES "" "FORCE_LANGUAGE" "CPP_IDENTIFIERS;INCLUDES" DETERMINE_LANG_OPTIONS)
 
@@ -213,7 +213,7 @@ endfunction()
 # \group SOURCES SOURCES: List of source files, including generated sources.
 #
 function (cmt_filter_out_generated_sources RESULT_VARIABLE)
-    cmake_parse_arguments (FILTER_OUT "" "" "SOURCES" ${ARGN})
+    cmt_parse_arguments (FILTER_OUT "" "" "SOURCES" ${ARGN})
     set (${RESULT_VARIABLE} PARENT_SCOPE)
     set (FILTERED_SOURCES)
     foreach (SOURCE ${FILTER_OUT_SOURCES})
@@ -236,7 +236,7 @@ endfunction()
 #
 # \output RESULT The variable to store the result in
 function(cmt_count_sources RESULT)
-    cmake_parse_arguments(ARGS "" "" "" ${ARGN})
+    cmt_parse_arguments(ARGS "" "" "" ${ARGN})
     set(result 0)
     foreach(SOURCE_FILE ${ARGS_UNPARSED_ARGUMENTS})
         if("${SOURCE_FILE}" MATCHES \\.\(c|C|cc|cp|cpp|CPP|c\\+\\+|cxx|i|ii\)$)

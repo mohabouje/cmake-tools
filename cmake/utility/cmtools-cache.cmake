@@ -87,7 +87,7 @@ endmacro()
 #
 function (cmt_forward_cache_namespaces_to_file CACHE_FILE)
 
-    cmake_parse_arguments (FORWARD_CACHE "" "" "NAMESPACES" ${ARGN})
+    cmt_parse_arguments (FORWARD_CACHE "" "" "NAMESPACES" ${ARGN})
     cmt_required_arguments(FORWARD_CACHE "" "" "NAMESPACES")
 
     get_property (AVAILABLE_CACHE_VARIABLES GLOBAL PROPERTY CACHE_VARIABLES)

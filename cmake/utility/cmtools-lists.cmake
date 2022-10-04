@@ -51,7 +51,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/cmtools-args.cmake)
 # \option EXCLUDE If set, the elements that match the regex will be excluded from the list
 #
 function(cmt_filter_list REGEX LIST)
-    cmake_parse_arguments(ARGS "INCLUDE;EXCLUDE" "" "" ${ARGN})
+    cmt_parse_arguments(ARGS "INCLUDE;EXCLUDE" "" "" ${ARGN})
     cmt_ensure_on_of_argument(ARGS INCLUDE EXCLUDE)
 
 	set(TEMPORAL_LIST)

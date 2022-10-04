@@ -31,11 +31,8 @@ include(${CMAKE_CURRENT_LIST_DIR}/cmtools-logger.cmake)
 # - cmt_ensure_on_of_argument
 # - cmt_ensure_argument_choice
 # - cmt_default_argument
-# - cmt_ensure_target
-# - cmt_append_each_to_options_with_prefix
+# - cmt_forward_as_list_with_prefix
 # - cmt_forward_arguments
-# - cmt_append_to_global_property
-# - cmt_append_to_global_property_unique
 
 
 # cmt_required_arguments
@@ -112,11 +109,11 @@ function (cmt_forward_arguments PREFIX OPTION_ARGS SINGLEVAR_ARGS MULTIVAR_ARGS 
     set (${RETURN_LIST_NAME} ${RETURN_LIST} PARENT_SCOPE)
 endfunction()
 
-# cmt_append_each_to_options_with_prefix
+# cmt_forward_as_list_with_prefix
 #
 # Append items in ARGN to MAIN_LIST, giving each PREFIX.
 #
-# cmt_append_each_to_options_with_prefix(
+# cmt_forward_as_list_with_prefix(
 #   MAIN_LIST
 #   PREFIX
 #   <WRAP_IN_QUOTES>
@@ -127,8 +124,8 @@ endfunction()
 # \option   WRAP_IN_QUOTES If set, each item in ARGN will be wrapped in quotes.
 # \group    LIST List of items to append.
 #
-function (cmt_append_each_to_options_with_prefix MAIN_LIST PREFIX)
-    cmake_parse_arguments (APPEND "WRAP_IN_QUOTES" "" "LIST" ${ARGN})
+function (cmt_forward_as_list_with_prefix MAIN_LIST PREFIX)
+    cmt_parse_arguments (APPEND "WRAP_IN_QUOTES" "" "LIST" ${ARGN})
     foreach (ITEM ${APPEND_LIST})
         if (APPEND_WRAP_IN_QUOTES)
             list (APPEND ${MAIN_LIST} "\\\"${PREFIX}${ITEM}\\\"")
@@ -150,7 +147,7 @@ endfunction()
 #
 # \input PREFIX PREFIX specifies the prefix used to parse the arguments
 function(cmt_ensure_on_of_argument PREFIX)
-    cmake_parse_arguments (CHOICE "" "" "" ${ARGN})
+    cmt_parse_arguments (CHOICE "" "" "" ${ARGN})
     foreach(arg ${CHOICE_UNPARSED_ARGUMENTS})
         if(DEFINED ${PREFIX}_${arg})
             return()
@@ -160,26 +157,6 @@ function(cmt_ensure_on_of_argument PREFIX)
     cmt_fatal("At least one of the following arguments is required: ${CHOICE_UNPARSED_ARGUMENTS}.")
 endfunction()
 
-# ! cmt_ensure_choice
-# This function check if the variable contain one of the choices
-#
-# cmt_ensure_choice(
-#   VARIABLE
-#   [OPTIONS option, ...]
-# )
-#
-# \input VARIABLE The variable to check
-# \group OPTIONS List of choices
-#
-function(cmt_ensure_choice VARIABLE)
-    cmake_parse_arguments (ARGS "" "" "" ${ARGN})
-    foreach(arg ${ARGS_UNPARSED_ARGUMENTS})
-        if (${VARIABLE} STREQUAL ${arg})
-            return()
-        endif()
-    endforeach()
-    cmt_fatal("Argument ${ARGUMENT} is not one of the following choices: ${CHOICES}")
-endfunction()
 
 
 # ! cmt_ensure_argument_choice
@@ -196,7 +173,7 @@ endfunction()
 # \group OPTIONS List of choices
 #
 function(cmt_ensure_argument_choice PREFIX ARGUMENT)
-    cmake_parse_arguments (ARGS "" "" "" ${ARGN})
+    cmt_parse_arguments (ARGS "" "" "" ${ARGN})
     foreach(arg ${ARGS_UNPARSED_ARGUMENTS})
         if (${PREFIX}_${ARGUMENT} STREQUAL ${arg})
             return()
@@ -224,19 +201,6 @@ function(cmt_default_argument PREFIX ARGUMENT DEFAULT)
 endfunction()
 
 
-# ! cmt_ensure_target : Checks if the list of targets exist and are valid
-#
-# cmt_ensure_target(
-#   TARGET
-# )
-#
-# \input TARGET Target to check
-#
-function(cmt_ensure_target TARGET)
-    if(NOT TARGET ${TARGET})
-        cmt_fatal("${TARGET} is not a valid target.")
-    endif()
-endfunction()
 
 # ! cmt_ensure_target : Checks if the list of targets exist and are valid
 #
@@ -246,119 +210,9 @@ endfunction()
 #
 # \input List of targets to be checked
 function(cmt_ensure_targets)
-    cmake_parse_arguments(ENSURE_TARGET "" "" "" ${ARGN})
+    cmt_parse_arguments(ENSURE_TARGET "" "" "" ${ARGN})
     foreach(arg ${ENSURE_TARGET_UNPARSED_ARGUMENTS})
         cmt_ensure_target(${arg})
-    endforeach()
-endfunction()
-
-# ! cmt_append_to_global_property_unique
-#
-# Append ITEM to the global property PROPERTY, only if it is not
-# already part of the list.
-#
-# \input    PROPERTY Global property to append to.
-# \input    ITEM Item to append, only if not present.
-function (cmt_append_to_global_property_unique PROPERTY ITEM)
-    get_property (GLOBAL_PROPERTY GLOBAL PROPERTY ${PROPERTY})
-    set (LIST_CONTAINS_ITEM FALSE)
-
-    foreach (LIST_ITEM ${GLOBAL_PROPERTY})
-        if (LIST_ITEM STREQUAL ${ITEM})
-            set(LIST_CONTAINS_ITEM TRUE)
-            break()
-        endif()
-    endforeach()
-
-    if(NOT LIST_CONTAINS_ITEM)
-        set_property (GLOBAL APPEND PROPERTY ${PROPERTY}  ${ITEM})
-    endif()
-endfunction()
-
-# ! cmt_set_global_property
-#
-# Set PROPERTY_VALUE to the global property PROPERTY, only if it is not already defined
-# If the property is already defined, it will not be overwritten and an error will be raised
-#
-# \input  PROPERTY Global property to append to.
-# \input  PROPERTY_VALUE Item to append, only if not present.
-#
-function (cmt_set_global_property PROPERTY PROPERTY_VALUE)
-    get_property (GLOBAL_PROPERTY GLOBAL PROPERTY ${PROPERTY})
-    if (DEFINED GLOBAL_PROPERTY)
-        cmt_fatal("The global property ${PROPERTY} is already defined.")
-    endif()
-
-    set_property (GLOBAL PROPERTY ${PROPERTY}  ${PROPERTY_VALUE})
-endfunction()
-
-# ! cmt_try_set_global_property
-#
-# Set PROPERTY_VALUE to the global property PROPERTY, only if it is not already defined
-# If the property is already defined, it will not be overwritten and be ignored
-#
-# \input  PROPERTY Global property to append to.
-# \input  PROPERTY_VALUE Item to append, only if not present.
-# \output PROPERTY_FOUND True if the property is defined, false otherwise
-#
-macro (cmt_try_set_global_property PROPERTY PROPERTY_VALUE PROPERTY_FOUND)
-    get_property (GLOBAL_PROPERTY GLOBAL PROPERTY ${PROPERTY})
-    if (DEFINED GLOBAL_PROPERTY)
-        set(${PROPERTY_FOUND} TRUE PARENT_SCOPE)
-    else()
-        set(${PROPERTY_FOUND} FALSE PARENT_SCOPE)
-        set_property (GLOBAL PROPERTY ${PROPERTY}  ${PROPERTY_VALUE})
-    endif()
-endmacro()
-
-
-# ! cmt_get_global_property
-#
-# Load in PROPERTY_VALUE the valie of the global property PROPERTY, only if it is not already defined.
-# Throw an error if the property is not defined
-#
-# \input  PROPERTY Global property to append to.
-# \output PROPERTY_VALUE The value of the property
-#
-function (cmt_get_global_property PROPERTY PROPERTY_VALUE)
-    get_property (GLOBAL_PROPERTY GLOBAL PROPERTY ${PROPERTY})
-    if (DEFINED GLOBAL_PROPERTY)
-        set(${PROPERTY_VALUE} ${GLOBAL_PROPERTY} PARENT_SCOPE)
-    else()
-        cmt_fatal("The global property ${PROPERTY} is not defined.")
-    endif()
-endfunction()
-
-# ! cmt_try_get_global_property
-#
-# Load in PROPERTY_VALUE the valie of the global property PROPERTY, only if it is not already defined.
-#
-# \input  PROPERTY Global property to append to.
-# \output PROPERTY_FOUND True if the property is defined, false otherwise
-# \output PROPERTY_VALUE The value of the property
-#
-function (cmt_try_get_global_property PROPERTY PROPERTY_FOUND PROPERTY_VALUE)
-    get_property (GLOBAL_PROPERTY GLOBAL PROPERTY ${PROPERTY})
-    if (DEFINED GLOBAL_PROPERTY)
-        set(${PROPERTY_FOUND} TRUE PARENT_SCOPE)
-        set(${PROPERTY_VALUE} ${GLOBAL_PROPERTY} PARENT_SCOPE)
-    else()
-        set(${PROPERTY_FOUND} FALSE PARENT_SCOPE)
-        set(${PROPERTY_VALUE} ${GLOBAL_PROPERTY} PARENT_SCOPE)
-    endif()
-endfunction()
-
-# ! cmt_append_to_global_property
-#
-# Append ITEM to the global property PROPERTY.
-#
-# \input    PROPERTY Global property to append to.
-# \input    ITEM Item to append
-# \group    LIST List of items to append.
-function (cmt_append_to_global_property PROPERTY)
-    cmake_parse_arguments (APPEND "" "" "LIST" ${ARGN})
-    foreach (ITEM ${APPEND_LIST})
-        set_property (GLOBAL APPEND PROPERTY ${PROPERTY} ${ITEM})
     endforeach()
 endfunction()
 
@@ -373,7 +227,7 @@ endfunction()
 #
 function (cmt_add_switch ALL_OPTIONS OPTION_NAME)
     set (ADD_SWITCH_SINGLEVAR_ARGS ON OFF)
-    cmake_parse_arguments (ADD_SWITCH
+    cmt_parse_arguments (ADD_SWITCH
                            ""
                            "${ADD_SWITCH_SINGLEVAR_ARGS}"
                            ""
@@ -387,23 +241,27 @@ function (cmt_add_switch ALL_OPTIONS OPTION_NAME)
     set (${ALL_OPTIONS} ${${ALL_OPTIONS}} PARENT_SCOPE)
 endfunction()
 
-macro(cmt_boolean var)
+# ! cmake_parse_args_key
+# Evaluates an expressions and stores the result in a variable
+#
+# \input VARIABLE The variable to store the result
+function(cmt_boolean VARIABLE)
     if(${ARGN})
-        set(${var} ON)
+        set(${VARIABLE} ON PARENT_SCOPE)
     else()
-        set(${var} OFF)
+        set(${VARIABLE} OFF PARENT_SCOPE)
     endif()
-endmacro()
+endfunction()
 
 # ! cmake_parse_args_key
 #
-# This is an optimization on cmake_parse_arguments which should
+# This is an optimization on cmt_parse_arguments which should
 # help to reduce the number of times which it is called. Effectively,
 # it hashes its arguments and then checks to see if we've called
-# cmake_parse_arguments with this kind of hash. If we have, it uses
+# cmt_parse_arguments with this kind of hash. If we have, it uses
 # the cached values.
 #
-# \input  PREFIX: cmake_parse_arguments PREFIX
+# \input  PREFIX: cmt_parse_arguments PREFIX
 # \input  OPTION_ARGS_STRING: "Option" like arguments, which are either present or not present.
 # \input  SINGLEVAR_ARGS_STRING: "Single variable" like arguments, which only have one value.
 # \input  MULTIVAR_ARGS_STRING: "Multiple variable" like arguments, which can have multiple variables.
@@ -423,7 +281,7 @@ function (cmake_parse_args_key PREFIX
     if (NOT CACHE_KEY_IS_SET)
         # Cache key was not set. Parse arguments and then store the
         # results in global properties.
-        cmake_parse_arguments (${PREFIX} "${OPTION_ARGS_STRING}" "${SINGLEVAR_ARGS_STRING}" "${MULTIVAR_ARGS_STRING}" ${ARGN})
+        cmt_parse_arguments (${PREFIX} ${OPTION_ARGS_STRING} ${SINGLEVAR_ARGS_STRING} ${MULTIVAR_ARGS_STRING} ${ARGN})
         set (VARIABLES ${OPTION_ARGS_STRING} ${SINGLEVAR_ARGS_STRING} ${MULTIVAR_ARGS_STRING})
         foreach (VAR ${VARIABLES})
             set_property (GLOBAL
@@ -437,21 +295,6 @@ function (cmake_parse_args_key PREFIX
     set (${RETURN_KEY} ${CACHE_KEY} PARENT_SCOPE)
 endfunction()
 
-# ! cmake_fetch_parsed_arg
-#
-# Fetch the value of a parsed argument from cmake_parse_args_key.
-#
-# A value named ${PREFIX}_${ARGUMENT} will be set in the PARENT_SCOPE
-# after calling this function, much like cmake_parse_arguments.
-#
-# \input CACHE_KEY: The key returned by cmake_parse_args_key
-# \input PREFIX: The argument prefix as passed to cmake_parse_args_key
-# \input ARGUMENT: The name of the argument (not the return value).
-function (cmake_fetch_parsed_arg CACHE_KEY PREFIX ARGUMENT)
-
-    get_property (VALUE GLOBAL
-                  PROPERTY
-                  _CMAKE_OPT_PARSE_ARGS_CACHED_${CACHE_KEY}_${ARGUMENT})
-    set (${PREFIX}_${ARGUMENT} "${VALUE}" PARENT_SCOPE)
-
-endfunction()
+macro(cmt_parse_arguments PREFIX OPTION_ARGS SINGLEVAR_ARGS MULTIVAR_ARGS)
+    cmake_parse_arguments (${PREFIX} "${OPTION_ARGS}" "${SINGLEVAR_ARGS}" "${MULTIVAR_ARGS}" ${ARGN})
+endmacro()

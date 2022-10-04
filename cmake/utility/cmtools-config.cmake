@@ -52,7 +52,7 @@ endmacro()
 # \param FOLDER The folder where the targets will be installed.
 #
 macro(cmt_set_output_folders)
-    cmake_parse_arguments(ARGS "" "FOLDER" "" ${ARGN})
+    cmt_parse_arguments(ARGS "" "FOLDER" "" ${ARGN})
     cmt_default_argument(ARGS FOLDER "${CMAKE_BINARY_DIR}/targets")
 
 	# Runtime output directory: build/bin

@@ -55,7 +55,7 @@ cmt_enable_logger()
 # - cmt_configure_compiler_optimization_options
 
 function(cmt_check_compiler_option RESULT)
-    cmake_parse_arguments(ARGS "" "OPTION;LANG" "" ${ARGN})
+    cmt_parse_arguments(ARGS "" "OPTION;LANG" "" ${ARGN})
 	cmt_required_arguments(ARGS "" "OPTION;LANG" "")
     if(${ARGS_LANG} STREQUAL "C")
         enable_language(C)
@@ -79,7 +79,7 @@ function(cmt_check_compiler_option RESULT)
 endfunction()
 
 function(cmt_check_linker_option RESULT)
-    cmake_parse_arguments(ARGS "" "OPTION;LANG" "" ${ARGN})
+    cmt_parse_arguments(ARGS "" "OPTION;LANG" "" ${ARGN})
 	cmt_required_arguments(ARGS "" "OPTION;LANG" "")
     if(${ARGS_LANG} STREQUAL "C")
         enable_language(C)
@@ -118,7 +118,7 @@ endfunction()
 # \group CONFIG Configs for the property to change (Debug Release RelWithDebInfo MinSizeRel)
 #
 macro(cmt_add_compiler_option OPTION)
-    cmake_parse_arguments(ARGS "" "COMPILER;LANG" "CONFIG" ${ARGN})
+    cmt_parse_arguments(ARGS "" "COMPILER;LANG" "CONFIG" ${ARGN})
 	
     macro(cmt_add_compiler_option_check_)
         if (DEFINED ARGS_LANG)
@@ -146,6 +146,7 @@ macro(cmt_add_compiler_option OPTION)
     endmacro()
 
     if (DEFINED ARGS_COMPILER)
+        cmt_log("Compiler value is defined: ${ARGS_COMPILER}")
         cmt_define_compiler()
         if (${CMT_COMPILER} STREQUAL ${ARGS_COMPILER})
             cmt_add_compiler_option_check_()
@@ -188,7 +189,7 @@ endmacro()
 # \group CONFIG Configs for the property to change (Debug Release RelWithDebInfo MinSizeRel)
 #
 macro(cmt_add_compiler_options)
-    cmake_parse_arguments(ARGS "" "COMPILER;LANG" "CONFIG" ${ARGN})
+    cmt_parse_arguments(ARGS "" "COMPILER;LANG" "CONFIG" ${ARGN})
 
     # TODO: use arguments forwarding instead of so many ifdefs
 
@@ -260,7 +261,7 @@ endmacro()
 # \group CONFIG Configs for the property to change (Debug Release RelWithDebInfo MinSizeRel)
 #
 macro(cmt_add_linker_option OPTION)
-    cmake_parse_arguments(ARGS "" "COMPILER;LANG" "CONFIG" ${ARGN})
+    cmt_parse_arguments(ARGS "" "COMPILER;LANG" "CONFIG" ${ARGN})
 
     macro(cmt_add_linker_option_check_)
         if (DEFINED ARGS_LANG)
@@ -330,7 +331,7 @@ endmacro()
 # \group CONFIG Configs for the property to change (Debug Release RelWithDebInfo MinSizeRel)
 #
 macro(cmt_add_linker_options)
-    cmake_parse_arguments(ARGS "" "LANG;COMPILER" "CONFIG" ${ARGN})
+    cmt_parse_arguments(ARGS "" "LANG;COMPILER" "CONFIG" ${ARGN})
 
     # TODO: use arguments forwarding instead of so many ifdefs
     set(ARGS_OPTIONS ${ARGS_UNPARSED_ARGUMENTS})
@@ -493,7 +494,7 @@ endmacro()
 # \option REQUIRED - If this is passed in, CMake configuration will fail with an error if LTO/IPO is not supported
 #
 macro(cmt_enable_lto)
-    cmake_parse_arguments(LTO "REQUIRED" "" "" ${ARGN})
+    cmt_parse_arguments(LTO "REQUIRED" "" "" ${ARGN})
     check_ipo_supported(RESULT IPO_RESULT OUTPUT IPO_OUTPUT LANGUAGES CXX)
     if (IPO_RESULT)
         set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
@@ -620,7 +621,7 @@ endmacro()
 # cmt_print_compiler_options()
 #
 function(cmt_print_compiler_options)
-    cmake_parse_arguments(ARGS "" "LANG" "CONFIG" ${ARGN})
+    cmt_parse_arguments(ARGS "" "LANG" "CONFIG" ${ARGN})
 	cmt_required_arguments(ARGS "" "LANG" "")
     cmt_ensure_lang(${ARGS_LANG})
 
@@ -657,7 +658,7 @@ endfunction()
 # cmt_print_linker_options()
 #
 function(cmt_print_linker_options)
-    cmake_parse_arguments(ARGS "" "" "CONFIG" ${ARGN})
+    cmt_parse_arguments(ARGS "" "" "CONFIG" ${ARGN})
 
     cmt_log("Global Linker Options:")
 

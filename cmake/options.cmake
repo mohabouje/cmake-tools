@@ -20,10 +20,6 @@ option(CMT_ENABLE_COTIRE                "Enable the integration of cotire into t
 option(CMT_ENABLE_PRECOMPILED_HEADERS   "Enable the usage of pre-compiled headers"                  ON)
 option(CMT_ENABLE_UNITY_BUILDS          "Enable unity builds optimization"                          ON)
 
-# Global options to control the build system
-option(CMT_ENABLE_COMPILER_OPTION_CHECKS    "Enable checks in compiler options"         ON)
-option(CMT_ENABLE_LINKER_OPTION_CHECKS      "Enable checks in linker options"           ON)
-
 # Options to control the integration with doxygen
 option(CMT_ENABLE_DOXYGEN           "Enable the integration of doxygen"  ON)
 option(CMT_ENABLE_DOXYGEN_GRAPHVIZ  "Enable graphs support in the doxygen documentation"  ON)
@@ -31,3 +27,7 @@ option(CMT_ENABLE_DOXYGEN_LATEX     "Enable latex support in the ddoxygen docume
 
 # Options to control the integration with graphviz
 option(CMT_ENABLE_GRAPHVIZ  "Enable the integration of graphviz"  ON)
+
+# Global options to control the build system
+option(CMT_ENABLE_COMPILER_OPTION_CHECKS    "Enable checks in compiler options"                 ON)
+option(CMT_ENABLE_LINKER_OPTION_CHECKS      "Enable checks in linker options"                   ON)

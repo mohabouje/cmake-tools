@@ -47,7 +47,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-finder.cmake)
 # \group NAMES - The name of the executable.
 #
 function (cmt_find_clang_tidy EXECUTABLE)
-    cmake_parse_arguments(ARGS "" "BIN_SUBDIR" "NAMES" ${ARGN})
+    cmt_parse_arguments(ARGS "" "BIN_SUBDIR" "NAMES" ${ARGN})
     cmt_default_argument(ARGS NAMES "clang-tidy;")
     cmt_default_argument(ARGS BIN_SUBDIR bin)
 
@@ -139,7 +139,7 @@ endfunction()
 # \input TARGET The target to configure
 #
 function(cmt_target_generate_clang_tidy TARGET)
-    cmake_parse_arguments(ARGS "ALL;DEFAULT" "SUFFIX;GLOBAL" "" ${ARGN})
+    cmt_parse_arguments(ARGS "ALL;DEFAULT" "SUFFIX;GLOBAL" "" ${ARGN})
     cmt_default_argument(ARGS SUFFIX "clang-tidy")
     cmt_default_argument(ARGS GLOBAL "clang-tidy")
     cmt_ensure_target(${TARGET})
@@ -151,8 +151,8 @@ function(cmt_target_generate_clang_tidy TARGET)
     cmt_find_clang_tidy(EXECUTABLE)
 
     set(TARGET_NAME ${TARGET}-${ARGS_SUFFIX})
-    cmt_create_mirrored_build_target(${TARGET} ${ARGS_SUFFIX})
+    cmt_target_create_mirror(${TARGET} ${ARGS_SUFFIX})
     cmt_target_enable_clang_tidy(${TARGET_NAME})
     cmt_forward_arguments(ARGS "ALL;DEFAULT" "" "" REGISTER_ARGS)
-    cmt_target_register(${TARGET_NAME} ${ARGS_GLOBAL} ${REGISTER_ARGS})
+    cmt_target_register_in_group(${TARGET_NAME} ${ARGS_GLOBAL} ${REGISTER_ARGS})
 endfunction()

@@ -57,7 +57,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-sources.cmake)
 #
 function (cmt_run_tool_on_source TARGET SOURCE TOOL_NAME)
 
-    cmake_parse_arguments(RUN_TOOL_ON_SOURCE "" "WORKING_DIRECTORY" "COMMAND;DEPENDENCIES" ${ARGN})
+    cmt_parse_arguments(RUN_TOOL_ON_SOURCE "" "WORKING_DIRECTORY" "COMMAND;DEPENDENCIES" ${ARGN})
 	cmt_required_arguments(RUN_TOOL_ON_SOURCE ""  "" "COMMAND")
 
     # Replace @SOURCE@ with SOURCE in RUN_TOOL_ON_SOURCE_COMMAND here
@@ -144,7 +144,7 @@ endfunction()
 # \groups   COMMAND The command to run to invoke this tool. @SOURCE@ is replaced with the source file path.
 #
 function (cmt_target_run_tool TARGET TOOL_NAME)
-    cmake_parse_arguments(RUN_COMMAND "CHECK_GENERATED" "WORKING_DIRECTORY" "DEPENDENCIES;COMMAND" ${ARGN})
+    cmt_parse_arguments(RUN_COMMAND "CHECK_GENERATED" "WORKING_DIRECTORY" "DEPENDENCIES;COMMAND" ${ARGN})
 	cmt_required_arguments(RUN_COMMAND "" "" "COMMAND")
     cmt_ensure_target(${TARGET})
 
@@ -186,7 +186,7 @@ endfunction()
 function (cmt_target_add_compilation_db TARGET
                                   CUSTOM_COMPILATION_DB_DIR_RETURN)
 
-    cmake_parse_arguments(COMPDB "" "" "C_SOURCES;CXX_SOURCES;INTERNAL_INCLUDE_DIRS;EXTERNAL_INCLUDE_DIRS;DEFINITIONS" ${ARGN})
+    cmt_parse_arguments(COMPDB "" "" "C_SOURCES;CXX_SOURCES;INTERNAL_INCLUDE_DIRS;EXTERNAL_INCLUDE_DIRS;DEFINITIONS" ${ARGN})
 	cmt_required_arguments(FUNCTION cmt_target_compilation_db PREFIX RUN_COMMAND FIELDS TOOL)
 	cmt_ensure_on_of_argument(FUNCTION cmt_target_compilation_db PREFIX COMPDB FIELDS C_SOURCES CXX_SOURCES)
 
@@ -245,19 +245,19 @@ function (cmt_target_add_compilation_db TARGET
             set (SYSTEM_INCLUDE_FLAG "-I")
         endif()
 
-        cmt_append_each_to_options_with_prefix (COMPILER_COMMAND_LINE
+        cmt_forward_as_list_with_prefix (COMPILER_COMMAND_LINE
                                                 "${SYSTEM_INCLUDE_FLAG}"
                                                 LIST
                                                 ${COMPDB_EXTERNAL_INCLUDE_DIRS}
                                                 WRAP_IN_QUOTES)
-        cmt_append_each_to_options_with_prefix (COMPILER_COMMAND_LINE
+        cmt_forward_as_list_with_prefix (COMPILER_COMMAND_LINE
                                                 -I
                                                 LIST
                                                 ${COMPDB_INTERNAL_INCLUDE_DIRS}
                                                 WRAP_IN_QUOTES)
 
         # All defines
-        cmt_append_each_to_options_with_prefix (COMPILER_COMMAND_LINE
+        cmt_forward_as_list_with_prefix (COMPILER_COMMAND_LINE
                                                 -D
                                                 LIST ${COMPDB_DEFINITIONS})
 

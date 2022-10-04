@@ -79,7 +79,7 @@ include(CheckIPOSupported)
 # \input List of properties to be appended.
 #
 function(cmt_append_to_target_property TARGET PROPERTY)
-    cmake_parse_arguments(ARGS "" "" "" ${ARGN})
+    cmt_parse_arguments(ARGS "" "" "" ${ARGN})
 	cmt_ensure_target(${TARGET})
 	get_target_property(PROPERTY_VALUE ${TARGET} ${PROPERTY})
 	if(NOT PROPERTY_VALUE)
@@ -105,7 +105,7 @@ endfunction()
 # \group CONFIG Configs for the property to change (Debug Release RelWithDebInfo MinSizeRel)
 #
 function(cmt_target_add_compile_definition TARGET DEFINITION)
-    cmake_parse_arguments(ARGS "" "COMPILER" "CONFIG" ${ARGN})
+    cmt_parse_arguments(ARGS "" "COMPILER" "CONFIG" ${ARGN})
 	cmt_ensure_target(${TARGET})
 
 	if (DEFINED ARGS_COMPILER)
@@ -146,7 +146,7 @@ endfunction()
 # \group CONFIG Configs for the property to change (Debug Release RelWithDebInfo MinSizeRel)
 #
 function(cmt_target_add_compiler_option TARGET OPTION)
-    cmake_parse_arguments(ARGS "" "LANG;COMPILER" "CONFIG" ${ARGN})
+    cmt_parse_arguments(ARGS "" "LANG;COMPILER" "CONFIG" ${ARGN})
     cmt_ensure_target(${TARGET}) 
 
 	if (DEFINED ARGS_COMPILER)
@@ -239,7 +239,7 @@ endmacro()
 # \group CONFIG Configs for the property to change (Debug Release RelWithDebInfo MinSizeRel)
 #
 function(cmt_target_add_compiler_options TARGET)
-    cmake_parse_arguments(ARGS "" "LANG" "CONFIG" ${ARGN})
+    cmt_parse_arguments(ARGS "" "LANG" "CONFIG" ${ARGN})
     cmt_ensure_targets(${TARGET}) 
 
 	# TODO: use arguments forwarding instead of complex parsing
@@ -336,7 +336,7 @@ endmacro()
 # \group CONFIG Configs for the property to change (Debug Release RelWithDebInfo MinSizeRel)
 #
 function(cmt_target_add_linker_option TARGET OPTION)
-    cmake_parse_arguments(ARGS "" "LANG;COMPILER" "CONFIG" ${ARGN})
+    cmt_parse_arguments(ARGS "" "LANG;COMPILER" "CONFIG" ${ARGN})
     cmt_ensure_target(${TARGET}) 
 
     if (DEFINED ARGS_COMPILER)
@@ -431,7 +431,7 @@ endmacro()
 # \group CONFIG Configs for the property to change (Debug Release RelWithDebInfo MinSizeRel)
 #
 function(cmt_target_add_linker_options TARGET)
-    cmake_parse_arguments(ARGS "" "LANG;COMPILER" "CONFIG" ${ARGN})
+    cmt_parse_arguments(ARGS "" "LANG;COMPILER" "CONFIG" ${ARGN})
     cmt_ensure_target(${TARGET}) 
 
 	# TODO: use arguments forwarding instead of complex parsing
@@ -529,7 +529,7 @@ endmacro()
 # \option EXTENSIONS Set the standard with compiler extensions
 #
 function(cmt_target_set_standard TARGET)
-    cmake_parse_arguments(ARGS "REQUIRED;EXTENSIONS" "C;CXX" "" ${ARGN})
+    cmt_parse_arguments(ARGS "REQUIRED;EXTENSIONS" "C;CXX" "" ${ARGN})
 	cmt_ensure_on_of_argument(ARGS C CXX)
     cmt_ensure_target(${TARGET}) 
 
@@ -577,7 +577,7 @@ endfunction()
 # \param DIRECTORY By default, used for the ones not provided
 #
 function(cmt_target_set_output_directory TARGET)
-    cmake_parse_arguments(ARGS "" "RUNTIME;LIBRARY;ARCHIVE;DIRECTORY" "" ${ARGN})
+    cmt_parse_arguments(ARGS "" "RUNTIME;LIBRARY;ARCHIVE;DIRECTORY" "" ${ARGN})
 	cmt_ensure_on_of_argument(ARGS RUNTIME LIBRARY ARCHIVE DIRECTORY)
 	cmt_default_argument(ARGS RUNTIME ${ARGS_DIRECTORY})
 	cmt_default_argument(ARGS LIBRARY ${ARGS_DIRECTORY})
@@ -875,7 +875,7 @@ endfunction()
 # \option DYNAMIC If present, set dynamic run-time
 #
 function(cmt_target_set_runtime TARGET)
-	cmake_parse_arguments(ARGS "STATIC;DYNAMIC" "" "" ${ARGN})
+	cmt_parse_arguments(ARGS "STATIC;DYNAMIC" "" "" ${ARGN})
 	cmt_ensure_on_of_argument(ARGS STATIC DYNAMIC)
 	cmt_ensure_target(${TARGET})
 
@@ -1008,7 +1008,7 @@ endfunction()
 # \option REQUIRED - If this is passed in, CMake configuration will fail with an error if LTO/IPO is not supported
 #
 function(cmt_target_enable_lto TARGET)
-    cmake_parse_arguments(LTO "REQUIRED" "" "" ${ARGN})
+    cmt_parse_arguments(LTO "REQUIRED" "" "" ${ARGN})
     cmt_ensure_target(${TARGET})
     check_ipo_supported(RESULT IPO_RESULT OUTPUT IPO_OUTPUT LANGUAGES CXX)
     if (IPO_RESULT)
@@ -1059,7 +1059,7 @@ endfunction()
 #
 function(cmt_target_set_ide_directory TARGET DIRECTORY)
 	cmt_ensure_target(${TARGET})
-	set_target_properties(${TARGET} PROPERTIES FOLDER ${DIRECTORY})
+	cmt_target_set_property(${TARGET} FOLDER ${DIRECTORY})
 endfunction()
 
 # ! cmt_target_source_group(target root)
@@ -1114,7 +1114,7 @@ endfunction()
 # \group CONFIG Configs for the property to change (Debug Release RelWithDebInfo MinSizeRel)
 #
 function(cmt_target_print_compiler_options TARGET)
-    cmake_parse_arguments(ARGS "" "" "CONFIG" ${ARGN})
+    cmt_parse_arguments(ARGS "" "" "CONFIG" ${ARGN})
     cmt_ensure_target(${TARGET})
 
 	cmt_debug("Target ${TARGET} Compiler Options:")
@@ -1145,7 +1145,7 @@ endfunction()
 # \group CONFIG Configs for the property to change (Debug Release RelWithDebInfo MinSizeRel)
 #
 function(cmt_target_print_linker_options TARGET)
-    cmake_parse_arguments(ARGS "" "" "CONFIG" ${ARGN})
+    cmt_parse_arguments(ARGS "" "" "CONFIG" ${ARGN})
     cmt_ensure_target(${TARGET}) 
 
 	cmt_debug("Target ${TARGET} Linker Options:")
@@ -1176,18 +1176,4 @@ function(cmt_target_print_linker_options TARGET)
 			cmt_print_list("LINK_FLAGS_${config}" LINK_FLAGS_${config})
         endforeach()
     endif()
-endfunction()
-
-
-function (cmt_target_register TARGET GLOBAL)
-	cmake_parse_arguments(ARGS "ALL;DEFAULT" "" "" ${ARGN})
-	cmt_ensure_target(${TARGET})
-
-	cmt_boolean(EXCLUDE_FROM_ALL NOT ARGS_ALL)
-	cmt_boolean(EXCLUDE_FROM_DEFAULT NOT ARGS_DEFAULT)
-	set_target_properties(${TARGET} PROPERTIES EXCLUDE_FROM_ALL ${EXCLUDE_FROM_ALL} EXCLUDE_FROM_DEFAULT_BUILD ${EXCLUDE_FROM_DEFAULT})
-	if (NOT TARGET ${GLOBAL})
-		add_custom_target(${GLOBAL})
-	endif()
-	add_dependencies(${GLOBAL} ${TARGET})
 endfunction()

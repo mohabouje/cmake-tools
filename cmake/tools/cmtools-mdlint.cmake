@@ -45,7 +45,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
 # \group NAMES - The name of the executable.
 #
 function (cmt_find_mdl EXECUTABLE)
-    cmake_parse_arguments(ARGS "" "BIN_SUBDIR" "NAMES" ${ARGN})
+    cmt_parse_arguments(ARGS "" "BIN_SUBDIR" "NAMES" ${ARGN})
     cmt_default_argument(ARGS NAMES "mdl;")
     cmt_default_argument(ARGS BIN_SUBDIR bin)
 

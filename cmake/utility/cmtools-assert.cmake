@@ -24,40 +24,45 @@
 
 include_guard(GLOBAL)
 
-include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-args.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
-
-cmt_disable_logger()
-include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/cmake-precompiled-header/PrecompiledHeader.cmake)
-cmt_enable_logger()
+include(${CMAKE_CURRENT_LIST_DIR}/cmtools-logger.cmake)
 
 # Functions summary:
-# - cmt_target_add_precompiled_headers
+# - cmt_ensure_choice
+# - cmt_ensure_target
 
-# ! cmt_target_add_precompiled_headers 
-# Adds precompiled headers to the target.
+
+# ! cmt_ensure_choice
+# This function check if the variable contain one of the choices
 #
-# cmt_target_add_precompiled_headers(
-#   <FORCEINCLUDE>
-#   TARGET
-#   [HEADERS <header1> <header2> ...]
+# cmt_ensure_choice(
+#   VARIABLE
+#   [OPTIONS option, ...]
 # )
 #
-# \input TARGET The target to configure
-# \group HEADERS The list of headers to include
-# \option FORCEINCLUDE Force the inclusion of the headers
+# \input VARIABLE The variable to check
+# \group OPTIONS List of choices
 #
-function(cmt_target_add_precompiled_headers TARGET)
-    cmt_parse_arguments(ARGS "FORCEINCLUDE" "" "HEADERS" ${ARGN})
-    cmt_required_arguments(ARGS "" "" "HEADERS")
-    cmt_ensure_targets(${TARGET}) 
-
-    if (NOT CMT_ENABLE_PRECOMPILED_HEADERS)
-        return()
-    endif()
-
-    cmt_forward_arguments(ARGS "FORCEINCLUDE" "" "" ADD_PRECOMPILED_HEADER)
-    foreach (HEADER ${ARGS_HEADERS})
-        add_precompiled_header(${TARGET} ${HEADER} ${ADD_PRECOMPILED_HEADER})
+function(cmt_ensure_choice VARIABLE)
+    cmt_parse_arguments (ARGS "" "" "" ${ARGN})
+    foreach(arg ${ARGS_UNPARSED_ARGUMENTS})
+        if (${VARIABLE} STREQUAL ${arg})
+            return()
+        endif()
     endforeach()
+    cmt_fatal("Argument ${${VARIABLE}} is not one of the following choices: ${ARGS_UNPARSED_ARGUMENTS}")
+endfunction()
+
+
+# ! cmt_ensure_target : Checks if the list of targets exist and are valid
+#
+# cmt_ensure_target(
+#   TARGET
+# )
+#
+# \input TARGET Target to check
+#
+function(cmt_ensure_target TARGET)
+    if(NOT TARGET ${TARGET})
+        cmt_fatal("${TARGET} is not a valid target.")
+    endif()
 endfunction()

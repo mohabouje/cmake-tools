@@ -40,7 +40,7 @@ include (FindPackageMessage)
 # \group DEPENDS Variables, which when changed, the message should be re-displayed
 #
 function (cmt_print_if_not_quiet PREFIX)
-    cmake_parse_arguments (PRINT_IF_NOT_QUIET "" "" "MSG;DEPENDS" ${ARGN})
+    cmt_parse_arguments (PRINT_IF_NOT_QUIET "" "" "MSG;DEPENDS" ${ARGN})
     string (REPLACE ";" " " MSG "${PRINT_IF_NOT_QUIET_MSG}")
     set (DEPEND_VARS_STRING "")
     foreach (DEPEND_VAR ${DEPENDS})
@@ -70,7 +70,7 @@ function (cmt_report_not_found_if_not_quiet PREFIX VARIABLE)
 endfunction()
 
 function (_find_tool_executable_in_custom_paths EXECUTABLE_TO_FIND PATH_RETURN)
-    cmake_parse_arguments (FIND_TOOL_EXECUTABLE_CUSTOM_PATHS "" "" "PATHS;PATH_SUFFIXES" ${ARGN})
+    cmt_parse_arguments (FIND_TOOL_EXECUTABLE_CUSTOM_PATHS "" "" "PATHS;PATH_SUFFIXES" ${ARGN})
     unset (PATH_TO_EXECUTABLE CACHE)
     find_program (PATH_TO_EXECUTABLE
                   ${EXECUTABLE_TO_FIND}
@@ -102,7 +102,7 @@ endfunction()
 # \group CUSTOM_PATHS Paths to search first before searching system paths
 # \group PATH_SUFFIXES Suffixes on each installation root (eg, bin)
 function (cmt_find_tool_executable EXECUTABLE_TO_FIND PATH_RETURN)
-    cmake_parse_arguments (FIND_TOOL_EXECUTABLE "" "" "CUSTOM_PATHS;PATH_SUFFIXES" ${ARGN})
+    cmt_parse_arguments (FIND_TOOL_EXECUTABLE "" "" "CUSTOM_PATHS;PATH_SUFFIXES" ${ARGN})
 
     unset (PATH_TO_EXECUTABLE CACHE)
     if (FIND_TOOL_EXECUTABLE_CUSTOM_PATHS)
@@ -139,7 +139,7 @@ endfunction()
 #
 function (cmt_find_tool_extract_version TOOL_EXECUTABLE VERSION_RETURN)
 
-    cmake_parse_arguments (FIND_TOOL "" "VERSION_ARG;VERSION_HEADER;VERSION_END_TOKEN" "" ${ARGN})
+    cmt_parse_arguments (FIND_TOOL "" "VERSION_ARG;VERSION_HEADER;VERSION_END_TOKEN" "" ${ARGN})
     execute_process (COMMAND "${TOOL_EXECUTABLE}"
                      ${FIND_TOOL_VERSION_ARG}
                      OUTPUT_VARIABLE TOOL_VERSION_OUTPUT)
@@ -184,7 +184,7 @@ endfunction()
 # \group  REQUIRED_VARS  Required variables, set in parent scope if present
 #
 macro (cmt_check_and_report_tool_version PREFIX VERSION)
-    cmake_parse_arguments (_PSQ_CHECK_${PREFIX} "" "" "REQUIRED_VARS" ${ARGN})
+    cmt_parse_arguments (_PSQ_CHECK_${PREFIX} "" "" "REQUIRED_VARS" ${ARGN})
     cmt_required_arguments(_PSQ_CHECK_${PREFIX} "" "" "REQUIRED_VARS")
 
     string (STRIP "${VERSION}" VERSION)
@@ -223,11 +223,11 @@ function (cmt_cache_set_tool TOOL_ID TOOL_FOUND TOOL_EXECUTABLE TOOL_VERSION)
     if (${TOOL_FOUND})
         string(TOLOWER ${TOOL_ID} TOOL_ID_CONVERTED)
         string(REPLACE "_" "-" TOOL_ID_CONVERTED ${TOOL_ID_CONVERTED})
-        cmt_log("Found ${TOOL_ID_CONVERTED} in ${TOOL_EXECUTABLE} (version ${TOOL_VERSION})")
-        cmt_append_to_global_property_unique(CMT_AVAILABLE_TOOLS ${TOOL_ID})
-        cmt_set_global_property(CMT_${TOOL_ID}_FOUND ${TOOL_FOUND})
-        cmt_set_global_property(CMT_${TOOL_ID}_EXECUTABLE ${TOOL_EXECUTABLE})
-        cmt_set_global_property(CMT_${TOOL_ID}_VERSION ${TOOL_VERSION})
+        cmt_log("Found ${TOOL_ID_CONVERTED} (version ${TOOL_VERSION}) in ${TOOL_EXECUTABLE}")
+        cmt_append_global_property(CMT_AVAILABLE_TOOLS ${TOOL_ID} UNIQUE)
+        cmt_set_global_property(CMT_${TOOL_ID}_FOUND ${TOOL_FOUND} UNIQUE)
+        cmt_set_global_property(CMT_${TOOL_ID}_EXECUTABLE ${TOOL_EXECUTABLE} UNIQUE)
+        cmt_set_global_property(CMT_${TOOL_ID}_VERSION ${TOOL_VERSION} UNIQUE)
     endif()
 endfunction()
 
@@ -248,18 +248,19 @@ endfunction()
 # \output TOOL_FOUND If the tool was found
 #
 function(cmt_cache_get_tool TOOL_ID TOOL_FOUND TOOL_EXECUTABLE TOOL_VERSION)
-    cmt_try_get_global_property(CMT_AVAILABLE_TOOLS TOOL_LIST_FOUND TOOL_LIST)
+    cmt_get_global_property(CMT_AVAILABLE_TOOLS TOOL_LIST)
     set(TOOL_FOUND_LOADED FALSE)
     set(TOOL_EXECUTABLE_LOADED "")
     set(TOOL_VERSION_LOADED "")
-    if (TOOL_LIST_FOUND)
+    if (TOOL_LIST)
         list (FIND TOOL_LIST ${TOOL_ID} TOOL_FOUND_IN_LIST)
         if (TOOL_FOUND_IN_LIST GREATER -1)
-            cmt_get_global_property(CMT_${TOOL_ID}_FOUND TOOL_FOUND_LOADED)
-            cmt_get_global_property(CMT_${TOOL_ID}_EXECUTABLE TOOL_EXECUTABLE_LOADED)
-            cmt_get_global_property(CMT_${TOOL_ID}_VERSION TOOL_VERSION_LOADED)
+            cmt_get_global_property(CMT_${TOOL_ID}_FOUND TOOL_FOUND_LOADED REQUIRED)
+            cmt_get_global_property(CMT_${TOOL_ID}_EXECUTABLE TOOL_EXECUTABLE_LOADED REQUIRED)
+            cmt_get_global_property(CMT_${TOOL_ID}_VERSION TOOL_VERSION_LOADED REQUIRED)
         endif()
     endif()
+
     set (${TOOL_FOUND} ${TOOL_FOUND_LOADED} PARENT_SCOPE)
     set (${TOOL_EXECUTABLE} ${TOOL_EXECUTABLE_LOADED} PARENT_SCOPE)
     set (${TOOL_VERSION} ${TOOL_VERSION_LOADED} PARENT_SCOPE)
@@ -274,7 +275,7 @@ endfunction()
 # \output INSTALL_ROOT_RETURN A variable to place the full path to install root
 # \param PREFIX_SUBDIRECTORY A partial path of directories between the executable itself and install root (eg /bin/)
 function (cmt_find_executable_installation_root TOOL_EXECUTABLE INSTALL_ROOT_RETURN)
-    cmake_parse_arguments (INSTALL_ROOT "" "PREFIX_SUBDIRECTORY" "" ${ARGN})
+    cmt_parse_arguments (INSTALL_ROOT "" "PREFIX_SUBDIRECTORY" "" ${ARGN})
 
     get_filename_component (TOOL_EXEC_PATH "${TOOL_EXECUTABLE}" ABSOLUTE)
     get_filename_component (TOOL_EXEC_BASE "${TOOL_EXECUTABLE}" NAME)

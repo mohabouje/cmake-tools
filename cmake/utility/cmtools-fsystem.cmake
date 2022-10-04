@@ -80,7 +80,7 @@ endfunction()
 # \param:EXTENSIONS EXTENSIONS Extensions of files to get
 #
 function(cmt_get_files DIRECTORY RESULT)
-	cmake_parse_arguments(ARGS "RECURSIVE" "" "EXTENSIONS" ${ARGN})
+	cmt_parse_arguments(ARGS "RECURSIVE" "" "EXTENSIONS" ${ARGN})
     cmt_required_arguments(ARGS EXTENSIONS)
 	if (DEFINED ARGS_RECURSIVE)
 		set(GLOB_COMMAND GLOB_RECURSE)
