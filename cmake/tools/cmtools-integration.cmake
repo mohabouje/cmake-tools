@@ -33,7 +33,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/cmtools-cppcheck.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/cmtools-cpplint.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/cmtools-clang-build-analyzer.cmake)
 
-include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-mirror.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/./../modules/cmtools-mirror.cmake)
 
 
 set(CMT_STATIC_ANALYSIS_TOOLS 

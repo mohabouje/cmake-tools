@@ -24,17 +24,10 @@
 
 include_guard(GLOBAL)
 
-include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-args.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/./../modules/cmtools-args.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/./../modules/cmtools-env.cmake)
 
 set(ENABLE_COVERAGE ON)
-mark_as_advanced(ENABLE_COVERAGE)
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/./../third_party/cmake-coverage/" ${CMAKE_MODULE_PATH})
-include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/cmake-coverage/Findcodecov.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/cmake-coverage/FindLcov.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/cmake-coverage/FindGcov.cmake)
-
-cmt_enable_logger()
 
 # ! cmt_find_
 # Try to find the lcov executable.

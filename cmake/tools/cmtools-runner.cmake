@@ -24,8 +24,8 @@
 
 include_guard(GLOBAL)
 
-include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-args.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-sources.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/./../modules/cmtools-args.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/./../modules/cmtools-sources.cmake)
 
 # Functions summary:
 # - cmt_run_tool_on_source

@@ -24,8 +24,8 @@
 
 include_guard(GLOBAL)
 
-include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-args.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/./../modules/cmtools-args.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/./../modules/cmtools-env.cmake)
 
 # ! cmt_find_conan
 # Try to find the clang-tidy executable.
@@ -264,37 +264,10 @@ function(cmt_conan_install TOOLCHAIN_FILE)
     set(${TOOLCHAIN_FILE} ${ARGS_INSTALL_DIR}/conan_toolchain.cmake PARENT_SCOPE)
 endfunction()
 
-# ! cmt_conan_install : runs the conan install command to install the dependencies and loads toolchain file.
-#
-# cmt_conan_install(
-#   [OS <os>]
-#   [COMPILER <compiler>]
-#   [COMPILE_VERSION <compiler_version>]
-#   [COMPILER_LIBCXX <compiler_libcxx>]
-#   [BUILD_TYPE <build_type>]
-# )
-#
-# \param    OS OS to use for the conan install command (default: conan-default-profile)
-# \param    COMPILER Compiler to use for the conan install command (default: conan-default-profile)
-# \param    COMPILE_VERSION Compiler version to use for the conan install command (default: conan-default-profile)
-# \param    COMPILER_LIBCXX Compiler libcxx to use for the conan install command (default: conan-default-profile)
-# \param    BUILD_TYPE Build type to use for the conan install command (default: CMAKE_BUILD_TYPE)
-# \param    INSTALL_DIR Directory where the conan install command will be executed (default: ${CMAKE_CURRENT_BINARY_DIR}/conan)
-# \param    WORKING_DIR Directory where the conan install command will be executed (default: ${CMAKE_SOURCE_DIR})
-#
-function(cmt_conan_setup)
-    cmt_parse_arguments(ARGS "" "ARCHITECTURE;OS;COMPILER;COMPILER_VERSION;CXX_LIBRARY;BUILD_TYPE;INSTALL_DIR;WORKING_DIR" "" ${ARGN})
-    cmt_forward_arguments(ARGS "" "ARCHITECTURE;OS;COMPILER;COMPILER_VERSION;CXX_LIBRARY;BUILD_TYPE;INSTALL_DIR;WORKING_DIR" "" INSTALL_ARGS)
-    cmt_conan_install(TOOLCHAIN_FILE ${INSTALL_ARGS})
-    cmt_conan_load(${TOOLCHAIN_FILE})
-endfunction()
-
-function(cmt_conan_load TOOLCHAIN_FILE)
-    cmt_disable_logger()
+macro(cmt_conan_load TOOLCHAIN_FILE)
     include(${TOOLCHAIN_FILE})
-    cmt_enable_logger()
     cmt_log("Loading conan toolchain file: ${TOOLCHAIN_FILE}")
-endfunction()
+endmacro()
 
 # ! cmt_conan_import_package
 # Import a conan package into the current project.

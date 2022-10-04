@@ -43,7 +43,7 @@ macro(cmt_define_pkg_manager)
     if (NOT VALUE)
         cmt_pkg_set_default()
     endif ()
-    set(CMT_PACKAGE_MANAGER ${CMT_PACKAGE_MANAGER} PARENT_SCOPE)
+    set(CMT_PACKAGE_MANAGER ${CMT_PACKAGE_MANAGER})
 endmacro()
 
 # ! cmt_pkg_install : runs the pkg install command to install the dependencies and provides the path to the toolchain file.
@@ -67,46 +67,22 @@ endmacro()
 # \param    WORKING_DIR Directory where the pkg install command will be executed (default: ${CMAKE_SOURCE_DIR})
 #
 function(cmt_pkg_install TOOLCHAIN_FILE)
+    cmt_parse_arguments(ARGS "" "ARCHITECTURE;OS;COMPILER;COMPILER_VERSION;CXX_LIBRARY;BUILD_TYPE;INSTALL_DIR;WORKING_DIR" "" ${ARGN})
+    cmt_forward_arguments(ARGS "" "ARCHITECTURE;OS;COMPILER;COMPILER_VERSION;CXX_LIBRARY;BUILD_TYPE;INSTALL_DIR;WORKING_DIR" "" FORWARD_ARGS)
+
     cmt_define_pkg_manager()
     if (${CMT_PACKAGE_MANAGER} STREQUAL "conan")
-        cmt_conan_install(${ARGN})
+        cmt_conan_install(LOADED_TOOLCHAIN ${FORWARD_ARGS})
     elseif (${CMT_PACKAGE_MANAGER} STREQUAL "vcpkg")
         cmt_fatal("vcpkg is not supported yet")
     else()
         cmt_fatal("Unknown package manager: ${CMT_PACKAGE_MANAGER}")
     endif()
+
+    set(${TOOLCHAIN_FILE} ${LOADED_TOOLCHAIN} PARENT_SCOPE)
 endfunction()
 
-# ! cmt_pkg_install : runs the pkg install command to install the dependencies and loads toolchain file.
-#
-# cmt_pkg_install(
-#   [OS <os>]
-#   [COMPILER <compiler>]
-#   [COMPILE_VERSION <compiler_version>]
-#   [COMPILER_LIBCXX <compiler_libcxx>]
-#   [BUILD_TYPE <build_type>]
-# )
-#
-# \param    OS OS to use for the pkg install command (default: pkg-default-profile)
-# \param    COMPILER Compiler to use for the pkg install command (default: pkg-default-profile)
-# \param    COMPILE_VERSION Compiler version to use for the pkg install command (default: pkg-default-profile)
-# \param    COMPILER_LIBCXX Compiler libcxx to use for the pkg install command (default: pkg-default-profile)
-# \param    BUILD_TYPE Build type to use for the pkg install command (default: CMAKE_BUILD_TYPE)
-# \param    INSTALL_DIR Directory where the pkg install command will be executed (default: ${CMAKE_CURRENT_BINARY_DIR}/pkg)
-# \param    WORKING_DIR Directory where the pkg install command will be executed (default: ${CMAKE_SOURCE_DIR})
-#
-function(cmt_pkg_setup)
-    cmt_define_pkg_manager()
-    if (${CMT_PACKAGE_MANAGER} STREQUAL "conan")
-        cmt_conan_setup(${ARGN})
-    elseif (${CMT_PACKAGE_MANAGER} STREQUAL "vcpkg")
-        cmt_fatal("vcpkg is not supported yet")
-    else()
-        cmt_fatal("Unknown package manager: ${CMT_PACKAGE_MANAGER}")
-    endif()
-endfunction()
-
-function(cmt_pkg_load TOOLCHAIN_FILE)
+macro(cmt_pkg_load TOOLCHAIN_FILE)
     cmt_define_pkg_manager()
     if (${CMT_PACKAGE_MANAGER} STREQUAL "conan")
         cmt_conan_load(${TOOLCHAIN_FILE})
@@ -115,7 +91,7 @@ function(cmt_pkg_load TOOLCHAIN_FILE)
     else()
         cmt_fatal("Unknown package manager: ${CMT_PACKAGE_MANAGER}")
     endif()
-endfunction()
+endmacro()
 
 # ! cmt_pkg_import_packages
 # Import a list of packages from the default package manager to the current project.

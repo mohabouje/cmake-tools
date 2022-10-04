@@ -24,8 +24,8 @@
 
 include_guard(GLOBAL)
 
-include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-args.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/./../utility/cmtools-env.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/./../modules/cmtools-args.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/./../modules/cmtools-env.cmake)
 
 # Functions summary:
 # - cmt_target_generate_lizard

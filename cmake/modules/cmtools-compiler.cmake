@@ -28,10 +28,6 @@ include(${CMAKE_CURRENT_LIST_DIR}/cmtools-args.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/cmtools-env.cmake)
 include(CheckIPOSupported)
 
-cmt_disable_logger()
-include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/ucm.cmake)
-cmt_enable_logger()
-
 # Functions summary:
 # - cmt_add_compiler_options
 # - cmt_add_c_compiler_options

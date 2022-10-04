@@ -2,7 +2,7 @@
 #
 # /DetermineHeaderLanguage.cmake
 #
-# CMake utility to determine the languages of a header file. This information
+# CMake modules to determine the languages of a header file. This information
 # can be used to determine which language mode certain tools should run in.
 #
 # See /LICENCE.md for Copyright information
