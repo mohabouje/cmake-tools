@@ -24,9 +24,6 @@
 
 include_guard(GLOBAL)
 
-include(${CMAKE_CURRENT_LIST_DIR}/cmtools-args.cmake)
-
-
 # Functions summary:
 # - cmt_set_default_build_type
 # - cmt_set_build_type

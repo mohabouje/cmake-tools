@@ -24,10 +24,6 @@
 
 include_guard(GLOBAL)
 
-include(${CMAKE_CURRENT_LIST_DIR}/./../modules/cmtools-env.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/./../modules/cmtools-lists.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/./../modules/cmtools-fsystem.cmake)
-
 # Functions summary:
 # - cmt_target_generate_clang_format(target [STYLE style] [WORKING_DIRECTORY work_dir])
 

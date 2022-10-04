@@ -24,9 +24,6 @@
 
 include_guard(GLOBAL)
 
-include(${CMAKE_CURRENT_LIST_DIR}/cmtools-lists.cmake)
-
-
 # Functions summary:
 # - cmt_directory_is_empty
 # - cmt_get_files

@@ -24,9 +24,6 @@
 
 include_guard(GLOBAL)
 
-include(${CMAKE_CURRENT_LIST_DIR}/./../modules/cmtools-args.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/./../modules/cmtools-env.cmake)
-
 
 # Functions summary:
 # - cmt_target_add_precompiled_headers

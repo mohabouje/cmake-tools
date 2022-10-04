@@ -24,8 +24,6 @@
 
 include_guard(GLOBAL)
 
-include(${CMAKE_CURRENT_LIST_DIR}/cmtools-args.cmake)
-
 cmt_disable_logger()
 include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/header-language.cmake)
 cmt_enable_logger()

@@ -24,9 +24,6 @@
 
 include_guard(GLOBAL)
 
-include(${CMAKE_CURRENT_LIST_DIR}/./../tools/cmtools-conan.cmake)
-
-
 function(cmt_pkg_set_default_backend)
     set(CMT_PACKAGE_MANAGER "conan" PARENT_SCOPE)
     cmt_set_global_property(CMT_PACKAGE_MANAGER "conan")

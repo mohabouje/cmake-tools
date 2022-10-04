@@ -24,10 +24,6 @@
 
 include_guard(GLOBAL)
 
-include(${CMAKE_CURRENT_LIST_DIR}/cmtools-env.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/cmtools-fsystem.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/cmtools-compiler.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/./../tools/cmtools-cotire.cmake)
 include(CheckIPOSupported)
 
 # Functions summary:

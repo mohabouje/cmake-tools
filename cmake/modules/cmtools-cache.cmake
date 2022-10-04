@@ -24,9 +24,6 @@
 
 include_guard(GLOBAL)
 
-include(${CMAKE_CURRENT_LIST_DIR}/cmtools-args.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/cmtools-env.cmake)
-
 # Functions summary:
 # - cmt_append_typed_cache_definition
 # - cmt_append_cache_definition_variable

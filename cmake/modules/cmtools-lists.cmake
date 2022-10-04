@@ -24,9 +24,6 @@
 
 include_guard(GLOBAL)
 
-include(${CMAKE_CURRENT_LIST_DIR}/cmtools-args.cmake)
-
-
 # Functions summary:
 # - cmt_filter_list
 # - cmt_filter_out

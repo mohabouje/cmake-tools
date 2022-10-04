@@ -24,8 +24,6 @@
 
 include_guard(GLOBAL)
 
-include(${CMAKE_CURRENT_LIST_DIR}/cmtools-logger.cmake)
-
 # Functions summary:
 # - cmt_append_global_property_unique
 # - cmt_append_global_property

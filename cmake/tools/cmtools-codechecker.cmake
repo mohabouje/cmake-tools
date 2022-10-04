@@ -24,9 +24,6 @@
 
 include_guard(GLOBAL)
 
-include(${CMAKE_CURRENT_LIST_DIR}/./../modules/cmtools-args.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/./../modules/cmtools-env.cmake)
-
 # ! cmt_find_codechecker
 # Try to find the codechecker executable.
 # If the executable is not found, the function will throw an error.

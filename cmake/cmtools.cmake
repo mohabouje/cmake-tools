@@ -25,6 +25,7 @@
 include_guard(GLOBAL)
 include (FetchContent)
 
+# Default value for some variables
 set(CMT_DEFAULT_BUILD_TYPE "Debug" CACHE STRING "Choose the type of build." FORCE)
 
 option(CMT_ENABLE_CCACHE                "Enable the integration of ccache into the build system"                ON)
@@ -99,16 +100,20 @@ macro(cmt_fetch_cmake_module_from_github USER PROJECT)
 endmacro()
 
 macro(cmt_fetch_dependencies)
+	cmake_policy(SET CMP0069 NEW)
+	set(CMAKE_POLICY_DEFAULT_CMP0069 NEW)
 	cmt_fetch_cmake_module_from_github(onqtam ucm)
-	cmt_fetch_cmake_module_from_github(RWTH-HPC CMake-codecov)
+
 	cmt_fetch_cmake_module_from_github(sakra cotire PATH "CMake")
 	cmt_fetch_cmake_module_from_github(sbellus json-cmake PATH "")
 	cmt_fetch_cmake_module_from_github(larsch cmake-precompiled-header PATH "")
+
+	set(ENABLE_COVERAGE ON)
+	cmt_fetch_cmake_module_from_github(RWTH-HPC CMake-codecov)
 endmacro()
 
 macro(cmt_setup)
-	cmake_policy(SET CMP0069 NEW)
-	set(CMAKE_POLICY_DEFAULT_CMP0069 NEW)
+
 endmacro()
 
 cmt_include_all(${CMAKE_CURRENT_LIST_DIR}/modules)

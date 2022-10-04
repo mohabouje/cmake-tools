@@ -24,8 +24,6 @@
 
 include_guard(GLOBAL)
 
-include(${CMAKE_CURRENT_LIST_DIR}/cmtools-logger.cmake)
-
 # Functions summary:
 # - cmt_ensure_choice
 # - cmt_ensure_target

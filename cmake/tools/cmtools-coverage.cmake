@@ -24,10 +24,6 @@
 
 include_guard(GLOBAL)
 
-include(${CMAKE_CURRENT_LIST_DIR}/./../modules/cmtools-args.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/./../modules/cmtools-env.cmake)
-
-set(ENABLE_COVERAGE ON)
 
 # ! cmt_find_
 # Try to find the lcov executable.

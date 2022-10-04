@@ -24,18 +24,6 @@
 
 include_guard(GLOBAL)
 
-include(${CMAKE_CURRENT_LIST_DIR}/cmtools-clang-format.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/cmtools-clang-tidy.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/cmtools-iwyu.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/cmtools-lizard.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/cmtools-codechecker.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/cmtools-cppcheck.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/cmtools-cpplint.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/cmtools-clang-build-analyzer.cmake)
-
-include(${CMAKE_CURRENT_LIST_DIR}/./../modules/cmtools-mirror.cmake)
-
-
 set(CMT_STATIC_ANALYSIS_TOOLS 
         "cppcheck" 
         "clang-tidy"

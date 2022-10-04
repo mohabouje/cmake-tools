@@ -24,8 +24,6 @@
 
 include_guard(GLOBAL)
 
-include(${CMAKE_CURRENT_LIST_DIR}/cmtools-args.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/cmtools-env.cmake)
 include(CheckIPOSupported)
 
 # Functions summary:

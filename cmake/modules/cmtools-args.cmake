@@ -24,8 +24,6 @@
 
 include_guard(GLOBAL)
 
-include(${CMAKE_CURRENT_LIST_DIR}/cmtools-logger.cmake)
-
 # Functions summary:
 # - cmt_required_arguments
 # - cmt_ensure_on_of_argument
