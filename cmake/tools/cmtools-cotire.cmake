@@ -50,7 +50,7 @@ cmt_enable_logger()
 # \group UNITY_EXCLUDE The source files to exclude from unity build
 #
 function(cmt_target_generate_cotire TARGET)
-    cmake_parse_arguments(ARGS "" "SUFFIX;GLOBAL;PCH_FILE;CPP_PER_UNITY" "UNITY_EXCLUDED;LANGUAGES" ${ARGN})
+    cmake_parse_arguments(ARGS "ALL;DEFAULT;" "SUFFIX;GLOBAL;PCH_FILE;CPP_PER_UNITY" "UNITY_EXCLUDED;LANGUAGES" ${ARGN})
     cmt_required_arguments(ARGS "" "NAME;TYPE" "")
     cmt_default_argument(ARGS LANGUAGES "CXX;")
     cmt_default_argument(ARGS SUFFIX "cotire")
@@ -73,17 +73,17 @@ function(cmt_target_generate_cotire TARGET)
         return()
     endif()
 
-    set(MIRROR_TARGET "${TARGET}-original")
-    if (TARGET ${MIRROR_TARGET})
-        cmt_warning("Target ${MIRROR_TARGET} already exists")
+    set(TEMPORAL_TARGET "${TARGET}-original")
+    if (TARGET ${TEMPORAL_TARGET})
+        cmt_warning("Target ${TEMPORAL_TARGET} already exists")
         return()
     endif()
 
     set_target_properties(${TARGET} PROPERTIES CMT_COTIRE_ENABLED ON)
     cmt_create_mirrored_build_target(${TARGET} "original")
-    cmt_ensure_target(${MIRROR_TARGET})
+    cmt_ensure_target(${TEMPORAL_TARGET})
 
-    cmt_strip_extraneous_sources(${MIRROR_TARGET} TARGET_SOURCES)
+    cmt_strip_extraneous_sources(${TEMPORAL_TARGET} TARGET_SOURCES)
     cmt_count_sources(NUM_SOURCES ${TARGET_SOURCES})
     if (${NUM_SOURCES} LESS 2)
         cmt_info("Skipping cotire for ${TARGET} because it has less than 2 sources")
@@ -109,28 +109,32 @@ function(cmt_target_generate_cotire TARGET)
     cmt_add_switch(COTIRE_PROPERTIES VALID_PCH_FILE ON "COTIRE_CXX_PREFIX_HEADER_INIT ${ARGS_PCH_FILE}" OFF "")
     string (REPLACE " " ";" COTIRE_PROPERTIES "${COTIRE_PROPERTIES}")
 
-    set_target_properties(${MIRROR_TARGET} PROPERTIES CMT_COTIRE_ENABLED ON ${COTIRE_PROPERTIES})
-    set_target_properties(${MIRROR_TARGET} PROPERTIES COTIRE_PREFIX_HEADER_IGNORE_PATH "")
-    set_target_properties(${MIRROR_TARGET} PROPERTIES COTIRE_UNITY_TARGET_NAME ${UNITY_TARGET})
+    set_target_properties(${TEMPORAL_TARGET} PROPERTIES CMT_COTIRE_ENABLED ON ${COTIRE_PROPERTIES})
+    set_target_properties(${TEMPORAL_TARGET} PROPERTIES COTIRE_PREFIX_HEADER_IGNORE_PATH "")
+    set_target_properties(${TEMPORAL_TARGET} PROPERTIES COTIRE_UNITY_TARGET_NAME ${UNITY_TARGET})
 
-    cmt_forward_options(ARGS "" "" "LANGUAGES" COTIRE_ARGS)
-    cotire (${MIRROR_TARGET} ${COTIRE_ARGS} CONFIGURATIONS ${CMAKE_BUILD_TYPE})
+    cmt_forward_arguments(ARGS "" "" "LANGUAGES" COTIRE_ARGS)
+    cmt_disable_logger()
+    cotire (${TEMPORAL_TARGET} ${COTIRE_ARGS} CONFIGURATIONS ${CMAKE_BUILD_TYPE})
+    cmt_enable_logger()
     cmt_ensure_target(${UNITY_TARGET})
-    set_target_properties(clean_cotire PROPERTIES FOLDER "CMakePredefinedTargets")
 
 
     # Disable the original target and enable the unity one
-    get_target_property(COTIRE_TARGET ${MIRROR_TARGET} COTIRE_UNITY_TARGET_NAME)
-    set_target_properties(${MIRROR_TARGET} PROPERTIES EXCLUDE_FROM_ALL 1 EXCLUDE_FROM_DEFAULT_BUILD 1)
-    set_target_properties(${COTIRE_TARGET} PROPERTIES EXCLUDE_FROM_ALL 0 EXCLUDE_FROM_DEFAULT_BUILD 0)
+    get_target_property(COTIRE_TARGET ${TEMPORAL_TARGET} COTIRE_UNITY_TARGET_NAME)
+    set_target_properties(${COTIRE_TARGET} PROPERTIES OUTPUT_NAME ${UNITY_TARGET})
+    set_target_properties(${TEMPORAL_TARGET} PROPERTIES EXCLUDE_FROM_ALL 1 EXCLUDE_FROM_DEFAULT_BUILD 1)
+    set_target_properties(${COTIRE_TARGET} PROPERTIES EXCLUDE_FROM_ALL 1 EXCLUDE_FROM_DEFAULT_BUILD 1)
+
+    cmt_target_set_ide_directory(${TEMPORAL_TARGET} "Temporal")
+    cmt_target_set_ide_directory(${COTIRE_TARGET} "Cotire")
 
     # Also set the name of the target output as the original one
-    set_target_properties(${COTIRE_TARGET} PROPERTIES OUTPUT_NAME ${UNITY_TARGET})
-    set_target_properties(${COTIRE_TARGET} PROPERTIES FOLDER "")
+    set_target_properties(clean_cotire PROPERTIES FOLDER "CMakePredefinedTargets")
     set_target_properties(all_unity PROPERTIES FOLDER "CMakePredefinedTargets")
 
     cmt_wire_mirrored_build_target_dependencies(${TARGET} ${ARGS_SUFFIX})
-    cmt_target_register(${UNITY_TARGET} ${ARGS_GLOBAL})
-
+    cmt_forward_arguments(ARGS "ALL;DEFAULT" "" "" REGISTER_ARGS)
+    cmt_target_register(${COTIRE_TARGET} ${ARGS_GLOBAL} ${REGISTER_ARGS})
 
 endfunction()

@@ -104,7 +104,7 @@ endfunction()
 # \param:WORKING_DIRECTORY WORKING_DIRECTORY The clang-format working directory
 #
 function(cmt_target_generate_clang_format TARGET)
-    cmake_parse_arguments(ARGS "" "STYLE;WORKING_DIRECTORY;GLOBAL;SUFFIX" "" ${ARGN})
+    cmake_parse_arguments(ARGS "ALL;DEFAULT;" "STYLE;WORKING_DIRECTORY;GLOBAL;SUFFIX" "" ${ARGN})
     cmt_default_argument(ARGS STYLE "LLVM")
     cmt_default_argument(ARGS WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
     cmt_default_argument(ARGS SUFFIX "clang-format")
@@ -132,8 +132,9 @@ function(cmt_target_generate_clang_format TARGET)
 	)
 
     cmt_wire_mirrored_build_target_dependencies(${TARGET} ${ARGS_SUFFIX})
-    cmt_target_register(${TARGET_NAME} ${ARGS_GLOBAL})
-    cmt_target_set_ide_directory(${TARGET_NAME} "format")
+    cmt_forward_arguments(ARGS "ALL;DEFAULT" "" "" REGISTER_ARGS)
+    cmt_target_register(${TARGET_NAME} ${ARGS_GLOBAL} ${REGISTER_ARGS})
+    cmt_target_set_ide_directory(${TARGET_NAME} "Format")
 
     add_custom_command( TARGET ${TARGET_NAME} POST_BUILD
         COMMAND ;

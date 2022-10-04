@@ -113,7 +113,7 @@ endfunction()
 # \group ARGS Specify 'codechecker analyze' command line arguments.
 #
 function(cmt_target_generate_codechecker TARGET)
-	cmake_parse_arguments(ARGS "CTU" "GLOBAL;SUFFIX" "SKIP;ARGS;ADDITIONAL_OPTIONAL_REPORTS" ${ARGN})
+	cmake_parse_arguments(ARGS "CTU;ALL;DEFAULT" "GLOBAL;SUFFIX" "SKIP;ARGS;ADDITIONAL_OPTIONAL_REPORTS" ${ARGN})
     cmt_default_argument(ARGS SUFFIX "codechecker")
     cmt_default_argument(ARGS GLOBAL "codechecker")
     cmt_ensure_target(${TARGET})
@@ -192,5 +192,6 @@ function(cmt_target_generate_codechecker TARGET)
 			"${TARGET_DIR}/html"
 		)
     cmt_wire_mirrored_build_target_dependencies(${TARGET} ${ARGS_SUFFIX})
-    cmt_target_register(${TARGET_NAME} ${ARGS_GLOBAL})
+	cmt_forward_arguments(ARGS "ALL;DEFAULT" "" "" REGISTER_ARGS)
+	cmt_target_register(${TARGET_NAME} ${ARGS_GLOBAL} ${REGISTER_ARGS})
 endfunction()

@@ -273,7 +273,7 @@ endfunction()
 # \group DEPENDENCIES The dependencies of the target.
 #
 function(cmt_target_generate_coverage TARGET)
-    cmake_parse_arguments(ARGS "" "" "DEPENDENCIES" ${ARGN})
+    cmake_parse_arguments(ARGS "ALL;DEFAULT;" "" "DEPENDENCIES" ${ARGN})
 
     if (NOT CMT_ENABLE_COVERAGE)
         return()
@@ -288,8 +288,8 @@ function(cmt_target_generate_coverage TARGET)
     cmt_wire_mirrored_build_target_dependencies(${TARGET} gcov)
     cmt_wire_mirrored_build_target_dependencies(${TARGET} genhtml)
 
-    cmt_target_register("${TARGET}-gcov" "gcov")
-    cmt_target_register("${TARGET}-genhtml" "genhtml")
-    cmt_target_register("${TARGET}-capture-init" "capture-init")
-
+    cmt_forward_arguments(ARGS "ALL;DEFAULT" "" "" REGISTER_ARGS)
+    cmt_target_register("${TARGET}-gcov" "gcov" ${REGISTER_ARGS})
+    cmt_target_register("${TARGET}-genhtml" "genhtml" ${REGISTER_ARGS} )
+    cmt_target_register("${TARGET}-capture-init" "capture-init" ${REGISTER_ARGS})
 endfunction()

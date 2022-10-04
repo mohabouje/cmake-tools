@@ -20,5 +20,5 @@ cmt_target_configure_compiler_optimization_options(${TARGET_NAME})
 # cmt_target_print_linker_options(${TARGET_NAME} CONFIG Debug Release)
 
 # Hardcore integration of all tools
-cmt_target_enable_all_tool(${TARGET_NAME} REQUIRED)
-cmt_target_generate_all_tool(${TARGET_NAME})
+cmt_target_enable_all_tool(${TARGET_NAME})
+cmt_target_generate_all_tool(${TARGET_NAME} ALL DEFAULT)

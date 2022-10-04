@@ -154,7 +154,7 @@ function (cmt_target_run_tool TARGET TOOL_NAME)
                                         SOURCES ${HANDLE_CHECK_GENERATED_SOURCES})
     endif()
 
-    cmt_forward_options (RUN_COMMAND "" "WORKING_DIRECTORY" "DEPENDENCIES;COMMAND" RUN_ON_SOURCE_FORWARD)
+    cmt_forward_arguments (RUN_COMMAND "" "WORKING_DIRECTORY" "DEPENDENCIES;COMMAND" RUN_ON_SOURCE_FORWARD)
 
     # For each source file, add a new custom command which runs our tool and generates a stampfile, 
     # depending on the generation of the source file.

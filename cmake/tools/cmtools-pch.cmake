@@ -56,7 +56,7 @@ function(cmt_target_add_precompiled_headers TARGET)
         return()
     endif()
 
-    cmt_forward_options(ARGS "FORCEINCLUDE" "" "" ADD_PRECOMPILED_HEADER)
+    cmt_forward_arguments(ARGS "FORCEINCLUDE" "" "" ADD_PRECOMPILED_HEADER)
     foreach (HEADER ${ARGS_HEADERS})
         add_precompiled_header(${TARGET} ${HEADER} ${ADD_PRECOMPILED_HEADER})
     endforeach()

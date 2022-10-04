@@ -33,7 +33,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/cmtools-logger.cmake)
 # - cmt_default_argument
 # - cmt_ensure_target
 # - cmt_append_each_to_options_with_prefix
-# - cmt_forward_options
+# - cmt_forward_arguments
 # - cmt_append_to_global_property
 # - cmt_append_to_global_property_unique
 
@@ -67,7 +67,7 @@ function(cmt_required_arguments PREFIX OPTION_ARGS SINGLEVAR_ARGS MULTIVAR_ARGS)
     endforeach()
 endfunction()
 
-# ! cmt_forward_options
+# ! cmt_forward_arguments
 # Creates a list to forward all arguments of the current function to another function.
 #
 # \input PREFIX The prefix to give each item in ARGN.
@@ -76,7 +76,7 @@ endfunction()
 # \input MULTIVAR_ARGS List of multi variables to forward
 # \output   RETURN_LIST  The list to append to.
 #
-function (cmt_forward_options PREFIX OPTION_ARGS SINGLEVAR_ARGS MULTIVAR_ARGS RETURN_LIST_NAME)
+function (cmt_forward_arguments PREFIX OPTION_ARGS SINGLEVAR_ARGS MULTIVAR_ARGS RETURN_LIST_NAME)
     # Temporary accumulation of variables to forward
     set (RETURN_LIST)
 

@@ -132,20 +132,10 @@ endfunction ()
 function (cmt_create_mirrored_build_target TARGET SUFFIX)
     cmake_parse_arguments (CREATE_MIRRORED "" "" "COMPILE_FLAGS;LINK_FLAGS;DEPENDENCIES" ${ARGN})
     
-    cmt_forward_options (CREATE_MIRRORED  "" "" "COMPILE_FLAGS;LINK_FLAGS" SETUP_TARGET_FORWARD_OPTIONS)
+    cmt_forward_arguments (CREATE_MIRRORED  "" "" "COMPILE_FLAGS;LINK_FLAGS" SETUP_TARGET_FORWARD_OPTIONS)
     cmt_setup_mirrored_build_target (${TARGET} ${SUFFIX} ${SETUP_TARGET_FORWARD_OPTIONS})
 
-    cmt_forward_options (CREATE_MIRRORED  "" "" "DEPENDENCIES" WIRE_TARGET_FORWARD_OPTIONS)
+    cmt_forward_arguments (CREATE_MIRRORED  "" "" "DEPENDENCIES" WIRE_TARGET_FORWARD_OPTIONS)
     cmt_wire_mirrored_build_target_dependencies (${TARGET} ${SUFFIX} ${WIRE_TARGET_FORWARD_OPTIONS})
 
 endfunction ()
-
-function (cmt_target_register TARGET GLOBAL)
-    cmt_ensure_target(${TARGET})
-    set_target_properties(${TARGET} PROPERTIES EXCLUDE_FROM_ALL 1 EXCLUDE_FROM_DEFAULT_BUILD 1)
-
-    if (NOT TARGET ${GLOBAL})
-        add_custom_target(${GLOBAL})
-    endif()
-    add_dependencies(${GLOBAL} ${TARGET})
-endfunction()

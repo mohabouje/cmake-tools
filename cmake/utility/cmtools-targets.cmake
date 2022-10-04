@@ -1179,114 +1179,15 @@ function(cmt_target_print_linker_options TARGET)
 endfunction()
 
 
+function (cmt_target_register TARGET GLOBAL)
+	cmake_parse_arguments(ARGS "ALL;DEFAULT" "" "" ${ARGN})
+	cmt_ensure_target(${TARGET})
 
-# !cmt_add_target
-# Adds a target eligible for cotiring - unity build and/or precompiled header
-# TYPE could be either STATIC, SHARED, MODULE, INTERFACE or EXECUTABLE
-#
-# cmt_add_target(
-#   <UNITY>
-#   [TYPE <type>]
-#   [NAME <name>]
-#   [CPP_PER_UNIT <cpp per unit>]
-#   [PCH_FILE <pch file>]
-#   [SOURCES <source1> <source2>...]
-#   [HEADERS <header1> <header2>...]
-#   [UNITY_EXCLUDE <source1> <source2>...]
-# )
-# \option UNITY Enable unity build
-# \param TYPE The type of the target
-# \param NAME The name of the target
-# \param CPP_PER_UNIT The number of cpp files per unity unit
-# \param PCH_FILE The precompiled header file
-# \group SOURCES The source files
-# \grougrouppHEADERS HEADERS The header files
-# \group UNITY_EXCLUDE The source files to exclude from unity build
-#
-function(cmt_add_target)
-    cmake_parse_arguments(ARGS "UNITY" "NAME;TYPE;PCH_FILE;CPP_PER_UNITY" "HEADERS;SOURCES;UNITY_EXCLUDED" ${ARGN})
-    cmt_required_arguments(ARGS "" "NAME;TYPE" "")
-	cmt_ensure_argument_choice(ARGS TYPE EXECUTABLE STATIC SHARED MODULE)
-	cmt_ensure_on_of_argument(ARGS HEADERS SOURCES)
-	cmt_default_argument(ARGS CPP_PER_UNITY 100)
-
-    set(DO_UNITY ${CMT_ENABLE_UNITY_BUILDS})
-	if (NOT ARGS_UNITY)
-        set(DO_UNITY OFF)
-    endif()
-    
-    # TODO: Add a mechanism to exclude target from unity
-    list(FIND UCM_UNITY_BUILD_EXCLUDE_TARGETS ${ARGS_NAME} is_target_excluded)
-    if(NOT ${is_target_excluded} STREQUAL "-1")
-        set(DO_UNITY OFF)
-    endif()
-    
-    if (DO_UNITY)
-        ucm_count_sources(${ARGS_SOURCES} RESULT NUM_SOURCES)
-        if (${NUM_SOURCES} LESS 2)
-            set(DO_UNITY OFF)
-        endif()
-    endif()
-    
-    set(WANTED_COTIRE ${DO_UNITY})
-    
-    if(DO_UNITY AND NOT CMT_ENABLE_COTIRE)
-        set(DO_UNITY OFF)
-    endif()
-    
-	# Inform the developer that the current target might benefit from a unity build
-	if(NOT ARGS_UNITY AND ${CMT_ENABLE_UNITY_BUILDS})
-		ucm_count_sources(${ARGS_SOURCES} RESULT NUM_SOURCES)
-		if( ${num_sources} GREATER 1)
-			cmt_warning("Target '${ARGS_NAME}' may benefit from a unity build.\nIt has ${NUM_SOURCES} sources - enable it with UNITY flag")
-		endif()
+	cmt_boolean(EXCLUDE_FROM_ALL NOT ARGS_ALL)
+	cmt_boolean(EXCLUDE_FROM_DEFAULT NOT ARGS_DEFAULT)
+	set_target_properties(${TARGET} PROPERTIES EXCLUDE_FROM_ALL ${EXCLUDE_FROM_ALL} EXCLUDE_FROM_DEFAULT_BUILD ${EXCLUDE_FROM_DEFAULT})
+	if (NOT TARGET ${GLOBAL})
+		add_custom_target(${GLOBAL})
 	endif()
-    
-    # Prepare for the unity build
-    set(TARGET_NAME ${ARGS_NAME})
-    if (DO_UNITY)
-        set(TARGET_NAME ${ARGS_NAME}_ORIGINAL)
-        foreach(excluded_file "${ARGS_UNITY_EXCLUDED}")
-            set_source_files_properties(${excluded_file} PROPERTIES COTIRE_EXCLUDED TRUE)
-        endforeach()
-    endif()
-    
-    # Add the original target
-    if (${ARGS_TYPE} STREQUAL "EXECUTABLE")
-        add_executable(${TARGET_NAME} ${ARGS_HEADERS} ${ARGS_SOURCES})
-    else()
-        add_library(${TARGET_NAME} ${ARGS_TYPE} ${ARGS_HEADERS} ${ARGS_SOURCES})
-    endif()
-    
-    if (DO_UNITY)
-        if(NOT "${ARGS_PCH_FILE}" STREQUAL "")
-            set_target_properties(${TARGET_NAME} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "${ARGS_PCH_FILE}")
-        else()
-            set_target_properties(${TARGET_NAME} PROPERTIES COTIRE_ENABLE_PRECOMPILED_HEADER FALSE)
-        endif()
-
-        set_target_properties(${TARGET_NAME} PROPERTIES COTIRE_UNITY_TARGET_NAME ${ARGS_NAME})
-        
-        # Call cotire to apply the unity build
-        cmt_target_enable_cotire(${TARGET_NAME})
-        set_target_properties(clean_cotire PROPERTIES FOLDER "CMakePredefinedTargets")
-        
-        # Disable the original target and enable the unity one
-        get_target_property(unity_target_name ${TARGET_NAME} COTIRE_UNITY_TARGET_NAME)
-        set_target_properties(${TARGET_NAME} PROPERTIES EXCLUDE_FROM_ALL 1 EXCLUDE_FROM_DEFAULT_BUILD 1)
-        set_target_properties(${unity_target_name} PROPERTIES EXCLUDE_FROM_ALL 0 EXCLUDE_FROM_DEFAULT_BUILD 0)
-        
-        # Also set the name of the target output as the original one
-        set_target_properties(${unity_target_name} PROPERTIES OUTPUT_NAME ${ARGS_NAME})
-        set_target_properties(${unity_target_name} PROPERTIES FOLDER "")
-        set_target_properties(all_unity PROPERTIES FOLDER "CMakePredefinedTargets")
-    elseif(NOT "${ARGS_PCH_FILE}" STREQUAL "")
-        set(WANTED_COTIRE TRUE)
-		set_target_properties(${TARGET_NAME} PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
-		set_target_properties(${TARGET_NAME} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "${ARGS_PCH_FILE}")
-		cmt_target_enable_cotire(${TARGET_NAME})
-		set_target_properties(clean_cotire PROPERTIES FOLDER "CMakePredefinedTargets")
-    else()
-		cmt_warning("Target '${ARGS_NAME}' has no precompiled header file. Consider adding one with PCH_FILE")
-	endif()
+	add_dependencies(${GLOBAL} ${TARGET})
 endfunction()

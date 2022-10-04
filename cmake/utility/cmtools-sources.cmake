@@ -141,7 +141,7 @@ endfunction()
 function (cmt_sort_sources_to_languages C_SOURCES CXX_SOURCES HEADERS)
     cmake_parse_arguments(SORT_SOURCES "" "FORCE_LANGUAGE" "SOURCES;CPP_IDENTIFIERS;INCLUDES" ${ARGN})
 	cmt_required_arguments(SORT_SOURCES "" "" "SOURCES")
-    cmt_forward_options (SORT_SOURCES "" "FORCE_LANGUAGE" "CPP_IDENTIFIERS;INCLUDES" DETERMINE_LANG_OPTIONS)
+    cmt_forward_arguments (SORT_SOURCES "" "FORCE_LANGUAGE" "CPP_IDENTIFIERS;INCLUDES" DETERMINE_LANG_OPTIONS)
 
     foreach (SOURCE ${SORT_SOURCES_SOURCES})
         set(INCLUDES ${SORT_SOURCES_INCLUDES})
