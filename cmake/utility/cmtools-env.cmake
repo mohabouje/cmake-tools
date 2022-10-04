@@ -30,7 +30,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/cmtools-args.cmake)
 # Functions summary:
 # - cmt_set_default_build_type
 # - cmt_set_build_type
-# - cmt_define_archichecture
+# - cmt_define_architecture
 # - cmt_define_os
 # - cmt_define_compiler
 
@@ -87,21 +87,22 @@ function(cmt_ensure_build_type_is_set)
 	endif()
 endfunction()
 
-
-#! cmt_define_archichecture
+#! cmt_define_architecture
 # Defines the architecture variables
 # It defines the variable CMT_ARCHITECTURE to one of the following values:
-# - 32BIT
-# - 64BIT
+# - X86
+# - ARM
 # - UNKNOWN
 #
-# cmt_define_archichecture()
+# cmt_define_architecture()
 #
-macro(cmt_define_archichecture)	
-	if(${CMAKE_SIZEOF_VOID_P} EQUAL 4)
-		set(CMT_ARCHITECTURE "32BIT")
-	elseif(${CMAKE_SIZEOF_VOID_P} EQUAL 8)
-		set(CMT_ARCHITECTURE "64BIT")
+macro(cmt_define_architecture)
+	if (CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)|(amd64)|(AMD64)")
+		set(CMT_ARCHITECTURE "X86")
+	elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
+		set(CMT_ARCHITECTURE "ARM")
+	elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
+		set(CMT_ARCHITECTURE "ARM64")
 	else()
 		set(CMT_ARCHITECTURE "UNKNOWN")
 	endif()
@@ -129,7 +130,7 @@ macro(cmt_define_compiler)
 	endif()
 endmacro()
 
-#! cmt_define_compiler
+#! cmt_define_os
 # Defines the OS variables
 # It defines the variable CMT_OS to one of the following values:
 # - UNIX
@@ -145,7 +146,7 @@ endmacro()
 #
 macro(cmt_define_os)
 	if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
-		set(CMT_OS ON "WINDOWS")
+		set(CMT_OS "WINDOWS")
 	elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 		if(ANDROID)
 			set(CMT_OS "ANDROID")
@@ -153,18 +154,49 @@ macro(cmt_define_os)
 			set(CMT_OS "LINUX")
 		endif()
 	elseif(CMAKE_SYSTEM_NAME MATCHES "^k?FreeBSD$")
-		set(CMT_OS_FREEBSD "FREEBSD")
+		set(CMT_OS "FREEBSD")
 	elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 		if(IOS)
-			set(CMT_OS_IOS "IOS")
+			set(CMT_OS "IOS")
 		else()
-			set(CMT_OS_MACOSX "MACOS")
+			set(CMT_OS "MACOS")
 		endif()
 	elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Android")
-		set(CMT_OS_ANDROID "ANDROID")
+		set(CMT_OS "ANDROID")
 	else()
-		set(CMT_OS_UNKNOW "UNKNOWN")
+		set(CMT_OS "UNKNOWN")
 	endif()
+endmacro()
+
+#! cmt_define_standard_cxx_library
+# Defines the architecture variables
+# It defines the variable CMT_ARCHITECTURE to one of the following values:
+# - libstdc++
+# - libc++
+# - UNKNOWN
+#
+# cmt_define_architecture()
+#
+macro(cmt_define_standard_cxx_library)
+	cmt_define_os()
+	if (${CMT_OS} STREQUAL "MACOS")
+		set(CMT_CXX_STANDARD_LIB "libc++")
+	else()
+		set(CMT_CXX_STANDARD_LIB "libstdc++")
+	endif()
+endmacro()
+
+
+#! cmt_define_cxx_compiler_version
+#
+macro(cmt_define_cxx_compiler_version)
+	set(CMT_CXX_COMPILER_VERSION ${CMAKE_CXX_COMPILER_VERSION})
+endmacro()
+
+#! cmt_define_c_compiler_version
+#
+macro(cmt_define_c_compiler_version)
+	set(CMT_C_COMPILER_VERSION ${CMAKE_C_COMPILER_VERSION})
 endmacro()
 
 #! cmt_find_program

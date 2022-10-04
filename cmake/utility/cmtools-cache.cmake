@@ -123,3 +123,57 @@ function (cmt_forward_cache_namespaces_to_file CACHE_FILE)
     endforeach()
     file (WRITE "${CACHE_FILE}" "${CACHE_DEFS}")
 endfunction()
+
+# ! cmt_cache_set_tool
+# Cache the tool information for the given tool
+#
+# It will set:
+#
+# CMT_${PACKAGE_ID}_FOUND : Whether or not the package is available on the target system
+# CMT_${PACKAGE_ID}_COMPONENTS: The list of components available in the package
+#
+# and add it to the CMT_PACKAGES list if it is found
+#
+# \input PACKAGE_ID Unique ID for the tool
+# \input PACKAGE_COMPONENTS The list of components available in the package
+#
+function (cmt_cache_set_package PACKAGE_ID)
+    cmt_parse_arguments(ARGS "" "" "" ${ARGN})
+    string(TOUPPER ${PACKAGE_ID} PACKAGE_ID_CONVERTED)
+    string(REPLACE "-" "_" PACKAGE_ID_CONVERTED ${PACKAGE_ID_CONVERTED})
+    cmt_append_global_property(CMT_AVAILABLE_PACKAGES ${PACKAGE_ID_CONVERTED} UNIQUE)
+    cmt_append_global_property(CMT_${PACKAGE_ID_CONVERTED}_COMPONENTS ${ARGS_UNPARSED_ARGUMENTS} UNIQUE)
+endfunction()
+
+# ! cmt_cache_get_tool
+# Check if the tool is available on the system and cache the information
+#
+# It looks for the variables:
+#
+# CMT_${PACKAGE_ID}_FOUND : Whether or not the package is available on the target system
+# CMT_${PACKAGE_ID}_COMPONENTS: The list of components available in the package
+#
+# and add it to the CMT_PACKAGES list if it is found
+#
+# \input PACKAGE_ID Unique ID for the tool
+# \output PACKAGE_FOUND Whether or not the package is available on the target system
+# \output PACKAGE_COMPONENTS The list of components available in the package
+#
+function(cmt_cache_get_package PACKAGE_ID PACKAGE_FOUND PACKAGE_COMPONENTS)
+    cmt_get_global_property(CMT_AVAILABLE_PACKAGES PACKAGE_LIST)
+    string(TOUPPER ${PACKAGE_ID} PACKAGE_ID_CONVERTED)
+    string(REPLACE "-" "_" PACKAGE_ID_CONVERTED ${PACKAGE_ID_CONVERTED})
+
+    set(PACKAGE_FOUND_LOADED FALSE)
+    set(PACKAGE_COMPONENTS_LOADED "")
+    if (PACKAGE_LIST)
+        list (FIND PACKAGE_LIST ${PACKAGE_ID_CONVERTED} PACKAGE_FOUND_IN_LIST)
+        if (PACKAGE_FOUND_IN_LIST GREATER -1)
+            set(PACKAGE_FOUND_LOADED TRUE)
+            cmt_get_global_property(CMT_${PACKAGE_ID_CONVERTED}_COMPONENTS PACKAGE_COMPONENTS_LOADED REQUIRED)
+        endif()
+    endif()
+
+    set (${PACKAGE_FOUND} ${PACKAGE_FOUND_LOADED} PARENT_SCOPE)
+    set (${PACKAGE_COMPONENTS} ${PACKAGE_COMPONENTS_LOADED} PARENT_SCOPE)
+endfunction()
