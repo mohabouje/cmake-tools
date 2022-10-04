@@ -9,10 +9,11 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 include(cmake/cmtools.cmake)
 
 # Testing integration with conan
-cmt_conan_setup(TOOLCHAIN_FILE COMPILER_VERSION 13.1)
-cmt_conan_import_package(mimalloc ARCHITECTURE X86)
-cmt_conan_import_package(fmt REQUIRED)
-cmt_conan_import_packages(spdlog boost xxhash cli11 REQUIRED)
+cmt_pkg_set_backend("conan")
+cmt_pkg_setup(COMPILER_VERSION 13.1)
+cmt_pkg_import_package(mimalloc ARCHITECTURE X86)
+cmt_pkg_import_package(fmt REQUIRED)
+cmt_pkg_import_packages(spdlog fmt xxhash cli11 REQUIRED)
 
 enable_testing()
 include(GoogleTest)

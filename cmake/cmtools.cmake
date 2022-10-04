@@ -44,6 +44,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-finder.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-cache.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-properties.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-assert.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/utility/cmtools-pkg.cmake)
 
 
 

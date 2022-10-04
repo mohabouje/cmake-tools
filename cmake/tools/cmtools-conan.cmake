@@ -255,8 +255,7 @@ function(cmt_conan_install TOOLCHAIN_FILE)
     list(APPEND ARGS_CONAN_INSTALL_ARGS "--install-folder=${ARGS_INSTALL_DIR}")
 
     execute_process(COMMAND ${CONAN_EXECUTABLE} install ${ARGS_CONAN_INSTALL_ARGS} ${ARGS_WORKING_DIR}
-            RESULT_VARIABLE EXECUTION_RETURN_CODE
-            OUTPUT_VARIABLE EXECUTION_OUTPUT)
+            RESULT_VARIABLE EXECUTION_RETURN_CODE)
 
     if(NOT ${EXECUTION_RETURN_CODE} EQUAL 0)
         cmt_fatal("Conan install failed with code ${EXECUTION_RETURN_CODE}: ${EXECUTION_OUTPUT}")
@@ -364,9 +363,7 @@ function (cmt_conan_import_package PACKAGE_NAME)
     endif()
 
     cmt_forward_arguments(ARGS "REQUIRED" "" "COMPONENTS" FIND_PACKAGE)
-    cmt_disable_logger()
     find_package(${PACKAGE_NAME} ${FIND_PACKAGE})
-    cmt_enable_logger()
 
     __cmt_conan_collect_components(${PACKAGE_NAME} PACKAGE_COMPONENTS)
     cmt_log("Imported components [${PACKAGE_COMPONENTS}] from conan package ${PACKAGE_NAME}")
