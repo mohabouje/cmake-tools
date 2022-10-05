@@ -24,32 +24,15 @@
 
 include_guard(GLOBAL)
 
+set(CMT_DEFAULT_BUILD_TYPE Debug CACHE STRING "Set the default build type." FORCE)
+mark_as_advanced(CMT_DEFAULT_BUILD_TYPE)
+
 # Functions summary:
 # - cmt_set_default_build_type
 # - cmt_set_build_type
 # - cmt_define_architecture
 # - cmt_define_os
 # - cmt_define_compiler
-
-# ! cmt_set_default_build_type
-# Sets the default build type for the current project
-# It makes sure that the build type is set to one of the following values:
-# - Debug
-# - Release
-# - RelWithDebInfo
-# - MinSizeRel
-# - Coverage
-#
-# cmt_set_default_build_type(
-#   BUILD_TYPE
-# )
-#
-# \input BUILD_TYPE The default build type
-#
-function(cmt_set_default_build_type BUILD_TYPE)
-    cmt_ensure_choice(BUILD_TYPE Debug Release RelWithDebInfo MinSizeRel Coverage)
-	set(CMT_DEFAULT_BUILD_TYPE ${BUILD_TYPE} CACHE STRING "Set the default build type." FORCE PARENT_SCOPE)
-endfunction()
 
 # ! cmt_set_build_type
 # Sets the build type for the current project
@@ -66,23 +49,22 @@ endfunction()
 #
 # \input BUILD_TYPE The default build type
 #
-function(cmt_set_build_type BUILD_TYPE)
-    cmt_ensure_choice(BUILD_TYPE Debug Release RelWithDebInfo MinSizeRel Coverage)
-	set(CMAKE_BUILD_TYPE ${BUILD_TYPE} CACHE STRING "Choose the type of build." FORCE PARENT_SCOPE)
-endfunction()
+macro(cmt_set_build_type BUILD_TYPE)
+	cmt_ensure_choice(BUILD_TYPE Debug Release RelWithDebInfo MinSizeRel Coverage)
+	set(CMAKE_BUILD_TYPE ${BUILD_TYPE} CACHE STRING "Choose the type of build." FORCE)
+endmacro()
 
-
-# ! cmt_ensure_build_type_is_set
-# Sets the build type for the current project to the default one
+# ! cmt_set_default_build_type
+# If no build type was provided, It sets the build type for the current project to the default build type
+# The default build type is set to CMT_DEFAULT_BUILD_TYPE variable which is set to Debug by default.
 #
-# cmt_ensure_build_type_is_set()
+# cmt_set_default_build_type()
 #
-function(cmt_ensure_build_type_is_set)
+macro(cmt_set_default_build_type)
 	if (NOT CMAKE_BUILD_TYPE)
-		message(STATUS "Setting build type to '${CMT_DEFAULT_BUILD_TYPE}' as none was specified.")
-		set(CMAKE_BUILD_TYPE ${CMT_DEFAULT_BUILD_TYPE} CACHE STRING "Choose the type of build." FORCE)
+		cmt_set_build_type(${CMT_DEFAULT_BUILD_TYPE})
 	endif()
-endfunction()
+endmacro()
 
 #! cmt_define_architecture
 # Defines the architecture variables
@@ -267,32 +249,3 @@ macro(cmt_set_c_standard STANDARD)
 	set(CMAKE_C_EXTENSIONS ${_C_FP_CHECK_EXTENSIONS} CACHE BOOL "Set the C standard to use extensions." FORCE)
 endmacro()
 
-#! cmt_ensure_config
-# Checks if the configuration is valid
-#
-# The following variables are checked:
-# - Debug
-# - Release
-# - RelWithDebInfo
-# - MinSizeRel
-#
-# cmt_ensure_config(BUILD_TYPE)
-#
-# \input BUILD_TYPE The build type to check
-#
-function(cmt_ensure_config BUILD_TYPE)
-	cmt_ensure_choice(BUILD_TYPE Debug Release RelWithDebInfo MinSizeRel)
-endfunction()
-
-#! cmt_ensure_lang Checks if the language is valid
-#
-# The following variables are checked:
-# - C
-# - CXX
-#
-# cmt_ensure_lang(LANGUAGE)
-#
-# \input LANGUAGE The language to check
-function(cmt_ensure_lang LANGUAGE)
-	cmt_ensure_choice(LANGUAGE C CXX)
-endfunction()

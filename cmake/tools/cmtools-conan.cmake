@@ -196,23 +196,27 @@ endfunction()
 # cmt_conan_install(
 #   TOOLCHAIN_FILE
 #   [OS <os>]
+#   [ARCHITECTURE <architecture>]
 #   [COMPILER <compiler>]
 #   [COMPILE_VERSION <compiler_version>]
 #   [COMPILER_LIBCXX <compiler_libcxx>]
-#   [BUILD_TYPE <build_type>]
+#   [CONFIG <build_type>]
 # )
 #
 # \output   TOOLCHAIN_FILE - The path to the toolchain file.
 # \param    OS OS to use for the conan install command (default: conan-default-profile)
+# \param    ARCHITECTURE Architecture to use for the pkg install command (default: conan-default-profile)
 # \param    COMPILER Compiler to use for the conan install command (default: conan-default-profile)
 # \param    COMPILE_VERSION Compiler version to use for the conan install command (default: conan-default-profile)
 # \param    COMPILER_LIBCXX Compiler libcxx to use for the conan install command (default: conan-default-profile)
-# \param    BUILD_TYPE Build type to use for the conan install command (default: CMAKE_BUILD_TYPE)
+# \param    CONFIG Build type to use for the conan install command (default: CMAKE_BUILD_TYPE)
 # \param    INSTALL_DIR Directory where the conan install command will be executed (default: ${CMAKE_CURRENT_BINARY_DIR}/conan)
 # \param    WORKING_DIR Directory where the conan install command will be executed (default: ${CMAKE_SOURCE_DIR})
-#
+# \param    INSTALL_DIR Directory where the pkg install command will be executed (default: ${CMAKE_CURRENT_BINARY_DIR}/pkg)
+# \param    WORKING_DIR Directory where the pkg install command will be executed (default: ${CMAKE_SOURCE_DIR})
+
 function(cmt_conan_install TOOLCHAIN_FILE)
-    cmt_parse_arguments(ARGS "" "ARCHITECTURE;OS;COMPILER;COMPILER_VERSION;CXX_LIBRARY;BUILD_TYPE;INSTALL_DIR;WORKING_DIR" "" ${ARGN})
+    cmt_parse_arguments(ARGS "" "ARCHITECTURE;OS;COMPILER;COMPILER_VERSION;COMPILER_LIBCXX;BUILD_TYPE;INSTALL_DIR;WORKING_DIR" "" ${ARGN})
 
     cmt_define_standard_cxx_library()
     cmt_define_os()
@@ -223,7 +227,7 @@ function(cmt_conan_install TOOLCHAIN_FILE)
     cmt_default_argument(ARGS ARCHITECTURE ${CMT_ARCHITECTURE})
     cmt_default_argument(ARGS OS ${CMT_OS})
     cmt_default_argument(ARGS COMPILER ${CMT_COMPILER})
-    cmt_default_argument(ARGS CXX_LIBRARY ${CMT_CXX_STANDARD_LIB})
+    cmt_default_argument(ARGS COMPILER_LIBCXX ${CMT_CXX_STANDARD_LIB})
     cmt_default_argument(ARGS COMPILER_VERSION ${CMT_CXX_COMPILER_VERSION})
     cmt_default_argument(ARGS INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/conan)
     cmt_default_argument(ARGS WORKING_DIR ${CMAKE_SOURCE_DIR})
@@ -241,8 +245,8 @@ function(cmt_conan_install TOOLCHAIN_FILE)
     __cmt_conan_normalize_compiler(${ARGS_COMPILER} COMPILER)
     list(APPEND ARGS_CONAN_INSTALL_ARGS "-s" "compiler=${COMPILER}")
 
-    __cmt_conan_normalize_libcxx(${ARGS_CXX_LIBRARY} CXX_LIBRARY)
-    list(APPEND ARGS_CONAN_INSTALL_ARGS "-s" "compiler.libcxx=${CXX_LIBRARY}")
+    __cmt_conan_normalize_libcxx(${ARGS_COMPILER_LIBCXX} COMPILER_LIBCXX)
+    list(APPEND ARGS_CONAN_INSTALL_ARGS "-s" "compiler.libcxx=${COMPILER_LIBCXX}")
 
     __cmt_conan_normalizer_compiler_version(${ARGS_COMPILER_VERSION} COMPILER_VERSION)
     list(APPEND ARGS_CONAN_INSTALL_ARGS "-s" "compiler.version=${COMPILER_VERSION}")
@@ -251,18 +255,22 @@ function(cmt_conan_install TOOLCHAIN_FILE)
     list(APPEND ARGS_CONAN_INSTALL_ARGS "--build=missing")
     list(APPEND ARGS_CONAN_INSTALL_ARGS "--install-folder=${ARGS_INSTALL_DIR}")
 
+    cmt_logger_set_scoped_context(WARNING CONAN)
     execute_process(COMMAND ${CONAN_EXECUTABLE} install ${ARGS_CONAN_INSTALL_ARGS} ${ARGS_WORKING_DIR}
-            RESULT_VARIABLE EXECUTION_RETURN_CODE)
+            RESULT_VARIABLE EXECUTION_RETURN_CODE
+            OUTPUT_VARIABLE EXECUTION_OUTPUT)
 
     if(NOT ${EXECUTION_RETURN_CODE} EQUAL 0)
         cmt_fatal("Conan install failed with code ${EXECUTION_RETURN_CODE}: ${EXECUTION_OUTPUT}")
     endif()
-
     set(${TOOLCHAIN_FILE} ${ARGS_INSTALL_DIR}/conan_toolchain.cmake PARENT_SCOPE)
+    cmt_logger_discard_scoped_context()
 endfunction()
 
 macro(cmt_conan_load TOOLCHAIN_FILE)
+    cmt_logger_set_scoped_context(WARNING CONAN)
     include(${TOOLCHAIN_FILE})
+    cmt_logger_discard_scoped_context()
     cmt_log("Loading conan toolchain file: ${TOOLCHAIN_FILE}")
 endmacro()
 
@@ -275,24 +283,20 @@ endmacro()
 #   [OS <os>]
 #   [ARCHITECTURE <architecture>]
 #   [COMPILER <compiler>]
-#   [BUILD_TYPE <build_type>]
-#   [INSTALL_DIR <install_dir>]
-#   [WORKING_DIR <working_dir>]
+#   [CONFIG <build_type>]
+#   [COMPONENTS components...]
 # )
 #
 # \output   PACKAGE_NAME - The name of the package to import
 # \option   REQUIRED - If set, the function will fail if the package is not found.
-# \param    OS OS to use for the conan install command
-# \param    COMPILER Compiler to use for the conan install command
-# \param    COMPILE_VERSION Compiler version to use for the conan install command
-# \param    COMPILER_LIBCXX Compiler libcxx to use for the conan install command
-# \param    BUILD_TYPE Build type to use for the conan install command (default: CMAKE_BUILD_TYPE)
-# \param    INSTALL_DIR Directory where the conan install command will be executed (default: ${CMAKE_CURRENT_BINARY_DIR}/conan)
-# \param    WORKING_DIR Directory where the conan install command will be executed (default: ${CMAKE_SOURCE_DIR})
+# \param    OS OS to use for the conan install command  (default: conan-default-profile)
+# \param    ARCHITECTURE Architecture to use for the conan install command (default: conan-default-profile)
+# \param    COMPILER Compiler to use for the conan install command  (default: conan-default-profile)
+# \param    CONFIG Build type to use for the conan install command (default: CMAKE_BUILD_TYPE)
 # \group    COMPONENTS The components to import from the package
 #
 function (cmt_conan_import_package PACKAGE_NAME)
-    cmt_parse_arguments(ARGS "REQUIRED" "OS;COMPILER;ARCHITECTURE;CONFIG" "COMPONENTS" ${ARGN})
+    cmt_parse_arguments(ARGS "REQUIRED" "OS;ARCHITECTURE;COMPILER;CONFIG" "COMPONENTS" ${ARGN})
 
     cmt_define_os()
     if (DEFINED ARGS_OS)
@@ -333,7 +337,10 @@ function (cmt_conan_import_package PACKAGE_NAME)
     endif()
 
     cmt_forward_arguments(ARGS "REQUIRED" "" "COMPONENTS" FIND_PACKAGE)
+
+    cmt_logger_set_scoped_context(WARNING CONAN)
     find_package(${PACKAGE_NAME} ${FIND_PACKAGE})
+    cmt_logger_discard_scoped_context()
 
     __cmt_conan_collect_components(${PACKAGE_NAME} PACKAGE_COMPONENTS)
     cmt_log("Imported components [${PACKAGE_COMPONENTS}] from conan package ${PACKAGE_NAME}")
@@ -345,30 +352,88 @@ endfunction()
 # Import multiple conan packages into the current project.
 #
 # cmt_conan_import_packages(
-#   package1, package2, package3 ...
+#   PACKAGES....
 #   <REQUIRED>
 #   [OS <os>]
 #   [ARCHITECTURE <architecture>]
 #   [COMPILER <compiler>]
-#   [BUILD_TYPE <build_type>]
-#   [INSTALL_DIR <install_dir>]
-#   [WORKING_DIR <working_dir>]
+#   [CONFIG <build_type>]
+#   [COMPONENTS components...]
 # )
 #
 # \variadic List of packages to import
 # \option   REQUIRED - If set, the function will fail if the package is not found.
-# \param    OS OS to use for the conan install command
-# \param    COMPILER Compiler to use for the conan install command
-# \param    COMPILE_VERSION Compiler version to use for the conan install command
-# \param    COMPILER_LIBCXX Compiler libcxx to use for the conan install command
-# \param    BUILD_TYPE Build type to use for the conan install command (default: CMAKE_BUILD_TYPE)
-# \param    INSTALL_DIR Directory where the conan install command will be executed (default: ${CMAKE_CURRENT_BINARY_DIR}/conan)
-# \param    WORKING_DIR Directory where the conan install command will be executed (default: ${CMAKE_SOURCE_DIR})
+# \param    OS OS to use for the conan install command  (default: conan-default-profile)
+# \param    COMPILER Compiler to use for the conan install command  (default: conan-default-profile)
+# \param    CONFIG Build type to use for the conan install command (default: CMAKE_BUILD_TYPE)
+# \group    COMPONENTS The components to import from the package
 #
 function (cmt_conan_import_packages)
-    cmt_parse_arguments(ARGS "REQUIRED" "OS;COMPILER;ARCHITECTURE;CONFIG" "" ${ARGN})
-    cmt_forward_arguments(ARGS "REQUIRED" "OS;COMPILER;ARCHITECTURE;CONFIG" "" FORWARDED_ARGS)
+    cmt_parse_arguments(ARGS "REQUIRED" "OS;ARCHITECTURE;COMPILER;CONFIG" "" ${ARGN})
+    cmt_forward_arguments(ARGS "REQUIRED" "OS;ARCHITECTURE;COMPILER;CONFIG" "" FORWARDED_ARGS)
     foreach (PACKAGE_NAME ${ARGS_UNPARSED_ARGUMENTS})
         cmt_conan_import_package(${PACKAGE_NAME} ${FORWARDED_ARGS})
+    endforeach()
+endfunction()
+
+# ! cmt_conan_link_package
+# Import a conan package and links all or the selected components to the target.
+#
+# cmt_conan_link_package(
+#   TARGET
+#   PACKAGE_NAME
+#   <REQUIRED>
+#   [OS <os>]
+#   [ARCHITECTURE <architecture>]
+#   [COMPILER <compiler>]
+#   [CONFIG <build_type>]
+# )
+#
+# \input    TARGET - The target to link the package to
+# \input    PACKAGE_NAME - The name of the package to import
+# \option   REQUIRED - If set, the function will fail if the package is not found.
+# \param    ARCHITECTURE Architecture to use for the conan install command (default: conan-default-profile)
+# \param    OS OS to use for the conan install command
+# \param    COMPILER Compiler to use for the conan install command
+# \param    CONFIG Build type to use for the conan install command (default: CMAKE_BUILD_TYPE)
+# \group    COMPONENTS The components to import from the package
+#
+function(cmt_conan_link_package TARGET PACKAGE_NAME)
+    cmt_parse_arguments(ARGS "REQUIRED" "OS;COMPILER;ARCHITECTURE;CONFIG" "COMPONENTS" ${ARGN})
+    cmt_ensure_target(${TARGET})
+    cmt_forward_arguments(ARGS "REQUIRED" "OS;COMPILER;ARCHITECTURE;CONFIG" "COMPONENTS" FORWARDED_ARGS)
+    cmt_conan_import_package(${PACKAGE_NAME} ${FORWARDED_ARGS})
+    cmt_cache_get_package(${PACKAGE_NAME} _ PACKAGE_COMPONENT)
+    target_link_libraries(${TARGET} ${PACKAGE_COMPONENT})
+endfunction()
+
+# ! cmt_conan_link_packages
+# Import a conan package and links all its components to the target.
+#
+# cmt_conan_link_packages(
+#   TARGET
+#   PACKAGE_NAME
+#   <REQUIRED>
+#   [OS <os>]
+#   [ARCHITECTURE <architecture>]
+#   [COMPILER <compiler>]
+#   [CONFIG <build_type>]
+# )
+#
+# \input    TARGET - The target to link the package to
+# \input    PACKAGE_NAME - The name of the package to import
+# \option   REQUIRED - If set, the function will fail if the package is not found.
+# \param    OS OS to use for the conan install command
+# \param    COMPILER Compiler to use for the conan install command
+# \param    CONFIG Build type to use for the conan install command (default: CMAKE_BUILD_TYPE)
+#
+function(cmt_conan_link_packages TARGET)
+    cmt_parse_arguments(ARGS "REQUIRED" "OS;COMPILER;ARCHITECTURE;CONFIG" "" ${ARGN})
+    cmt_ensure_target(${TARGET})
+    cmt_forward_arguments(ARGS "REQUIRED" "OS;COMPILER;ARCHITECTURE;CONFIG" "" FORWARDED_ARGS)
+    foreach(PACKAGE_NAME ${ARGS_UNPARSED_ARGUMENTS})
+        cmt_conan_import_package(${PACKAGE_NAME} ${FORWARDED_ARGS})
+        cmt_cache_get_package(${PACKAGE_NAME} _ PACKAGE_COMPONENT)
+        target_link_libraries(${TARGET} ${PACKAGE_COMPONENT})
     endforeach()
 endfunction()

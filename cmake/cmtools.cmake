@@ -92,11 +92,12 @@ macro(cmt_fetch_cmake_module_from_github USER PROJECT)
 	set(${TARGET_NAME}_POPULATED TRUE)
 	set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_BINARY_DIR}/github/${PROJECT}/${ARGS_PATH}" ${CMAKE_MODULE_PATH})
 	file(GLOB_RECURSE CMAKE_FILES "${CMAKE_CURRENT_BINARY_DIR}/github/${PROJECT}/${ARGS_PATH}/*.cmake")
+
+	cmt_logger_set_scoped_context(WARNING ${PROJECT})
 	foreach(CMAKE_FILE ${CMAKE_FILES})
-		cmt_disable_logger()
 		include(${CMAKE_FILE})
-		cmt_enable_logger()
 	endforeach()
+	cmt_logger_discard_scoped_context()
 endmacro()
 
 macro(cmt_fetch_dependencies)
@@ -113,7 +114,10 @@ macro(cmt_fetch_dependencies)
 endmacro()
 
 macro(cmt_setup)
-
+	cmt_logger_setup()
+	cmt_fetch_dependencies()
+	cmt_pkg_set_default_backend()
+	cmt_set_default_build_type()
 endmacro()
 
 cmt_include_all(${CMAKE_CURRENT_LIST_DIR}/modules)

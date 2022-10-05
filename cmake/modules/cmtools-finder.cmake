@@ -180,25 +180,22 @@ endfunction()
 # \output VERSION The detected tool version
 # \group  REQUIRED_VARS  Required variables, set in parent scope if present
 #
-macro (cmt_check_and_report_tool_version PREFIX VERSION)
+function (cmt_check_and_report_tool_version PREFIX VERSION)
     cmt_parse_arguments (_PSQ_CHECK_${PREFIX} "" "" "REQUIRED_VARS" ${ARGN})
     cmt_required_arguments(_PSQ_CHECK_${PREFIX} "" "" "REQUIRED_VARS")
-
+    cmt_logger_set_scoped_level(WARNING)
     string (STRIP "${VERSION}" VERSION)
-    cmt_disable_logger()
     find_package_handle_standard_args (${PREFIX}
                                        FOUND_VAR ${PREFIX}_FOUND
                                        REQUIRED_VARS
                                        ${_PSQ_CHECK_${PREFIX}_REQUIRED_VARS}
                                        VERSION_VAR VERSION)
-    cmt_enable_logger()
-
     if (${PREFIX}_FOUND)
         foreach (VARIABLE ${_PSQ_CHECK_${PREFIX}_REQUIRED_VARS})
-            set (${VARIABLE} ${${VARIABLE}} CACHE STRING "" FORCE)
+            set (${VARIABLE} ${${VARIABLE}} CACHE STRING "" FORCE PARENT_SCOPE)
         endforeach()
     endif()
-endmacro()
+endfunction()
 
 # ! cmt_cache_set_tool
 # Cache the tool information for the given tool

@@ -24,9 +24,9 @@
 
 include_guard(GLOBAL)
 
-cmt_disable_logger()
+cmt_logger_set_scoped_context(WARNING "HeaderLanguage")
 include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/header-language.cmake)
-cmt_enable_logger()
+cmt_logger_discard_scoped_context()
 
 # ! cmt_source_type_from_source_file_extension:
 #

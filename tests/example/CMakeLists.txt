@@ -22,3 +22,5 @@ cmt_target_configure_compiler_optimization_options(${TARGET_NAME})
 # Hardcore integration of all tools
 cmt_target_enable_all_tool(${TARGET_NAME})
 cmt_target_generate_all_tool(${TARGET_NAME} ALL DEFAULT)
+
+cmt_pkg_link_package(${TARGET_NAME} spdlog cli11)
