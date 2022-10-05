@@ -75,6 +75,6 @@ function (cmt_find_mdl EXECUTABLE)
                                       REQUIRED_VARS
                                       MDL_EXECUTABLE
                                       MDL_VERSION)
-    cmt_cache_set_tool(MDL ${MDL_EXECUTABLE_FOUND} ${MDL_EXECUTABLE} ${MDL_VERSION})
+    cmt_cache_set_tool(MDL ${MDL_EXECUTABLE} ${MDL_VERSION})
     set (EXECUTABLE ${MDL_EXECUTABLE} PARENT_SCOPE)
 endfunction()

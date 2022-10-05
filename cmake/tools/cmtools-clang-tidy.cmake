@@ -83,7 +83,7 @@ function (cmt_find_clang_tidy EXECUTABLE)
                                       CLANG_TIDY_EXECUTABLE
                                       CLANG_TIDY_VERSION)
 
-    cmt_cache_set_tool(CLANG_TIDY TRUE ${CLANG_TIDY_EXECUTABLE} ${CLANG_TIDY_VERSION})
+    cmt_cache_set_tool(CLANG_TIDY ${CLANG_TIDY_EXECUTABLE} ${CLANG_TIDY_VERSION})
     set (EXECUTABLE ${CLANG_TIDY_EXECUTABLE} PARENT_SCOPE)
 endfunction()
 

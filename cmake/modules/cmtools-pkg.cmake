@@ -245,3 +245,36 @@ function(cmt_pkg_link_packages TARGET PACKAGE_NAME)
         cmt_fatal("Unknown package manager: ${ARGS_PACKAGE_MANAGER}")
     endif()
 endfunction()
+
+# ! cmt_pkg_list_components
+# List the available packages for an imported component
+#
+# cmt_pkg_list_components(
+#   PACKAGE_NAME
+#   COMPONENTS
+#   <REQUIRED>
+#   [OS <os>]
+#   [ARCHITECTURE <architecture>]
+#   [COMPILER <compiler>]
+#   [CONFIG <build_type>]
+# )
+#
+# \input    PACKAGE_NAME - The name of the package to import
+# \output   COMPONENTS - The components of the package
+# \option   REQUIRED - If set, the function will fail if the package is not found.
+# \param    OS OS to use for the conan install command  (default: conan-default-profile)
+# \param    ARCHITECTURE Architecture to use for the conan install command (default: conan-default-profile)
+# \param    COMPILER Compiler to use for the conan install command  (default: conan-default-profile)
+# \param    CONFIG Build type to use for the conan install command (default: CMAKE_BUILD_TYPE)
+#
+function(cmt_pkg_list_components PACKAGE_NAME COMPONENTS)
+    cmt_parse_arguments(ARGS "REQUIRED" "OS;COMPILER;ARCHITECTURE;CONFIG" "" ${ARGN})
+    cmt_forward_arguments(ARGS "REQUIRED" "OS;COMPILER;ARCHITECTURE;CONFIG" "" FORWARD_ARGS)
+    if (${CMT_PACKAGE_MANAGER_BACKEND} STREQUAL ${CMT_PACKAGE_MANAGER_BACKEND_CONAN})
+        cmt_conan_list_components(${TARGET} ${PACKAGE_NAME} ${FORWARD_ARGS})
+    elseif (${CMT_PACKAGE_MANAGER_BACKEND} STREQUAL ${CMT_PACKAGE_MANAGER_BACKEND_VCPKG})
+        cmt_fatal("vcpkg is not supported yet")
+    else()
+        cmt_fatal("Unknown package manager: ${ARGS_PACKAGE_MANAGER}")
+    endif()
+endfunction()

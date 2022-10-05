@@ -80,7 +80,7 @@ function (cmt_find_cpplint EXECUTABLE)
                                       REQUIRED_VARS
                                       CPPLINT_EXECUTABLE
                                       CPPLINT_VERSION)
-    cmt_cache_set_tool(CPPLINT TRUE ${CPPLINT_EXECUTABLE} ${CPPLINT_VERSION})
+    cmt_cache_set_tool(CPPLINT ${CPPLINT_EXECUTABLE} ${CPPLINT_VERSION})
     set (EXECUTABLE ${CPPLINT_EXECUTABLE} PARENT_SCOPE)
 endfunction()
 

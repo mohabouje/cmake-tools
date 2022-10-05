@@ -82,13 +82,13 @@ function (cmt_find_dot EXECUTABLE)
     #                                   "${DOT_VERSION_HEADER}"
     #                                   VERSION_END_TOKEN ")")
     # endif()
-    set(DOT_VERSION "Unknown")
+    set(DOT_VERSION "Unknown" CACHE STRING "The version of the dot executable" FORCE)
     cmt_check_and_report_tool_version(dot
                                       "${DOT_VERSION}"
                                       REQUIRED_VARS
                                       DOT_EXECUTABLE
                                       DOT_VERSION)
-    cmt_cache_set_tool(DOT TRUE ${DOT_EXECUTABLE} ${DOT_VERSION})
+    cmt_cache_set_tool(DOT ${DOT_EXECUTABLE} ${DOT_VERSION})
     set (EXECUTABLE ${DOT_EXECUTABLE} PARENT_SCOPE)
 endfunction()
 
@@ -139,7 +139,7 @@ function (cmt_find_doxygen EXECUTABLE)
                                       REQUIRED_VARS
                                       DOXYGEN_EXECUTABLE
                                       DOXYGEN_VERSION)
-    cmt_cache_set_tool(DOXYGEN TRUE ${DOXYGEN_EXECUTABLE} ${DOXYGEN_VERSION})
+    cmt_cache_set_tool(DOXYGEN ${DOXYGEN_EXECUTABLE} ${DOXYGEN_VERSION})
     set (EXECUTABLE ${DOXYGEN_EXECUTABLE} PARENT_SCOPE)
 endfunction()
 
@@ -196,7 +196,7 @@ function (cmt_find_latex EXECUTABLE)
                                       LATEX_EXECUTABLE
                                       LATEX_VERSION)
 
-    cmt_cache_set_tool(LATEX TRUE ${LATEX_EXECUTABLE} ${LATEX_VERSION})
+    cmt_cache_set_tool(LATEX ${LATEX_EXECUTABLE} ${LATEX_VERSION})
     set (EXECUTABLE ${LATEX_EXECUTABLE} PARENT_SCOPE)
 endfunction()
 

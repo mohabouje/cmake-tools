@@ -63,6 +63,19 @@ function(cmt_ensure_target TARGET)
     endif()
 endfunction()
 
+# ! cmt_ensure_not_target
+# Checks if the list of targets exist and throw an error if it does
+#
+# cmt_ensure_target(TARGET)
+#
+# \input TARGET Target to check
+#
+function(cmt_ensure_not_target TARGET)
+    if(TARGET ${TARGET})
+        cmt_fatal("${TARGET} already exist.")
+    endif()
+endfunction()
+
 #! cmt_ensure_config
 # Checks if the configuration is valid
 #

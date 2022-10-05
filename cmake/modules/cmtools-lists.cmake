@@ -49,7 +49,7 @@ include_guard(GLOBAL)
 #
 function(cmt_filter_list REGEX LIST)
     cmt_parse_arguments(ARGS "INCLUDE;EXCLUDE" "" "" ${ARGN})
-    cmt_ensure_on_of_argument(ARGS INCLUDE EXCLUDE)
+    cmt_ensure_one_of_argument(ARGS INCLUDE EXCLUDE)
 
 	set(TEMPORAL_LIST)
 	foreach(ITERATOR ${LIST})

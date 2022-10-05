@@ -174,3 +174,63 @@ function(cmt_cache_get_package PACKAGE_ID PACKAGE_FOUND PACKAGE_COMPONENTS)
     set (${PACKAGE_FOUND} ${PACKAGE_FOUND_LOADED} PARENT_SCOPE)
     set (${PACKAGE_COMPONENTS} ${PACKAGE_COMPONENTS_LOADED} PARENT_SCOPE)
 endfunction()
+
+# ! cmt_cache_set_tool
+# Cache the tool information for the given tool
+#
+# It will set:
+#
+# CMT_${TOOL_ID}_FOUND : Whether or not the tool is available on the target system
+# CMT_${TOOL_ID}_VERSION : Version of the tool
+# CMT_${TOOL_ID}_EXECUTABLE : Fully qualified path to the the tool executable
+#
+# and add it to the CMT_TOOLS list if it is found
+#
+# \input TOOL_ID Unique ID for the tool
+# \input TOOL_EXECUTABLE The path to the tool
+# \input TOOL_VERSION The version of the tool
+# \input TOOL_FOUND If the tool was found
+#
+function (cmt_cache_set_tool TOOL_ID TOOL_EXECUTABLE TOOL_VERSION)
+    string(TOLOWER ${TOOL_ID} TOOL_ID_CONVERTED)
+    string(REPLACE "_" "-" TOOL_ID_CONVERTED ${TOOL_ID_CONVERTED})
+    cmt_log("Found application: ${TOOL_ID_CONVERTED} (version ${TOOL_VERSION}) in ${TOOL_EXECUTABLE}")
+    cmt_append_global_property(CMT_AVAILABLE_TOOLS ${TOOL_ID} UNIQUE)
+    cmt_set_global_property(CMT_${TOOL_ID}_EXECUTABLE ${TOOL_EXECUTABLE} UNIQUE)
+    cmt_set_global_property(CMT_${TOOL_ID}_VERSION ${TOOL_VERSION} UNIQUE)
+endfunction()
+
+# ! cmt_cache_get_tool
+# Check if the tool is available on the system and cache the information
+#
+# It looks for the variables:
+#
+# CMT_${TOOL_ID}_FOUND : Whether or not the tool is available on the target system
+# CMT_${TOOL_ID}_VERSION : Version of the tool
+# CMT_${TOOL_ID}_EXECUTABLE : Fully qualified path to the the tool executable
+#
+# if the tool is in the CMT_TOOLS
+#
+# \input TOOL_ID Unique ID for the tool
+# \output TOOL_EXECUTABLE The path to the tool
+# \output TOOL_VERSION The version of the tool
+# \output TOOL_FOUND If the tool was found
+#
+function(cmt_cache_get_tool TOOL_ID TOOL_FOUND TOOL_EXECUTABLE TOOL_VERSION)
+    cmt_get_global_property(CMT_AVAILABLE_TOOLS TOOL_LIST)
+    set(TOOL_EXECUTABLE_LOADED "")
+    set(TOOL_VERSION_LOADED "")
+    set(TOOL_FOUND_LOADED FALSE)
+    if (TOOL_LIST)
+        list (FIND TOOL_LIST ${TOOL_ID} TOOL_FOUND_IN_LIST)
+        if (TOOL_FOUND_IN_LIST GREATER -1)
+            set(TOOL_FOUND_LOADED TRUE)
+            cmt_get_global_property(CMT_${TOOL_ID}_EXECUTABLE TOOL_EXECUTABLE_LOADED REQUIRED)
+            cmt_get_global_property(CMT_${TOOL_ID}_VERSION TOOL_VERSION_LOADED REQUIRED)
+        endif()
+    endif()
+
+    set (${TOOL_FOUND} ${TOOL_FOUND_LOADED} PARENT_SCOPE)
+    set (${TOOL_EXECUTABLE} ${TOOL_EXECUTABLE_LOADED} PARENT_SCOPE)
+    set (${TOOL_VERSION} ${TOOL_VERSION_LOADED} PARENT_SCOPE)
+endfunction()

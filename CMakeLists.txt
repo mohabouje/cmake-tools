@@ -9,7 +9,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 include(cmake/cmtools.cmake)
 
 cmt_setup()
-cmt_fetch_dependencies()
 
 # Testing integration with conan
 cmt_pkg_set_backend("conan")

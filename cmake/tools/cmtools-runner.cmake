@@ -185,7 +185,7 @@ function (cmt_target_add_compilation_db TARGET
 
     cmt_parse_arguments(COMPDB "" "" "C_SOURCES;CXX_SOURCES;INTERNAL_INCLUDE_DIRS;EXTERNAL_INCLUDE_DIRS;DEFINITIONS" ${ARGN})
 	cmt_required_arguments(FUNCTION cmt_target_compilation_db PREFIX RUN_COMMAND FIELDS TOOL)
-	cmt_ensure_on_of_argument(FUNCTION cmt_target_compilation_db PREFIX COMPDB FIELDS C_SOURCES CXX_SOURCES)
+	cmt_ensure_one_of_argument(FUNCTION cmt_target_compilation_db PREFIX COMPDB FIELDS C_SOURCES CXX_SOURCES)
 
 
     set (CUSTOM_COMPILATION_DB_DIR "${CMAKE_CURRENT_BINARY_DIR}/${TARGET}_compile_commands/")

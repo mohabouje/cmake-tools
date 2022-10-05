@@ -26,7 +26,7 @@ include_guard(GLOBAL)
 
 # Functions summary:
 # - cmt_required_arguments
-# - cmt_ensure_on_of_argument
+# - cmt_ensure_one_of_argument
 # - cmt_ensure_argument_choice
 # - cmt_default_argument
 # - cmt_forward_as_list_with_prefix
@@ -135,7 +135,7 @@ function (cmt_forward_as_list_with_prefix MAIN_LIST PREFIX)
 endfunction()
 
 
-# ! cmt_ensure_on_of_argument
+# ! cmt_ensure_one_of_argument
 # This function check if the parsed arguments contain at least one of the optional ones
 #
 # cmt_ensure_argument_choice(
@@ -144,7 +144,7 @@ endfunction()
 # )
 #
 # \input PREFIX PREFIX specifies the prefix used to parse the arguments
-function(cmt_ensure_on_of_argument PREFIX)
+function(cmt_ensure_one_of_argument PREFIX)
     cmt_parse_arguments (CHOICE "" "" "" ${ARGN})
     foreach(arg ${CHOICE_UNPARSED_ARGUMENTS})
         if(DEFINED ${PREFIX}_${arg})

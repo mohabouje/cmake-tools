@@ -77,23 +77,26 @@ macro(cmt_fetch_cmake_module_from_github USER PROJECT)
 		set(ARGS_PATH "cmake")
 	endif()
 
-
 	set(TARGET_NAME "${USER}-${PROJECT}")
-	if(NOT ${TARGET_NAME}_POPULATED)
+	set(TARGET_GIT "https://github.com/${USER}/${PROJECT}.git")
+	set(TARGET_DIR "${CMAKE_CURRENT_BINARY_DIR}/github/${PROJECT}")
+	cmt_get_global_property(CMT_${TARGET_NAME}_POPULATED POPULATED)
+
+
+	if(NOT POPULATED AND NOT EXISTS ${TARGET_DIR})
 		cmt_log("Fetching ${USER}/${PROJECT} from GitHub")
 		FetchContent_Declare(
 				${TARGET_NAME}
-				GIT_REPOSITORY "https://github.com/${USER}/${PROJECT}.git"
-				SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/github/${PROJECT}
+				GIT_REPOSITORY ${TARGET_GIT}
+				SOURCE_DIR ${TARGET_DIR}
 		)
 		FetchContent_Populate(${TARGET_NAME})
 	endif()
 
-	set(${TARGET_NAME}_POPULATED TRUE)
-	set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_BINARY_DIR}/github/${PROJECT}/${ARGS_PATH}" ${CMAKE_MODULE_PATH})
-	file(GLOB_RECURSE CMAKE_FILES "${CMAKE_CURRENT_BINARY_DIR}/github/${PROJECT}/${ARGS_PATH}/*.cmake")
-
+	cmt_set_global_property(CMT_${TARGET_NAME}_POPULATED TRUE)
+	set(CMAKE_MODULE_PATH "${TARGET_DIR}/${ARGS_PATH}" ${CMAKE_MODULE_PATH})
 	cmt_logger_set_scoped_context(WARNING ${PROJECT})
+	file(GLOB_RECURSE CMAKE_FILES "${TARGET_DIR}/${ARGS_PATH}/*.cmake")
 	foreach(CMAKE_FILE ${CMAKE_FILES})
 		include(${CMAKE_FILE})
 	endforeach()

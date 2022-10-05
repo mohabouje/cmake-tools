@@ -80,7 +80,7 @@ function (cmt_find_ccache EXECUTABLE)
                                       CCACHE_EXECUTABLE
                                       CCACHE_VERSION)
 
-    cmt_cache_set_tool(CCACHE TRUE ${CCACHE_EXECUTABLE} ${CCACHE_VERSION})
+    cmt_cache_set_tool(CCACHE ${CCACHE_EXECUTABLE} ${CCACHE_VERSION})
     set (EXECUTABLE ${CCACHE_EXECUTABLE} PARENT_SCOPE)
 endfunction()
 

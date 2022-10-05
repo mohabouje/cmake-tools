@@ -79,7 +79,7 @@ function (cmt_find_cppcheck EXECUTABLE)
                                       REQUIRED_VARS
                                       CPPCHECK_EXECUTABLE
                                       CPPCHECK_VERSION)
-    cmt_cache_set_tool(CPPCHECK TRUE ${CPPCHECK_EXECUTABLE} ${CPPCHECK_VERSION})
+    cmt_cache_set_tool(CPPCHECK ${CPPCHECK_EXECUTABLE} ${CPPCHECK_VERSION})
     set (EXECUTABLE ${CPPCHECK_EXECUTABLE} PARENT_SCOPE)
 endfunction()
 

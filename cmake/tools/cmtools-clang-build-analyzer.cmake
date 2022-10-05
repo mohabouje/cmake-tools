@@ -81,7 +81,7 @@ function (cmt_find_clang_build_analyzer EXECUTABLE)
                                       CLANG_BUILD_ANALYZER_EXECUTABLE
                                       CLANG_BUILD_ANALYZER_VERSION)
 
-    cmt_cache_set_tool(CLANG_BUILD_ANALYZER TRUE ${CLANG_BUILD_ANALYZER_EXECUTABLE} ${CLANG_BUILD_ANALYZER_VERSION})
+    cmt_cache_set_tool(CLANG_BUILD_ANALYZER ${CLANG_BUILD_ANALYZER_EXECUTABLE} ${CLANG_BUILD_ANALYZER_VERSION})
     set (EXECUTABLE ${CLANG_BUILD_ANALYZER_EXECUTABLE} PARENT_SCOPE)
 endfunction()
 

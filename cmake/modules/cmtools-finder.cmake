@@ -180,85 +180,23 @@ endfunction()
 # \output VERSION The detected tool version
 # \group  REQUIRED_VARS  Required variables, set in parent scope if present
 #
-function (cmt_check_and_report_tool_version PREFIX VERSION)
+macro (cmt_check_and_report_tool_version PREFIX VERSION)
     cmt_parse_arguments (_PSQ_CHECK_${PREFIX} "" "" "REQUIRED_VARS" ${ARGN})
     cmt_required_arguments(_PSQ_CHECK_${PREFIX} "" "" "REQUIRED_VARS")
-    cmt_logger_set_scoped_level(WARNING)
     string (STRIP "${VERSION}" VERSION)
+    cmt_logger_set_scoped_level(WARNING)
     find_package_handle_standard_args (${PREFIX}
                                        FOUND_VAR ${PREFIX}_FOUND
                                        REQUIRED_VARS
                                        ${_PSQ_CHECK_${PREFIX}_REQUIRED_VARS}
                                        VERSION_VAR VERSION)
+    cmt_logger_discard_scoped_context()
     if (${PREFIX}_FOUND)
         foreach (VARIABLE ${_PSQ_CHECK_${PREFIX}_REQUIRED_VARS})
             set (${VARIABLE} ${${VARIABLE}} CACHE STRING "" FORCE PARENT_SCOPE)
         endforeach()
     endif()
-endfunction()
-
-# ! cmt_cache_set_tool
-# Cache the tool information for the given tool
-#
-# It will set:
-#
-# CMT_${TOOL_ID}_FOUND : Whether or not markdownlint is available on the target system
-# CMT_${TOOL_ID}_VERSION : Version of markdownlint
-# CMT_${TOOL_ID}_EXECUTABLE : Fully qualified path to the markdownlint executable
-# 
-# and add it to the CMT_TOOLS list if it is found
-#
-# \input TOOL_ID Unique ID for the tool
-# \input TOOL_EXECUTABLE The path to the tool
-# \input TOOL_VERSION The version of the tool
-# \input TOOL_FOUND If the tool was found
-#
-function (cmt_cache_set_tool TOOL_ID TOOL_FOUND TOOL_EXECUTABLE TOOL_VERSION)
-    if (${TOOL_FOUND})
-        string(TOLOWER ${TOOL_ID} TOOL_ID_CONVERTED)
-        string(REPLACE "_" "-" TOOL_ID_CONVERTED ${TOOL_ID_CONVERTED})
-        cmt_log("Found ${TOOL_ID_CONVERTED} (version ${TOOL_VERSION}) in ${TOOL_EXECUTABLE}")
-        cmt_append_global_property(CMT_AVAILABLE_TOOLS ${TOOL_ID} UNIQUE)
-        cmt_set_global_property(CMT_${TOOL_ID}_FOUND ${TOOL_FOUND} UNIQUE)
-        cmt_set_global_property(CMT_${TOOL_ID}_EXECUTABLE ${TOOL_EXECUTABLE} UNIQUE)
-        cmt_set_global_property(CMT_${TOOL_ID}_VERSION ${TOOL_VERSION} UNIQUE)
-    endif()
-endfunction()
-
-# ! cmt_cache_get_tool
-# Check if the tool is available on the system and cache the information
-#
-# It looks for the variables:
-#
-# CMT_${TOOL_ID}_FOUND : Whether or not markdownlint is available on the target system
-# CMT_${TOOL_ID}_VERSION : Version of markdownlint
-# CMT_${TOOL_ID}_EXECUTABLE : Fully qualified path to the markdownlint executable
-# 
-# if the tool is in the CMT_TOOLS
-#
-# \input TOOL_ID Unique ID for the tool
-# \output TOOL_EXECUTABLE The path to the tool
-# \output TOOL_VERSION The version of the tool
-# \output TOOL_FOUND If the tool was found
-#
-function(cmt_cache_get_tool TOOL_ID TOOL_FOUND TOOL_EXECUTABLE TOOL_VERSION)
-    cmt_get_global_property(CMT_AVAILABLE_TOOLS TOOL_LIST)
-    set(TOOL_FOUND_LOADED FALSE)
-    set(TOOL_EXECUTABLE_LOADED "")
-    set(TOOL_VERSION_LOADED "")
-    if (TOOL_LIST)
-        list (FIND TOOL_LIST ${TOOL_ID} TOOL_FOUND_IN_LIST)
-        if (TOOL_FOUND_IN_LIST GREATER -1)
-            cmt_get_global_property(CMT_${TOOL_ID}_FOUND TOOL_FOUND_LOADED REQUIRED)
-            cmt_get_global_property(CMT_${TOOL_ID}_EXECUTABLE TOOL_EXECUTABLE_LOADED REQUIRED)
-            cmt_get_global_property(CMT_${TOOL_ID}_VERSION TOOL_VERSION_LOADED REQUIRED)
-        endif()
-    endif()
-
-    set (${TOOL_FOUND} ${TOOL_FOUND_LOADED} PARENT_SCOPE)
-    set (${TOOL_EXECUTABLE} ${TOOL_EXECUTABLE_LOADED} PARENT_SCOPE)
-    set (${TOOL_VERSION} ${TOOL_VERSION_LOADED} PARENT_SCOPE)
-endfunction()
+endmacro()
 
 # ! cmt_find_executable_installation_root
 #

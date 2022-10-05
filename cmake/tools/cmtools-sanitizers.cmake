@@ -61,7 +61,7 @@ include_guard(GLOBAL)
 #
 function(cmt_target_enable_sanitizer TARGET)
  	cmt_parse_arguments(ARGS "ASAN;TSAN;LSAN;UBSAN;MSAN;CFISAN;AUBSAN;MWOSAN" "" "CONFIG" ${ARGN})
-	cmt_ensure_on_of_argument(ARGS ASAN TSAN LSAN UBSAN MSAN AUBSAN MWOSAN CFISAN)
+	cmt_ensure_one_of_argument(ARGS ASAN TSAN LSAN UBSAN MSAN AUBSAN MWOSAN CFISAN)
 
 	# Incompatibilities documented at:
 	# https://gcc.gnu.org/onlinedocs/gcc/Instrumentation-Options.html#Instrumentation-Options

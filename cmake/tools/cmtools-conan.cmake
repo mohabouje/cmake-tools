@@ -78,8 +78,8 @@ function (cmt_find_conan EXECUTABLE)
             CONAN_EXECUTABLE
             CONAN_VERSION)
 
-    cmt_cache_set_tool(CONAN TRUE ${CONAN_EXECUTABLE} ${CONAN_VERSION})
-    set (EXECUTABLE ${CONAN_EXECUTABLE} PARENT_SCOPE)
+    cmt_cache_set_tool(CONAN ${CONAN_EXECUTABLE} ${CONAN_VERSION})
+    set (${EXECUTABLE} ${CONAN_EXECUTABLE} PARENT_SCOPE)
 endfunction()
 
 function(__cmt_conan_normalize_compiler INPUT OUTPUT)
@@ -436,4 +436,33 @@ function(cmt_conan_link_packages TARGET)
         cmt_cache_get_package(${PACKAGE_NAME} _ PACKAGE_COMPONENT)
         target_link_libraries(${TARGET} ${PACKAGE_COMPONENT})
     endforeach()
+endfunction()
+
+# ! cmt_conan_list_components
+# List the available packages for an imported component
+#
+# cmt_conan_list_components(
+#   PACKAGE_NAME
+#   COMPONENTS
+#   <REQUIRED>
+#   [OS <os>]
+#   [ARCHITECTURE <architecture>]
+#   [COMPILER <compiler>]
+#   [CONFIG <build_type>]
+# )
+#
+# \input    PACKAGE_NAME - The name of the package to import
+# \output   COMPONENTS - The components of the package
+# \option   REQUIRED - If set, the function will fail if the package is not found.
+# \param    OS OS to use for the conan install command  (default: conan-default-profile)
+# \param    ARCHITECTURE Architecture to use for the conan install command (default: conan-default-profile)
+# \param    COMPILER Compiler to use for the conan install command  (default: conan-default-profile)
+# \param    CONFIG Build type to use for the conan install command (default: CMAKE_BUILD_TYPE)
+#
+function(cmt_conan_list_components PACKAGE_NAME COMPONENTS)
+    cmt_parse_arguments(ARGS "REQUIRED" "OS;COMPILER;ARCHITECTURE;CONFIG" "" ${ARGN})
+    cmt_forward_arguments(ARGS "REQUIRED" "OS;COMPILER;ARCHITECTURE;CONFIG" "" FORWARDED_ARGS)
+    cmt_conan_import_package(${PACKAGE_NAME} ${FORWARDED_ARGS})
+    cmt_cache_get_package(${PACKAGE_NAME} _ PACKAGE_COMPONENT)
+    set(${COMPONENTS} ${PACKAGE_COMPONENT} PARENT_SCOPE)
 endfunction()

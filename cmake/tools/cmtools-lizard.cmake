@@ -81,7 +81,7 @@ function (cmt_find_lizard EXECUTABLE)
                                       REQUIRED_VARS
                                       LIZARD_EXECUTABLE
                                       LIZARD_VERSION)
-    cmt_cache_set_tool(LIZARD TRUE ${LIZARD_EXECUTABLE} ${LIZARD_VERSION})
+    cmt_cache_set_tool(LIZARD ${LIZARD_EXECUTABLE} ${LIZARD_VERSION})
     set (EXECUTABLE ${LIZARD_EXECUTABLE} PARENT_SCOPE)
 endfunction()
 

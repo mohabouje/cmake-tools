@@ -78,7 +78,7 @@ function (cmt_find_codechecker EXECUTABLE)
                                       REQUIRED_VARS
                                       CODECHECKER_EXECUTABLE
                                       CODECHECKER_VERSION)
-    cmt_cache_set_tool(CODECHECKER TRUE ${CODECHECKER_EXECUTABLE} ${CODECHECKER_VERSION})
+    cmt_cache_set_tool(CODECHECKER ${CODECHECKER_EXECUTABLE} ${CODECHECKER_VERSION})
     set (EXECUTABLE ${CODECHECKER_EXECUTABLE} PARENT_SCOPE)
 endfunction()
 

@@ -526,7 +526,7 @@ endmacro()
 #
 function(cmt_target_set_standard TARGET)
     cmt_parse_arguments(ARGS "REQUIRED;EXTENSIONS" "C;CXX" "" ${ARGN})
-	cmt_ensure_on_of_argument(ARGS C CXX)
+	cmt_ensure_one_of_argument(ARGS C CXX)
     cmt_ensure_target(${TARGET}) 
 
 	if (DEFINED ARGS_C)
@@ -574,7 +574,7 @@ endfunction()
 #
 function(cmt_target_set_output_directory TARGET)
     cmt_parse_arguments(ARGS "" "RUNTIME;LIBRARY;ARCHIVE;DIRECTORY" "" ${ARGN})
-	cmt_ensure_on_of_argument(ARGS RUNTIME LIBRARY ARCHIVE DIRECTORY)
+	cmt_ensure_one_of_argument(ARGS RUNTIME LIBRARY ARCHIVE DIRECTORY)
 	cmt_default_argument(ARGS RUNTIME ${ARGS_DIRECTORY})
 	cmt_default_argument(ARGS LIBRARY ${ARGS_DIRECTORY})
 	cmt_default_argument(ARGS ARCHIVE ${ARGS_DIRECTORY})
@@ -872,7 +872,7 @@ endfunction()
 #
 function(cmt_target_set_runtime TARGET)
 	cmt_parse_arguments(ARGS "STATIC;DYNAMIC" "" "" ${ARGN})
-	cmt_ensure_on_of_argument(ARGS STATIC DYNAMIC)
+	cmt_ensure_one_of_argument(ARGS STATIC DYNAMIC)
 	cmt_ensure_target(${TARGET})
 
 	cmt_define_compiler()

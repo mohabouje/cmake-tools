@@ -80,7 +80,7 @@ function (cmt_find_iwyu EXECUTABLE)
                                       REQUIRED_VARS
                                       IWYU_EXECUTABLE
                                       IWYU_VERSION)
-    cmt_cache_set_tool(IWYU TRUE ${IWYU_EXECUTABLE} ${IWYU_VERSION})
+    cmt_cache_set_tool(IWYU ${IWYU_EXECUTABLE} ${IWYU_VERSION})
     set (EXECUTABLE ${IWYU_EXECUTABLE} PARENT_SCOPE)
 endfunction()
 
