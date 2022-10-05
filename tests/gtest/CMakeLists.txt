@@ -1,0 +1,1 @@
+cmt_cxx_google_test(square_root_test SOURCES ${CMAKE_CURRENT_LIST_DIR}/square_root_test.cpp)

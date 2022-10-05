@@ -12,6 +12,9 @@ class CMTConanIntegration(ConanFile):
         self.requires('spdlog/1.10.0')
         self.requires('cli11/2.2.0')
         self.requires('xxhash/0.8.1')
+        self.requires('gtest/1.12.1')
+        self.requires('benchmark/1.7.0')
+        self.requires('cppbenchmark/1.0.0.0')
 
     def generate(self):
         tc = CMakeToolchain(self, generator="Ninja")

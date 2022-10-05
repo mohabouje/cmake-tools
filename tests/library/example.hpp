@@ -31,4 +31,4 @@ private:
   int numbers_;
 };
 
-} // namespace example
+} // namespace library

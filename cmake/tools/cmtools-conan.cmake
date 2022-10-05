@@ -338,7 +338,7 @@ function (cmt_conan_import_package PACKAGE_NAME)
 
     cmt_forward_arguments(ARGS "REQUIRED" "" "COMPONENTS" FIND_PACKAGE)
 
-    cmt_logger_set_scoped_context(WARNING CONAN)
+    cmt_logger_set_scoped_context("WARNING" "CONAN")
     find_package(${PACKAGE_NAME} ${FIND_PACKAGE})
     cmt_logger_discard_scoped_context()
 
@@ -404,7 +404,7 @@ function(cmt_conan_link_package TARGET PACKAGE_NAME)
     cmt_forward_arguments(ARGS "REQUIRED" "OS;COMPILER;ARCHITECTURE;CONFIG" "COMPONENTS" FORWARDED_ARGS)
     cmt_conan_import_package(${PACKAGE_NAME} ${FORWARDED_ARGS})
     cmt_cache_get_package(${PACKAGE_NAME} _ PACKAGE_COMPONENT)
-    target_link_libraries(${TARGET} ${PACKAGE_COMPONENT})
+    target_link_libraries(${TARGET} PUBLIC ${PACKAGE_COMPONENT})
 endfunction()
 
 # ! cmt_conan_link_packages

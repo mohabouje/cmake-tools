@@ -79,7 +79,7 @@ function(cmt_target_generate_cotire TARGET)
     cmt_strip_extraneous_sources(${TEMPORAL_TARGET} TARGET_SOURCES)
     cmt_count_sources(NUM_SOURCES ${TARGET_SOURCES})
     if (${NUM_SOURCES} LESS 2)
-        cmt_info("Skipping cotire for ${TARGET} because it has less than 2 sources")
+        cmt_log("Skipping cotire for ${TARGET} because it has less than 2 sources")
         return()
     endif()
 

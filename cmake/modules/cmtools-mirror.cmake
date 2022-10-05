@@ -53,6 +53,11 @@ function (cmt_target_wire_dependencies TARGET SUFFIX)
         add_dependencies (${MIRRORED_TARGET} ${WIRE_MIRRORED_DEPENDENCIES})
     endif()
 
+    cmt_target_get_property(${MIRRORED_TARGET} TYPE TARGET_TYPE)
+    if (TARGET_TYPE STREQUAL "UTILITY")
+        return()
+    endif()
+
     cmt_target_get_property(${TARGET} LINK_LIBRARIES TARGET_LIBRARIES)
     foreach (LIBRARY ${TARGET_LIBRARIES})
         # If LIBRARY is a target then it might also have a corresponding mirrored target, check for that too

@@ -64,4 +64,7 @@ cmt_add_release_compiler_option(-mpopcnt)
 cmt_generate_doxygen_documentation(doxygen)
 cmt_generate_dependency_graph(dependency-graph)
 
-add_subdirectory(example)
+add_subdirectory(library)
+add_subdirectory(benchmark)
+add_subdirectory(executable)
+add_subdirectory(gtest)
