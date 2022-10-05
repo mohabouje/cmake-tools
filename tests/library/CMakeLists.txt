@@ -11,6 +11,7 @@ cmt_cxx_declare_sources(TARGET_SOURCES
 cmt_cxx_static_library(example_lib
     SOURCES ${TARGET_SOURCES}
     HEADERS ${TARGET_HEADERS}
+    INCLUDE_DIRECTORIES ${CMAKE_CURRENT_LIST_DIR}
 )
 
 # Compiler flags

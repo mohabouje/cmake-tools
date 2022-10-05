@@ -235,7 +235,7 @@ endmacro()
 # \group CONFIG Configs for the property to change (Debug Release RelWithDebInfo MinSizeRel)
 #
 function(cmt_target_add_compiler_options TARGET)
-    cmt_parse_arguments(ARGS "" "LANG" "CONFIG" ${ARGN})
+    cmt_parse_arguments(ARGS "" "LANG;COMPILER" "CONFIG" ${ARGN})
     cmt_ensure_targets(${TARGET}) 
 
 	# TODO: use arguments forwarding instead of complex parsing
