@@ -46,7 +46,7 @@ include(CheckIPOSupported)
 # - cmt_configure_gcc_compiler_optimization_options
 # - cmt_configure_clang_compiler_optimization_options
 # - cmt_configure_mvsc_compiler_optimization_options
-# - cmt_configure_compiler_optimization_options
+# - cmt_enable_compiler_optimizations
 
 function(cmt_check_compiler_option RESULT)
     cmt_parse_arguments(ARGS "" "OPTION;LANG" "" ${ARGN})
@@ -560,12 +560,12 @@ macro(cmt_configure_mvsc_compiler_optimization_options target)
 	endif()
 endmacro()
 
-# ! cmt_configure_compiler_optimization_options 
+# ! cmt_enable_compiler_optimizations
 # Configure compile options for all targets like debug information, optimisation...
 #
-# cmt_configure_compiler_optimization_options()
+# cmt_enable_compiler_optimizations()
 #
-macro(cmt_configure_compiler_optimization_options)
+macro(cmt_enable_compiler_optimizations)
 	cmt_define_compiler()
 	if (CMT_COMPILER MATCHES "MVSC")
 		cmt_configure_mvsc_compiler_optimization_options(${ARGN})
@@ -602,6 +602,9 @@ macro(cmt_configure_compiler_coverage_options)
     endif()
 endmacro()
 
+macro(cmt_enable_debug_symbols)
+    cmt_add_compiler_option(-g3 CONFIG Debug RelWithDebInfo)
+endmacro()
 
 # ! cmt_print_compiler_options 
 # Prints the compiler options for all targets

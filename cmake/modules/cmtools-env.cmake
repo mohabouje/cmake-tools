@@ -50,7 +50,7 @@ mark_as_advanced(CMT_DEFAULT_BUILD_TYPE)
 # \input BUILD_TYPE The default build type
 #
 macro(cmt_set_build_type BUILD_TYPE)
-	cmt_ensure_choice(BUILD_TYPE Debug Release RelWithDebInfo MinSizeRel Coverage)
+	cmt_ensure_choice(${BUILD_TYP} Debug Release RelWithDebInfo MinSizeRel Coverage)
 	set(CMAKE_BUILD_TYPE ${BUILD_TYPE} CACHE STRING "Choose the type of build." FORCE)
 endmacro()
 
@@ -60,10 +60,23 @@ endmacro()
 #
 # cmt_set_default_build_type()
 #
-macro(cmt_set_default_build_type)
+macro(cmt_set_default_build_type BUILD_TYPE)
+	cmt_ensure_choice(${BUILD_TYPE} Debug Release RelWithDebInfo MinSizeRel Coverage)
 	if (NOT CMAKE_BUILD_TYPE)
+		cmt_warning("No build type selected, using default configuration: ${CMT_DEFAULT_BUILD_TYPE}")
 		cmt_set_build_type(${CMT_DEFAULT_BUILD_TYPE})
 	endif()
+endmacro()
+
+# ! cmt_set_default_generator
+# Set a default generator if none was specified
+#
+# cmt_set_default_build_type( GENERATOR )
+#
+# \input  GENERATOR : The default generator to use if none was specified
+#
+macro(cmt_set_default_generator GENERATOR)
+	set(CMAKE_GENERATOR ${GENERATOR} CACHE INTERNAL "" FORCE)
 endmacro()
 
 #! cmt_define_architecture
@@ -210,7 +223,7 @@ endmacro()
 #
 macro(cmt_set_cpp_standard STANDARD)
     cmt_parse_arguments(_CPP_FP_CHECK "" "REQUIRED;EXTENSIONS" "" ${ARGN})
-    cmt_ensure_choice(STANDARD 98 11 14 17 20 23)
+    cmt_ensure_choice(${STANDARD} 98 11 14 17 20 23)
 	cmt_default_argument(_CPP_FP_CHECK EXTENSION OFF)
 	cmt_default_argument(_CPP_FP_CHECK REQUIRED ON)
 
@@ -240,7 +253,7 @@ endmacro()
 #
 macro(cmt_set_c_standard STANDARD)
     cmt_parse_arguments(_C_FP_CHECK "" "REQUIRED;EXTENSIONS" "" ${ARGN})
-    cmt_ensure_choice(STANDARD 98 11 17 23)
+    cmt_ensure_choice(${STANDARD} 98 11 17 23)
 	cmt_default_argument(_C_FP_CHECK FIELD EXTENSION OFF)
 	cmt_default_argument(_C_FP_CHECK FIELD REQUIRED ON)
 

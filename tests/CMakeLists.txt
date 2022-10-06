@@ -1,5 +1,5 @@
 # Functionalities that affect all targets moving forward
-cmt_configure_compiler_optimization_options()
+cmt_enable_compiler_optimizations()
 cmt_enable_warnings_as_errors()
 cmt_enable_all_warnings()
 cmt_enable_effective_cxx_warnings()

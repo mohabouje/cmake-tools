@@ -136,6 +136,29 @@ function(cmt_cxx_declare_linker_options MAP_NAME)
     __cmt_cxx_map_argument(${MAP_NAME} ${ARGN})
 endfunction()
 
+set(CMT_CXX_DISABLE_OPTIONS
+        DISABLE_STATIC_ANALYSIS
+        DISABLE_CPPLINT
+        DISABLE_CLANG_TIDY
+        DISABLE_CPPCHECK
+        DISABLE_IWYU
+        DISABLE_CCACHE
+        DISABLE_COTIRE
+        DISABLE_WARNINGS_AS_ERRORS
+        DISABLE_LTO
+        DISABLE_LIZARD
+        DISABLE_CLANG_FORMAT)
+set(CMT_CXX_MAPPED_OPTIONS
+        HEADERS
+        SOURCES
+        DEFINITIONS
+        LINK_OPTIONS
+        COMPILE_OPTIONS
+        INCLUDE_DIRECTORIES
+        DEPENDENCIES
+        PACKAGES)
+mark_as_advanced(CMT_CXX_DISABLE_OPTIONS CMT_CXX_MAPPED_OPTIONS)
+
 # ! __cmt_cxx_add_target
 # This function creates a target with the specified name and properties
 #
@@ -178,17 +201,15 @@ endfunction()
 # \group INCLUDE_DIRECTORIES A map include directories
 #
 function(__cmt_cxx_add_target NAME TYPE DOMAIN GROUP)
-    cmt_parse_arguments(ARGS
-            "DISABLE_STATIC_ANALYSIS;DISABLE_CPPLINT;DISABLE_CLANG_TIDY;DISABLE_CPPCHECK;DISABLE_IWYU;DISABLE_CCACHE;DISABLE_COTIRE;DISABLE_WARNINGS_AS_ERRORS;DISABLE_LTO"
-            ""
-            "HEADERS;SOURCES;DEFINITIONS;LINK_OPTIONS;COMPILE_OPTIONS;INCLUDE_DIRECTORIES;DEPENDENCIES;PACKAGES"
-            ${ARGN})
+    cmt_parse_arguments(ARGS "${CMT_CXX_DISABLE_OPTIONS}" "" "${CMT_CXX_MAPPED_OPTIONS}" ${ARGN})
     cmt_ensure_choice(TYPE "STATIC;SHARED;INTERFACE;MODULE;EXECUTABLE;BRIDGE")
     cmt_ensure_choice(DOMAIN "PUBLIC;PRIVATE;INTERFACE")
     cmt_ensure_choice(GROUP "LIBRARY;EXECUTABLE;BENCHMARK;TEST")
 
     set(TARGET_NAME ${NAME})
     cmt_cxx_target_create(${TARGET_NAME} ${TYPE})
+    cmt_target_set_standard(${TARGET_NAME} CXX 23)
+
     cmt_cxx_target_ensure_compatibility(${TARGET_NAME} ${TYPE} HEADERS ${ARGS_HEADERS} SOURCES ${ARGS_SOURCES} DEPENDENCIES ${ARGS_DEPENDENCIES})
     cmt_cxx_target_set_headers(${TARGET_NAME} ${ARGS_HEADERS})
     cmt_cxx_target_set_sources(${TARGET_NAME} ${ARGS_SOURCES})
@@ -202,23 +223,42 @@ function(__cmt_cxx_add_target NAME TYPE DOMAIN GROUP)
 
     cmt_target_enable_all_warnings(${TARGET_NAME})
     cmt_target_enable_effective_cxx_warnings(${TARGET_NAME})
-    cmt_target_configure_compiler_optimization_options(${TARGET_NAME})
-
+    cmt_target_enable_compiler_optimizations(${TARGET_NAME})
+    cmt_target_enable_debug_symbols(${TARGET_NAME})
 
     if (NOT ${ARGS_DISABLE_CPPLINT} AND NOT ${ARGS_DISABLE_STATIC_ANALYSIS})
+        cmt_debug("Enable cpplint for target ${TARGET_NAME}")
         cmt_target_enable_cpplint(${TARGET_NAME})
     endif ()
 
     if (NOT ${ARGS_DISABLE_CLANG_TIDY} AND NOT ${ARGS_DISABLE_STATIC_ANALYSIS})
+        cmt_debug("Enable clang-tidy for target ${TARGET_NAME}")
         cmt_target_enable_clang_tidy(${TARGET_NAME})
     endif ()
 
     if (NOT ${ARGS_DISABLE_CPPCHECK} AND NOT ${ARGS_DISABLE_STATIC_ANALYSIS})
+        cmt_debug("Enable cppcheck for target ${TARGET_NAME}")
         cmt_target_enable_cppcheck(${TARGET_NAME})
     endif ()
 
     if (NOT ${ARGS_DISABLE_IWYU} AND NOT ${ARGS_DISABLE_STATIC_ANALYSIS})
+        cmt_debug("Enable include-what-you-use for target ${TARGET_NAME}")
         cmt_target_enable_iwyu(${TARGET_NAME})
+    endif ()
+
+    if (NOT ${ARGS_DISABLE_IWYU} AND NOT ${ARGS_DISABLE_STATIC_ANALYSIS})
+        cmt_debug("Enable include-what-you-use for target ${TARGET_NAME}")
+        cmt_target_enable_iwyu(${TARGET_NAME})
+    endif ()
+
+    if (NOT ${ARGS_DISABLE_LIZARD} AND NOT ${ARGS_DISABLE_STATIC_ANALYSIS})
+        cmt_debug("Enable lizard for target ${TARGET_NAME}")
+        cmt_target_enable_lizard(${TARGET_NAME})
+    endif ()
+
+    if (NOT ${ARGS_DISABLE_CLANG_FORMAT})
+        cmt_debug("Enable clang-format for target ${TARGET_NAME}")
+        cmt_target_enable_clang_format(${TARGET_NAME})
     endif ()
 
     if (NOT ${ARGS_DISABLE_CCACHE})
@@ -248,48 +288,46 @@ endfunction()
 
 
 function(cmt_cxx_static_library NAME)
-    cmt_parse_arguments(ARGS "" "DOMAIN" "HEADERS;SOURCES;DEFINITIONS;LINK_OPTIONS;COMPILE_OPTIONS;INCLUDE_DIRECTORIES;DEPENDENCIES;PACKAGES" ${ARGN})
+    cmt_parse_arguments(ARGS "${CMT_CXX_DISABLE_OPTIONS}" "DOMAIN" "${CMT_CXX_MAPPED_OPTIONS}" ${ARGN})
     cmt_default_argument(ARGS DOMAIN "PUBLIC")
-    cmt_forward_arguments(ARGS "" "" "HEADERS;SOURCES;DEFINITIONS;LINK_OPTIONS;COMPILE_OPTIONS;INCLUDE_DIRECTORIES;DEPENDENCIES;PACKAGES" FORWARD_ARGS)
+    cmt_forward_arguments(ARGS "${CMT_CXX_DISABLE_OPTIONS}" "" "${CMT_CXX_MAPPED_OPTIONS}" FORWARD_ARGS)
     __cmt_cxx_add_target(${NAME} STATIC ${ARGS_DOMAIN} LIBRARY ${FORWARD_ARGS})
 endfunction()
 
 function(cmt_cxx_shared_library NAME)
-    cmt_parse_arguments(ARGS "" "DOMAIN" "HEADERS;SOURCES;DEFINITIONS;LINK_OPTIONS;COMPILE_OPTIONS;INCLUDE_DIRECTORIES;DEPENDENCIES;PACKAGES" ${ARGN})
+    cmt_parse_arguments(ARGS "${CMT_CXX_DISABLE_OPTIONS}" "DOMAIN" "${CMT_CXX_MAPPED_OPTIONS}" ${ARGN})
     cmt_default_argument(ARGS DOMAIN "PUBLIC")
-    cmt_forward_arguments(ARGS "" "" "HEADERS;SOURCES;DEFINITIONS;LINK_OPTIONS;COMPILE_OPTIONS;INCLUDE_DIRECTORIES;DEPENDENCIES;PACKAGES" FORWARD_ARGS)
+    cmt_forward_arguments(ARGS "${CMT_CXX_DISABLE_OPTIONS}" "" "${CMT_CXX_MAPPED_OPTIONS}" FORWARD_ARGS)
     __cmt_cxx_add_target(${NAME} SHARED ${ARGS_DOMAIN} LIBRARY ${FORWARD_ARGS})
 endfunction()
 
 function(cmt_cxx_interface_library NAME)
-    cmt_parse_arguments(ARGS "" "DOMAIN" "HEADERS;DEFINITIONS;LINK_OPTIONS;COMPILE_OPTIONS;INCLUDE_DIRECTORIES;DEPENDENCIES;PACKAGES" ${ARGN})
+    cmt_parse_arguments(ARGS "${CMT_CXX_DISABLE_OPTIONS}" "DOMAIN" "${CMT_CXX_MAPPED_OPTIONS}" ${ARGN})
     cmt_default_argument(ARGS DOMAIN "PUBLIC")
-    cmt_forward_arguments(ARGS "" "" "HEADERS;DEFINITIONS;LINK_OPTIONS;COMPILE_OPTIONS;INCLUDE_DIRECTORIES;DEPENDENCIES;PACKAGES" FORWARD_ARGS)
+    cmt_forward_arguments(ARGS "${CMT_CXX_DISABLE_OPTIONS}" "" "${CMT_CXX_MAPPED_OPTIONS}" FORWARD_ARGS)
     __cmt_cxx_add_target(${NAME} INTERFACE ${ARGS_DOMAIN} LIBRARY ${FORWARD_ARGS})
 endfunction()
 
 function(cmt_cxx_bridge_library NAME)
-    cmt_parse_arguments(ARGS "" "DOMAIN" "DEFINITIONS;LINK_OPTIONS;COMPILE_OPTIONS;INCLUDE_DIRECTORIES;DEPENDENCIES;PACKAGES" ${ARGN})
+    cmt_parse_arguments(ARGS "${CMT_CXX_DISABLE_OPTIONS}" "DOMAIN" "${CMT_CXX_MAPPED_OPTIONS}" ${ARGN})
     cmt_default_argument(ARGS DOMAIN "PUBLIC")
-    cmt_forward_arguments(ARGS "" "" "DEFINITIONS;LINK_OPTIONS;COMPILE_OPTIONS;INCLUDE_DIRECTORIES;DEPENDENCIES;PACKAGES" FORWARD_ARGS)
+    cmt_forward_arguments(ARGS "${CMT_CXX_DISABLE_OPTIONS}" "" "${CMT_CXX_MAPPED_OPTIONS}" FORWARD_ARGS)
     __cmt_cxx_add_target(${NAME} BRIDGE ${ARGS_DOMAIN} LIBRARY ${FORWARD_ARGS})
 endfunction()
 
 function(cmt_cxx_library NAME)
-    cmt_parse_arguments(ARGS "" "DOMAIN" "HEADERS;SOURCES;DEFINITIONS;LINK_OPTIONS;COMPILE_OPTIONS;INCLUDE_DIRECTORIES;DEPENDENCIES;PACKAGES" ${ARGN})
+    cmt_parse_arguments(ARGS "${CMT_CXX_DISABLE_OPTIONS}" "DOMAIN" "${CMT_CXX_MAPPED_OPTIONS}" ${ARGN})
     cmt_default_argument(ARGS DOMAIN "PUBLIC")
     __cmt_cxx_count_argument(HEADER_INTERFACE_COUNT HEADER_PUBLIC_COUNT HEADER_PRIVATE_COUNT ${ARGS_HEADERS})
     __cmt_cxx_count_argument(SOURCE_INTERFACE_COUNT SOURCE_PUBLIC_COUNT SOURCE_PRIVATE_COUNT ${ARGS_SOURCES})
     math(EXPR TOTAL_SOURCE_COUNT "${SOURCE_INTERFACE_COUNT} + ${SOURCE_PUBLIC_COUNT} + ${SOURCE_PRIVATE_COUNT}")
     math(EXPR TOTAL_HEADER_COUNT "${HEADER_INTERFACE_COUNT} + ${HEADER_PUBLIC_COUNT} + ${HEADER_PRIVATE_COUNT}")
+    cmt_forward_arguments(ARGS "${CMT_CXX_DISABLE_OPTIONS}" "" "${CMT_CXX_MAPPED_OPTIONS}" FORWARD_ARGS)
     if (TOTAL_SOURCE_COUNT EQUAL 0 AND TOTAL_HEADER_COUNT EQUAL 0)
-        cmt_forward_arguments(ARGS "" "" "DEFINITIONS;LINK_OPTIONS;COMPILE_OPTIONS;INCLUDE_DIRECTORIES;DEPENDENCIES;PACKAGES" FORWARD_ARGS)
         cmt_cxx_bridge_library(${NAME} ${FORWARD_ARGS})
     elseif (TOTAL_SOURCE_COUNT EQUAL 0)
-        cmt_forward_arguments(ARGS "" "" "HEADERS;DEFINITIONS;LINK_OPTIONS;COMPILE_OPTIONS;INCLUDE_DIRECTORIES;DEPENDENCIES;PACKAGES" FORWARD_ARGS)
         cmt_cxx_interface_library(${NAME} ${FORWARD_ARGS})
     else()
-        cmt_forward_arguments(ARGS "" "" "HEADERS;SOURCES;DEFINITIONS;LINK_OPTIONS;COMPILE_OPTIONS;INCLUDE_DIRECTORIES;DEPENDENCIES;PACKAGES" FORWARD_ARGS)
         cmt_cxx_static_library(${NAME} ${FORWARD_ARGS})
     endif ()
 endfunction()

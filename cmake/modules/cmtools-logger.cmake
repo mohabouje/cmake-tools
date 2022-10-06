@@ -119,12 +119,18 @@ endfunction()
 
 function(message)
     cmake_parse_arguments(ARGS "" "PREFIX" "" ${ARGN})
-    if (${ARGC} EQUAL 1)
-        __cmt_logger_level_penalty(STATUS LEVEL_PENALTY)
-    else()
-        __cmt_logger_level_penalty(${ARGV0} LEVEL_PENALTY)
+
+    # Check that value is part of possible log levels
+    set(SUPPORTED_LEVELS "DEPRECATION" "STATUS" "VERBOSE" "NOTICE" "DEBUG" "TRACE"
+            "WARNING" "SEND_ERROR" "FATAL_ERROR" "ERROR" "AUTHOR_WARNING" "CHECK_START"
+            "CHECK_PASS" "CHECK_FAIL" "OFF")
+    list(FIND SUPPORTED_LEVELS ${ARGV0} LEVEL_INDEX)
+    if (LEVEL_INDEX EQUAL -1)
+        _message(WARNING "Invalid log level: ${ARGN}")
+        return()
     endif()
 
+    __cmt_logger_level_penalty(${ARGV0} LEVEL_PENALTY)
     __cmt_logger_get_current_context(CURRENT_LEVEL CURRENT_PREFIX)
     __cmt_logger_level_penalty(CURRENT_LEVEL CURRENT_PENALTY)
     if (CURRENT_PENALTY GREATER LEVEL_PENALTY)

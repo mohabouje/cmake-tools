@@ -50,7 +50,7 @@ include(CheckIPOSupported)
 # - cmt_target_configure_gcc_compiler_optimization_options
 # - cmt_target_configure_clang_compiler_optimization_options
 # - cmt_target_configure_mvsc_compiler_optimization_options
-# - cmt_target_configure_compiler_optimization_options
+# - cmt_target_enable_compiler_optimizations
 # - cmt_target_set_runtime
 # - cmt_target_enable_warnings_as_errors
 # - cmt_target_enable_all_warnings
@@ -685,7 +685,6 @@ function(cmt_target_configure_gcc_compiler_optimization_options TARGET)
 		return()
 	endif()
 
-	cmt_target_add_compiler_option(${TARGET} "-g3" CONFIG Debug RelWithDebInfo)
 	cmt_target_add_compiler_option(${TARGET} "-O0" CONFIG Debug)
 	cmt_target_add_compiler_option(${TARGET} "-O2" CONFIG RelWithDebInfo)
 	cmt_target_add_compiler_option(${TARGET} "-O3" CONFIG Release)
@@ -710,7 +709,6 @@ function(cmt_target_configure_clang_compiler_optimization_options TARGET)
 		return()
 	endif()
 
-	cmt_target_add_compiler_option(${TARGET} -g3 CONFIG Debug RelWithDebInfo)
 	cmt_target_add_compiler_option(${TARGET} -O0 CONFIG Debug)
 	cmt_target_add_compiler_option(${TARGET} -O2 CONFIG RelWithDebInfo)
 	cmt_target_add_compiler_option(${TARGET} -O3 CONFIG Release)
@@ -745,16 +743,16 @@ function(cmt_target_configure_mvsc_compiler_optimization_options TARGET)
 	cmt_debug("Target ${TARGET}: configured msvc options")
 endfunction()
 
-# ! cmt_target_configure_compiler_optimization_options 
+# ! cmt_target_enable_compiler_optimizations
 # Configure compile options for the target like debug information, optimisation...
 #
-# cmt_target_configure_compiler_optimization_options(
+# cmt_target_enable_compiler_optimizations(
 #   TARGET
 # )
 #
 # \input TARGET Target to configure
 #
-function(cmt_target_configure_compiler_optimization_options TARGET)
+function(cmt_target_enable_compiler_optimizations TARGET)
 	cmt_ensure_target(${TARGET})
 	cmt_define_compiler()
 	if (CMT_COMPILER MATCHES "MVSC")
@@ -1247,6 +1245,10 @@ function(cmt_target_print_compiler_options TARGET)
 	cmt_print_list("COMPILE_OPTIONS" COMPILE_OPTIONS)
 endfunction()
 
+function(cmt_target_enable_debug_symbols TARGET)
+	cmt_ensure_target(${TARGET})
+	cmt_target_add_compiler_option(${TARGET} -g3 CONFIG Debug RelWithDebInfo)
+endfunction()
 
 # ! cmt_target_print_linker_options
 # Print compiler options for a target

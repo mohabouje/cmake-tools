@@ -170,6 +170,12 @@ function(__cmt_conan_collect_components PACKAGE_NAME PACKAGE_COMPONENTS)
         endforeach()
     endif()
 
+    if (${PACKAGE_NAME}_LIBRARIES)
+        foreach(COMPONENT_NAME ${${PACKAGE_NAME}_LIBRARIES})
+            list(APPEND PACKAGE_COMPONENT_LIST ${COMPONENT_NAME})
+        endforeach()
+    endif()
+
     string(TOLOWER ${PACKAGE_NAME} PACKAGE_NAME_LOWER)
     set(LOWER_CANDIDATE "${PACKAGE_NAME_LOWER}::${PACKAGE_NAME_LOWER}")
     if (TARGET ${UPPER_CANDIDATE})
@@ -255,6 +261,7 @@ function(cmt_conan_install TOOLCHAIN_FILE)
     list(APPEND ARGS_CONAN_INSTALL_ARGS "--build=missing")
     list(APPEND ARGS_CONAN_INSTALL_ARGS "--install-folder=${ARGS_INSTALL_DIR}")
 
+    cmt_log("Installing conan dependencies...")
     cmt_logger_set_scoped_context(WARNING CONAN)
     execute_process(COMMAND ${CONAN_EXECUTABLE} install ${ARGS_CONAN_INSTALL_ARGS} ${ARGS_WORKING_DIR}
             RESULT_VARIABLE EXECUTION_RETURN_CODE

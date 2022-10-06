@@ -120,7 +120,6 @@ macro(cmt_setup)
 	cmt_logger_setup()
 	cmt_fetch_dependencies()
 	cmt_pkg_set_default_backend()
-	cmt_set_default_build_type()
 endmacro()
 
 cmt_include_all(${CMAKE_CURRENT_LIST_DIR}/modules)
