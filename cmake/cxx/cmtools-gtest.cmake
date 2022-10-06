@@ -23,11 +23,12 @@
 ##################################################################################
 
 include_guard(GLOBAL)
+include(GoogleTest)
 
-# ! cmt_cxx_google_benchmark
-# Creates a new target for the Google Benchmark library.
+# ! cmt_cxx_google_test
+# Creates a new Google Test executable.
 #
-# cmt_cxx_google_benchmark(
+# cmt_cxx_google_test(
 #   TARGET_NAME
 #   [DEFINITIONS ...]
 #   [LINK_OPTIONS ...]
@@ -49,8 +50,11 @@ include_guard(GLOBAL)
 # \group COMPILE_OPTIONS A map of compile options
 # \group INCLUDE_DIRECTORIES A map include directories
 #
-function(cmt_cxx_google_benchmark NAME)
-    cmt_cxx_benchmark(${NAME} ${ARGN})
-    cmt_cxx_target_packages(${NAME} PRIVATE benchmark)
+function(cmt_cxx_google_test NAME)
+    cmt_cxx_test(${NAME} ${ARGN})
+    cmt_cxx_target_set_packages(${NAME} PRIVATE gtest)
+    cmt_cxx_target_set_compile_options(${NAME} PRIVATE -DGTEST_LINKED_AS_SHARED_LIBRARY)
     cmt_target_add_compiler_options(${NAME} -Wno-global-constructors COMPILER CLANG)
+    gtest_discover_tests(${NAME})
+    add_test(NAME ${NAME} COMMAND ${NAME})
 endfunction()

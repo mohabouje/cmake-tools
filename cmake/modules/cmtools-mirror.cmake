@@ -53,8 +53,8 @@ function (cmt_target_wire_dependencies TARGET SUFFIX)
         add_dependencies (${MIRRORED_TARGET} ${WIRE_MIRRORED_DEPENDENCIES})
     endif()
 
-    cmt_target_get_property(${MIRRORED_TARGET} TYPE TARGET_TYPE)
-    if (TARGET_TYPE STREQUAL "UTILITY")
+    cmt_target_is_linkable(${MIRRORED_TARGET} IS_LINKABLE)
+    if (NOT IS_LINKABLE)
         return()
     endif()
 

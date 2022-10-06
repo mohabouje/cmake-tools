@@ -1,4 +1,5 @@
 #include "example.hpp"
+#include "header_only.hpp"
 
 #include <iostream>
 #include <unordered_map>
@@ -6,9 +7,9 @@
 #include <array>
 
 int main() {
-    auto example = example::ExampleClass(10);
+    auto example = example::ExampleClass(100);
     auto numbers = example.generate();
-    auto sum = example::sum(numbers);
+    auto sum = header_only::sum(numbers);
     std::cout << "Sum: " << sum << std::endl;
     for (auto number : numbers) {
     std::cout << number << std::endl;

@@ -109,16 +109,23 @@ function(cmt_target_add_compile_definition TARGET DEFINITION)
         if (NOT ${CMT_COMPILER} STREQUAL ${ARGS_COMPILER})
             return()
         endif()
-    endif()
+	endif()
+
+	cmt_target_get_property(${TARGET} TYPE TARGET_TYPE REQUIRED)
+	if (TARGET_TYPE STREQUAL "INTERFACE_LIBRARY")
+		set(INTERACTION_TYPE INTERFACE)
+	else()
+		set(INTERACTION_TYPE PRIVATE)
+	endif()
 
 	if (DEFINED ARGS_CONFIG)
     	foreach(config ${ARGS_CONFIG})
 			cmt_ensure_config(${ARGS_CONFIG})
 			string(TOUPPER ${config} config)
-			target_compile_definitions(${TARGET} PRIVATE "$<$<CONFIG:${config}>:${DEFINITION}>")
+			target_compile_definitions(${TARGET} ${INTERACTION_TYPE} "$<$<CONFIG:${config}>:${DEFINITION}>")
 		endforeach()
 	else()
-		target_compile_definitions(${TARGET} PRIVATE "${DEFINITION}")
+		target_compile_definitions(${TARGET} ${INTERACTION_TYPE} "${DEFINITION}")
 	endif()
 endfunction()
 
@@ -159,6 +166,13 @@ function(cmt_target_add_compiler_option TARGET OPTION)
 		set(LANGUAGES "CXX" "C")
 	endif()
 
+	cmt_target_get_property(${TARGET} TYPE TARGET_TYPE REQUIRED)
+	if (TARGET_TYPE STREQUAL "INTERFACE_LIBRARY")
+		set(INTERACTION_TYPE INTERFACE)
+	else()
+		set(INTERACTION_TYPE PRIVATE)
+	endif()
+
 	foreach (lang ${LANGUAGES})
 		cmt_check_compiler_option(has${OPTION} OPTION ${OPTION} LANG ${lang})
 		if(has${OPTION})
@@ -166,10 +180,10 @@ function(cmt_target_add_compiler_option TARGET OPTION)
 				foreach(config ${ARGS_CONFIG})
 					cmt_ensure_config(${config})
 					string(TOUPPER ${config} config)
-					target_compile_options(${TARGET} PRIVATE "$<$<AND:$<COMPILE_LANGUAGE:${lang}>,$<CONFIG:${config}>>:${OPTION}>")
+					target_compile_options(${TARGET} ${INTERACTION_TYPE} "$<$<AND:$<COMPILE_LANGUAGE:${lang}>,$<CONFIG:${config}>>:${OPTION}>")
 				endforeach()
 			else()
-				target_compile_options(${TARGET} PRIVATE "$<$<COMPILE_LANGUAGE:${lang}>:${OPTION}>")
+				target_compile_options(${TARGET} ${INTERACTION_TYPE} "$<$<COMPILE_LANGUAGE:${lang}>:${OPTION}>")
 			endif()
 		else()
 			cmt_debug("${TARGET}: flag ${OPTION} was reported as unsupported by ${lang} compiler and was not added")
@@ -1096,6 +1110,89 @@ function(cmt_target_source_group TARGET ROOT)
 	cmt_ensure_target(${TARGET})
 	get_property(TARGET_SOURCES ${TARGET} PROPERTY SOURCES)
 	source_group(TREE ${ROOT} FILES ${TARGET_SOURCES})
+endfunction()
+
+
+# !cmt_target_sources
+# Fetches the target's SOURCES property.
+#
+# If the filtering is enabled, the function will return only the sources that match the specified
+# extensions. If the filtering is disabled, the function will return all the sources.
+#
+#
+# cmt_target_sources(
+#   TARGET
+#   RETURN_SOURCES
+#   <SKIP_FILTERING>
+#   <SKIP_GENERATED>
+#   <SKIP_NON_LINKABLE>
+#   [PREFERRED_LANGUAGE]
+#   [C_SOURCE_FILE_EXTENSIONS] (Default is ${CMAKE_C_SOURCE_FILE_EXTENSIONS})
+#   [CXX_SOURCE_FILE_EXTENSIONS] (Default is ${CMAKE_CXX_SOURCE_FILE_EXTENSIONS})
+#   [HEADER_FILE_EXTENSIONS] (Default is h;hh;hpp;hxx;H;HPP;h++)
+# )
+#
+# \input    TARGET Target to fetch sources from
+# \output   RETURN_SOURCE Variable to store returned sources in
+# \group    HEADER_FILE_EXTENSIONS List of header file extensions
+# \group    C_SOURCE_FILE_EXTENSIONS List of extensions for C source files
+# \group    CXX_SOURCE_FILE_EXTENSIONS List of extensions for CXX source files
+# \param    PREFERRED_LANGUAGE Preferred language for the source file. Valid values are C, CXX and UNKNOWN
+#
+function (cmt_target_sources TARGET RETURN_SOURCES)
+	cmt_parse_arguments(ARGS "SKIP_FILTERING;SKIP_GENERATED;SKIP_HEADERS" "PREFERRED_LANGUAGE" "HEADER_FILE_EXTENSIONS;C_SOURCE_FILE_EXTENSIONS;CXX_SOURCE_FILE_EXTENSIONS;" ${ARGN})
+	cmt_ensure_target(${TARGET})
+
+	get_target_property (TARGET_SOURCES ${TARGET} SOURCES)
+	if (${ARGS_SKIP_FILTERING})
+		set(${RETURN_SOURCES} ${TARGET_SOURCES} PARENT_SCOPE)
+		return()
+	endif()
+
+	cmt_forward_arguments(ARGS "SKIP_GENERATED;SKIP_HEADERS" "PREFERRED_LANGUAGE" "HEADER_FILE_EXTENSIONS;C_SOURCE_FILE_EXTENSIONS;CXX_SOURCE_FILE_EXTENSIONS;" FILTER_ARGS)
+	cmt_source_filter(FILTERED_SOURCES ${FILTER_ARGS} SOURCES ${TARGET_SOURCES})
+	set(${RETURN_SOURCES} ${FILTERED_SOURCES} PARENT_SCOPE)
+endfunction()
+
+# !cmt_target_generated_sources
+# Fetches the target's SOURCES property and filters out the not generated sources.
+#
+# cmt_target_generated_sources(
+#   TARGET
+#   RETURN_SOURCES
+#   [PREFERRED_LANGUAGE]
+#   [C_SOURCE_FILE_EXTENSIONS] (Default is ${CMAKE_C_SOURCE_FILE_EXTENSIONS})
+#   [CXX_SOURCE_FILE_EXTENSIONS] (Default is ${CMAKE_CXX_SOURCE_FILE_EXTENSIONS})
+#   [HEADER_FILE_EXTENSIONS] (Default is h;hh;hpp;hxx;H;HPP;h++)
+# )
+#
+# \input    TARGET Target to fetch sources from
+# \output   RETURN_SOURCE Variable to store returned sources in
+# \group    HEADER_FILE_EXTENSIONS List of header file extensions
+# \group    C_SOURCE_FILE_EXTENSIONS List of extensions for C source files
+# \group    CXX_SOURCE_FILE_EXTENSIONS List of extensions for CXX source files
+# \param    PREFERRED_LANGUAGE Preferred language for the source file. Valid values are C, CXX and UNKNOWN
+#
+function (cmt_target_generated_sources TARGET RETURN_SOURCES)
+	cmt_ensure_target(${TARGET})
+	get_target_property (TARGET_SOURCES ${TARGET} SOURCES)
+
+	list(_GENERATED_SOURCES)
+	macro(__cmt_append_sources _sources)
+		foreach(_source ${${_sources}})
+			cmt_source_get_property(${_source} CMT_SOURCE_GENERATED STORED_SOURCE_GENERATED)
+			if (STORED_SOURCE_GENERATED)
+				list(APPEND _GENERATED_SOURCES ${_source})
+			endif()
+		endforeach()
+	endmacro()
+
+	cmt_source_sort_group(C_SOURCES CXX_SOURCES HEADERS SKIPPED ${ARGN} SOURCES ${TARGET_SOURCES})
+	__cmt_append_sources(C_SOURCES)
+	__cmt_append_sources(CXX_SOURCES)
+	__cmt_append_sources(HEADERS)
+	__cmt_append_sources(SKIPPED)
+	set(${RETURN_SOURCES} ${_GENERATED_SOURCES} PARENT_SCOPE)
 endfunction()
 
 

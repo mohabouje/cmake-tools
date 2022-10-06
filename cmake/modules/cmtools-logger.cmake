@@ -110,27 +110,22 @@ function (__cmt_logger_get_current_context LEVEL PREFIX)
         endif ()
     endmacro()
 
-    __cmt_variable_or_property(CMT_LOG_LEVEL STORED_LOG_LEVEL)
-    __cmt_variable_or_property(CMT_LOG_PREFIX STORED_LOG_PREFIX)
-
-    if (NOT STORED_LOG_LEVEL OR ${STORED_LOG_LEVEL} STREQUAL "")
-        set(${LEVEL} ${CMT_DEFAULT_LOG_LEVEL} PARENT_SCOPE)
-    else ()
-        set(${LEVEL} ${STORED_LOG_LEVEL} PARENT_SCOPE)
-    endif ()
-
-    if (NOT STORED_LOG_PREFIX OR ${STORED_LOG_PREFIX} STREQUAL "")
-        set(${PREFIX} ${CMT_DEFAULT_LOG_PREFIX} PARENT_SCOPE)
-    else ()
-        set(${PREFIX} ${STORED_LOG_PREFIX} PARENT_SCOPE)
-    endif ()
+    __cmt_variable_or_property(CMT_LOG_LEVEL STORED_LOG_LEVEL_RETRIEVED)
+    __cmt_variable_or_property(CMT_LOG_PREFIX STORED_LOG_PREFIX_RETRIEVED)
+    set(${LEVEL} ${STORED_LOG_LEVEL_RETRIEVED} PARENT_SCOPE)
+    set(${PREFIX} ${STORED_LOG_PREFIX_RETRIEVED} PARENT_SCOPE)
 endfunction()
 
 
 function(message)
     cmake_parse_arguments(ARGS "" "PREFIX" "" ${ARGN})
+    if (${ARGC} EQUAL 1)
+        __cmt_logger_level_penalty(STATUS LEVEL_PENALTY)
+    else()
+        __cmt_logger_level_penalty(${ARGV0} LEVEL_PENALTY)
+    endif()
+
     __cmt_logger_get_current_context(CURRENT_LEVEL CURRENT_PREFIX)
-    __cmt_logger_level_penalty(${ARGV0} LEVEL_PENALTY)
     __cmt_logger_level_penalty(CURRENT_LEVEL CURRENT_PENALTY)
     if (CURRENT_PENALTY GREATER LEVEL_PENALTY)
         return()
@@ -181,6 +176,3 @@ endmacro()
 macro(cmt_success)
     message(SUCCESS "${ARGN}")
 endmacro()
-
-
-

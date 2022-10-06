@@ -125,3 +125,4 @@ endmacro()
 
 cmt_include_all(${CMAKE_CURRENT_LIST_DIR}/modules)
 cmt_include_all(${CMAKE_CURRENT_LIST_DIR}/tools)
+cmt_include_all(${CMAKE_CURRENT_LIST_DIR}/cxx)

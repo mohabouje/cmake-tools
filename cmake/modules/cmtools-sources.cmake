@@ -24,11 +24,7 @@
 
 include_guard(GLOBAL)
 
-cmt_logger_set_scoped_context(WARNING "HeaderLanguage")
-include(${CMAKE_CURRENT_LIST_DIR}/./../third_party/header-language.cmake)
-cmt_logger_discard_scoped_context()
-
-# ! cmt_source_type_from_source_file_extension:
+# ! cmt_source_get_group:
 #
 # Returns the initial type of a source file from its extension. It doesn't
 # properly analyze headers and source inclusions to determine the language
@@ -37,92 +33,101 @@ cmt_logger_discard_scoped_context()
 # The type of the source will be set in the variable specified in
 # RETURN_TYPE. Valid values are C, CXX, HEADER and UNKNOWN
 #
-# cmt_source_type_from_source_file_extension(
-#  SOURCE
-#  RETURN_TYPE
+# cmt_source_get_group(
+#   SOURCE_FILE
+#   SOURCE_TYPE
+#   SOURCE_LANGUAGE
+#   [PREFERRED_LANGUAGE]
+#   [C_SOURCE_FILE_EXTENSIONS] (Default is ${CMAKE_C_SOURCE_FILE_EXTENSIONS})
+#   [CXX_SOURCE_FILE_EXTENSIONS] (Default is ${CMAKE_CXX_SOURCE_FILE_EXTENSIONS})
+#   [HEADER_FILE_EXTENSIONS] (Default is h;hh;hpp;hxx;H;HPP;h++)
 # )
 #
-# \input    SOURCE Source file to scan
-# \output   RETURN_TYPE Variable to set the source type in
-function (cmt_source_type_from_source_file_extension SOURCE RETURN_TYPE)
-    psq_source_type_from_source_file_extension(${SOURCE} ${RETURN_TYPE})
-    set(${RETURN_TYPE} ${RETURN_TYPE} PARENT_SCOPE)
+# Note:
+# CMake doesn't provide a list of header file extensions. Here are some common ones.
+#
+# Notably absent are files without an extension. It appears that these are not used
+# outside the standard library and Qt. There's very little chance that we will be scanning them.
+#
+# If they do need to be scanned, consider having the extensionless header include a header with
+# an extension and scanning that instead.
+#
+# \input    SOURCE_FILE Source file to scan
+# \output   SOURCE_TYPE Type of the source file. Valid values are HEADER, SOURCE and UNKNOWN
+# \output   SOURCE_LANGUAGE Language of the source file. Valid values are C, CXX and UNKNOWN
+# \group    HEADER_FILE_EXTENSIONS List of header file extensions
+# \group    C_SOURCE_FILE_EXTENSIONS List of extensions for C source files
+# \group    CXX_SOURCE_FILE_EXTENSIONS List of extensions for CXX source files
+# \param    PREFERRED_LANGUAGE Preferred language for the source file. Valid values are C, CXX and UNKNOWN
+#
+function (cmt_source_get_group SOURCE_FILE SOURCE_TYPE SOURCE_LANGUAGE)
+    cmt_parse_arguments(ARGS "" "PREFERRED_LANGUAGE" "HEADER_FILE_EXTENSIONS;C_SOURCE_FILE_EXTENSIONS;CXX_SOURCE_FILE_EXTENSIONS;" ${ARGN})
+    cmt_default_argument(ARGS C_SOURCE_FILE_EXTENSIONS "${CMAKE_C_SOURCE_FILE_EXTENSIONS}")
+    cmt_default_argument(ARGS CXX_SOURCE_FILE_EXTENSIONS "${CMAKE_CXX_SOURCE_FILE_EXTENSIONS}")
+    cmt_default_argument(ARGS HEADER_FILE_EXTENSIONS "h;hh;hpp;hxx;H;HPP;h++")
+    cmt_default_argument(ARGS PREFERRED_LANGUAGE "CXX")
+    cmt_ensure_lang(${ARGS_PREFERRED_LANGUAGE})
+
+    cmt_source_get_property(${SOURCE_FILE} CMT_SOURCE_TYPE STORED_SOURCE_TYPE)
+    cmt_source_get_property(${SOURCE_FILE} CMT_SOURCE_LANGUAGE STORED_SOURCE_LANGUAGE)
+    if (STORED_SOURCE_TYPE AND STORED_SOURCE_LANGUAGE)
+        set (${SOURCE_TYPE} ${STORED_SOURCE_TYPE} PARENT_SCOPE)
+        set (${SOURCE_LANGUAGE} ${STORED_SOURCE_LANGUAGE} PARENT_SCOPE)
+        return()
+    endif()
+
+    macro(report_and_store TYPE LANGUAGE)
+        if (LANGUAGE STREQUAL "UNKNOWN")
+            set (LANGUAGE ${ARGS_PREFERRED_LANGUAGE})
+        endif()
+
+        cmt_source_set_property(${SOURCE_FILE} CMT_SOURCE_TYPE ${TYPE})
+        cmt_source_set_property(${SOURCE_FILE} CMT_SOURCE_LANGUAGE ${LANGUAGE})
+        set (${SOURCE_TYPE} ${TYPE} PARENT_SCOPE)
+        set (${SOURCE_LANGUAGE} ${LANGUAGE} PARENT_SCOPE)
+    endmacro()
+
+    get_filename_component (EXTENSION "${SOURCE_FILE}" EXT)
+    if (NOT EXTENSION)
+        report_and_store(UNKNOWN UNKNOWN)
+        return()
+    endif()
+
+    string (SUBSTRING ${EXTENSION} 1 -1 EXTENSION)
+    list (FIND ARGS_C_SOURCE_FILE_EXTENSIONS ${EXTENSION} C_INDEX)
+    if (NOT C_INDEX EQUAL -1)
+        report_and_store(SOURCE C)
+        return()
+    endif()
+
+    list (FIND ARGS_CXX_SOURCE_FILE_EXTENSIONS ${EXTENSION} CXX_INDEX)
+    if (NOT CXX_INDEX EQUAL -1)
+        report_and_store(SOURCE CXX)
+        return()
+    endif()
+
+
+    set (HEADER_EXTENSIONS )
+    list (FIND ARGS_HEADER_FILE_EXTENSIONS ${EXTENSION} HEADER_INDEX)
+    if (NOT HEADER_INDEX EQUAL -1)
+        report_and_store(HEADER UNKNOWN)
+        return()
+    endif()
+
+    report_and_store(UNKNOWN UNKNOWN)
 endfunction()
 
-# ! cmt_scan_source_for_headers
-#
-# Opens the source file SOURCE at its absolute path and scans it for
-# #include statements if we have not done so already. The content of the
-# include statement is pasted together with each provided INCLUDE
-# and checked to see if it forms the path to an existing or generated
-# source. If it does, then the following rules apply to determine
-# the language of the header file:
-#
-# - If the source including the header is a CXX source (including a CXX
-#   header, and no other language has been set for this header, then
-#   the language of the header is set to CXX
-# - If any source including the header is a C source (including a C header)
-#   then the language of the header is forced to "C", with one caveat:
-#   - The header file will be opened and scanned for any tokens which match
-#     any provided tokens in CPP_IDENTIFIERS or __cplusplus. If it does, then
-#     the header language will be set to C;CXX
-#
-# cmt_scan_source_for_headers(
-#  [SOURCE source ]
-#  [INCLUDES include ...]
-#  [CPP_IDENTIFIERS cpp_identifiers ...]
-# )
-#
-# \param    SOURCE The source file to be scanned
-# \group    INCLUDES Any include directories to search for header files
-# \group    CPP_IDENTIFIERS CPP_IDENTIFIERS Any identifiers which might indicate that this source can be compiled with both C and CXX.
-#
-function(cmt_scan_source_for_headers)
-    cmt_parse_arguments(ARGS "" "SOURCE" "INCLUDES;CPP_IDENTIFIERS" ${ARGN})
-	cmt_required_arguments(FUNCTION cmt_scan_source_for_headers PREFIX ARGS FIELDS SOURCE)
-    psq_scan_source_for_headers(${ARGN})
-endfunction()
-
-# cmt_determine_language_for_source
-#
-# Takes any source, including a header file and writes the determined
-# language into LANGUAGE_RETURN. If the source is a header file
-# SOURCE_WAS_HEADER_RETURN will be set to true as well.
-#
-# This function only works for header files if those header files
-# were included by sources previously scanned by
-# psq_scan_source_for_headers. They must be scanned before
-# this function is called, otherwise this function will be unable
-# to determine the language of the source file and report an error.
-#
-# cmt_determine_language_for_source(
-#  SOURCES
-#  LANGUAGE_RETURN
-#  SOURCE_WAS_HEADER_RETURN
-# )
-#
-# \input    SOURCE The source whose language is to be determined
-# \output   LANGUAGE_RETURN A variable where the language can be written into
-# \output   SOURCE_WAS_HEADER_RETURN Indicates whether this was a header or a source that was checked.
-# \option   FORCE_LANGUAGE: Performs scanning, but forces language to be one of C or CXX.
-function (cmt_determine_language_for_source SOURCE
-                                            LANGUAGE_RETURN
-                                            SOURCE_WAS_HEADER_RETURN)
-    psq_determine_language_for_source(${SOURCE} ${LANGUAGE_RETURN} ${SOURCE_WAS_HEADER_RETURN} ${ARGN})
-    set(${RETURN_TYPE} ${RETURN_TYPE} PARENT_SCOPE)
-    set(${SOURCE_WAS_HEADER_RETURN} ${SOURCE_WAS_HEADER_RETURN} PARENT_SCOPE)
-endfunction()
-
-# cmt_sort_sources_to_languages:
+# cmt_source_sort_group:
 #
 # Sort provided sources into their various languages and separate
 # header files from non-headers.
 #
-# cmt_sort_sources_to_languages(
+# cmt_source_sort_group(
 #  C_SOURCES
 #  CXX_SOURCES
-#  HEADER_SOURCES
-#  <FORCE_LANGUAGE>
+#  HEADERS
+#  SKIPPED
+#   [PREFERRED_LANGUAGE]
 #  [SOURCES source ...]
 #  [INCLUDES include ...]
 #  [CPP_IDENTIFIERS cpp_identifiers ...]
@@ -131,126 +136,131 @@ endfunction()
 # \output   C_SOURCES Variable to store list of C sources in.
 # \output   CXX_SOURCES Variable to store list of C++ sources in.
 # \output   HEADERS HEADERS Variable to store list of headers in.
-# \option   FORCE_LANGUAGE Force language of all sources to be either C or CXX.
+# \output   SKIPPED Variable to store list of skipped sources in.
+# \group    HEADER_FILE_EXTENSIONS List of header file extensions
+# \group    C_SOURCE_FILE_EXTENSIONS List of extensions for C source files
+# \group    CXX_SOURCE_FILE_EXTENSIONS List of extensions for CXX source files
+# \param    PREFERRED_LANGUAGE Preferred language for the source file. Valid values are C, CXX and UNKNOWN
 # \group    SOURCES SOURCES List of source files to separate out.
-# \group    CPP_IDENTIFIERS List of identifiers that indicate that a source file is actually a C++ source file.
-# \group    INCLUDES Include directories to search.
 #
-function (cmt_sort_sources_to_languages C_SOURCES CXX_SOURCES HEADERS)
-    cmt_parse_arguments(SORT_SOURCES "" "FORCE_LANGUAGE" "SOURCES;CPP_IDENTIFIERS;INCLUDES" ${ARGN})
-	cmt_required_arguments(SORT_SOURCES "" "" "SOURCES")
-    cmt_forward_arguments (SORT_SOURCES "" "FORCE_LANGUAGE" "CPP_IDENTIFIERS;INCLUDES" DETERMINE_LANG_OPTIONS)
+function (cmt_source_sort_group C_SOURCES CXX_SOURCES HEADERS SKIPPED)
+    cmt_parse_arguments(ARGS "" "PREFERRED_LANGUAGE" "SOURCES;HEADER_FILE_EXTENSIONS;C_SOURCE_FILE_EXTENSIONS;CXX_SOURCE_FILE_EXTENSIONS;" ${ARGN})
+    cmt_required_arguments(ARGS "" "" "SOURCES")
 
-    foreach (SOURCE ${SORT_SOURCES_SOURCES})
-        set(INCLUDES ${SORT_SOURCES_INCLUDES})
-        set(CPP_IDENTIFIERS ${SORT_SOURCES_CPP_IDENTIFIERS})
-        cmt_determine_language_for_source ("${SOURCE}" LANGUAGE SOURCE_WAS_HEADER ${DETERMINE_LANG_OPTIONS})
-
-        # Scan this source for headers, we'll need them later
-        if (NOT SOURCE_WAS_HEADER)
-            cmt_scan_source_for_headers (SOURCE "${SOURCE}" ${DETERMINE_LANG_OPTIONS})
-        endif()
-
-        list (FIND LANGUAGE "C" C_INDEX)
-        list (FIND LANGUAGE "CXX" CXX_INDEX)
-        if (NOT C_INDEX EQUAL -1)
-            list (APPEND _C_SOURCES "${SOURCE}")
-        endif()
-        if (NOT CXX_INDEX EQUAL -1)
-            list (APPEND _CXX_SOURCES "${SOURCE}")
-        endif()
-        if (SOURCE_WAS_HEADER)
-            list (APPEND _HEADERS "${SOURCE}")
+    set (_C_SOURCES)
+    set (_CXX_SOURCES)
+    set (_HEADERS)
+    set (_SKIPPED)
+    cmt_forward_arguments (ARGS "" "PREFERRED_LANGUAGE" "HEADER_FILE_EXTENSIONS;C_SOURCE_FILE_EXTENSIONS;CXX_SOURCE_FILE_EXTENSIONS;" DETERMINE_LANG_OPTIONS)
+    foreach (SOURCE ${ARGS_SOURCES})
+        cmt_source_get_group(${SOURCE} SOURCE_TYPE SOURCE_LANGUAGE ${DETERMINE_LANG_OPTIONS})
+        if (SOURCE_TYPE STREQUAL "SOURCE")
+            if (SOURCE_LANGUAGE STREQUAL "C")
+                list (APPEND ${_C_SOURCES} ${SOURCE})
+            elseif (SOURCE_LANGUAGE STREQUAL "CXX")
+                list (APPEND ${_CXX_SOURCES} ${SOURCE})
+            else()
+                cmt_fatal("Unknown source language ${SOURCE_LANGUAGE} for source ${SOURCE}")
+            endif()
+        elseif (SOURCE_TYPE STREQUAL "HEADER")
+            list (APPEND ${_HEADERS} ${SOURCE})
+        else()
+            list (APPEND ${_SKIPPED} ${SOURCE})
         endif()
     endforeach()
     set(${C_SOURCES} ${_C_SOURCES} PARENT_SCOPE)
     set(${CXX_SOURCES} ${_CXX_SOURCES} PARENT_SCOPE)
     set(${HEADERS} ${_HEADERS} PARENT_SCOPE)
+    set(${SKIPPED} ${_SKIPPED} PARENT_SCOPE)
 endfunction()
 
+# ! cmt_source_count_group
+# Counts the number of source files
+#
+# cmt_source_count_group(
+#   C_SOURCES_COUNT
+#   CXX_SOURCES_COUNT
+#   HEADERS_COUNT
+#   SKIPPED_COUNT
+#   [SOURCES source ...]
+#   [PREFERRED_LANGUAGE]
+#   [C_SOURCE_FILE_EXTENSIONS] (Default is ${CMAKE_C_SOURCE_FILE_EXTENSIONS})
+#   [CXX_SOURCE_FILE_EXTENSIONS] (Default is ${CMAKE_CXX_SOURCE_FILE_EXTENSIONS})
+#   [HEADER_FILE_EXTENSIONS] (Default is h;hh;hpp;hxx;H;HPP;h++)
+# )
+#
+# \output   C_SOURCES_COUNT Variable to store number of C sources in.
+# \output   CXX_SOURCES_COUNT Variable to store number of C++ sources in.
+# \output   HEADERS_COUNT HEADERS Variable to store number of headers in.
+# \option   SKIPPED_COUNT Variable to store number of skipped sources in.
+# \group    HEADER_FILE_EXTENSIONS List of header file extensions
+# \group    C_SOURCE_FILE_EXTENSIONS List of extensions for C source files
+# \group    CXX_SOURCE_FILE_EXTENSIONS List of extensions for CXX source files
+# \param    PREFERRED_LANGUAGE Preferred language for the source file. Valid values are C, CXX and UNKNOWN
+# \group    SOURCES SOURCES List of source files to separate out.
+#
 
-# !cmt_strip_extraneous_sources
-# Fetches the target's SOURCES property, but removes any non-linkable
-# and non-header sources from it, storing the result in RETURN_SOURCES.
+function(cmt_source_count_group C_SOURCES_COUNT CXX_SOURCES_COUNT HEADERS_COUNT SKIPPED_COUNT)
+    cmt_source_sort_group(C_SOURCES CXX_SOURCES HEADERS SKIPPED ${ARGN})
+
+    list(LENGTH C_SOURCES C_SOURCES_COUNT_COMPUTED)
+    list(LENGTH CXX_SOURCES CXX_SOURCES_COUNT_COMPUTED)
+    list(LENGTH HEADERS HEADERS_COUNT_COMPUTED)
+    list(LENGTH SKIPPED SKIPPED_COUNT_COMPUTED)
+    set(${C_SOURCES_COUNT} ${C_SOURCES_COUNT_COMPUTED} PARENT_SCOPE)
+    set(${CXX_SOURCES_COUNT} ${CXX_SOURCES_COUNT_COMPUTED} PARENT_SCOPE)
+    set(${HEADERS_COUNT} ${HEADERS_COUNT_COMPUTED} PARENT_SCOPE)
+    set(${SKIPPED_COUNT} ${SKIPPED_COUNT_COMPUTED} PARENT_SCOPE)
+endfunction()
+
+# !cmt_source_filter_extraneous
+# Filters out the files that are not grouped in the source tree.
 #
-# Most tools choke on being passed these sources, so its better to strip
-# them out as early as possible
-#
-# cmt_strip_extraneous_sources(
+# cmt_source_filter_extraneous(
 #   TARGET
-#   RETURN_SOURCES  
+#   RETURN_SOURCES
+#   <SKIP_GENERATED>
+#   <SKIP_HEADERS>
+#   [PREFERRED_LANGUAGE]
+#   [C_SOURCE_FILE_EXTENSIONS] (Default is ${CMAKE_C_SOURCE_FILE_EXTENSIONS})
+#   [CXX_SOURCE_FILE_EXTENSIONS] (Default is ${CMAKE_CXX_SOURCE_FILE_EXTENSIONS})
+#   [HEADER_FILE_EXTENSIONS] (Default is h;hh;hpp;hxx;H;HPP;h++)
 # )
 #
 # \input    TARGET Target to fetch sources from
+# \option   SKIP_GENERATED Skip generated files
+# \option   SKIP_HEADERS Skip header files
 # \output   RETURN_SOURCE Variable to store returned sources in
+# \group    HEADER_FILE_EXTENSIONS List of header file extensions
+# \group    C_SOURCE_FILE_EXTENSIONS List of extensions for C source files
+# \group    CXX_SOURCE_FILE_EXTENSIONS List of extensions for CXX source files
+# \param    PREFERRED_LANGUAGE Preferred language for the source file. Valid values are C, CXX and UNKNOWN
 #
-function (cmt_strip_extraneous_sources TARGET RETURN_SOURCES)
-    cmt_ensure_target(${TARGET})
-    get_target_property (TARGET_SOURCES ${TARGET} SOURCES)
-    foreach (SOURCE ${TARGET_SOURCES})
-        cmt_source_type_from_source_file_extension ("${SOURCE}"
-                                                    SOURCE_TYPE)
-        if (NOT SOURCE_TYPE STREQUAL "UNKNOWN")
-            list (APPEND STRIPPED_SOURCES "${SOURCE}")
-        endif()
-    endforeach()
-    set(${RETURN_SOURCES} ${STRIPPED_SOURCES} PARENT_SCOPE)
-endfunction()
+function (cmt_source_filter RETURN_SOURCES)
+    cmt_parse_arguments(ARGS "SKIP_GENERATED;SKIP_HEADERS" "PREFERRED_LANGUAGE" "SOURCES;HEADER_FILE_EXTENSIONS;C_SOURCE_FILE_EXTENSIONS;CXX_SOURCE_FILE_EXTENSIONS;" ${ARGN})
 
-# cmt_filter_out_generated_sources
-#
-# Filter out generated sources from SOURCES and store the resulting
-# list of sources in `RESULT_VARIABLE`.
-#
-# cmt_filter_out_generated_sources
-#  RESULT_VARIABLE
-#  [SOURCES source1 source2 ...]
-# )
-#
-# \output RESULT_VARIABLE RESULT_VARIABLE: Resultant list of sources, without generated sources.
-# \group SOURCES SOURCES: List of source files, including generated sources.
-#
-function (cmt_filter_out_generated_sources RESULT_VARIABLE)
-    cmt_parse_arguments (FILTER_OUT "" "" "SOURCES" ${ARGN})
-    set (${RESULT_VARIABLE} PARENT_SCOPE)
-    set (FILTERED_SOURCES)
-    foreach (SOURCE ${FILTER_OUT_SOURCES})
-        get_property (SOURCE_IS_GENERATED SOURCE "${SOURCE}" PROPERTY GENERATED)
-        if (NOT SOURCE_IS_GENERATED)
-            list (APPEND FILTERED_SOURCES "${SOURCE}")
-        endif()
-    endforeach()
-    set (${RESULT_VARIABLE} ${FILTERED_SOURCES} PARENT_SCOPE)
-endfunction()
+    cmt_source_sort_group(C_SOURCES CXX_SOURCES HEADERS SKIPPED ${ARGN})
 
+    set(_FILTERED_SOURCES)
+    macro(__cmt_append_sources _sources)
+        foreach(_source ${${_sources}})
+            if (${ARGS_SKIP_GENERATED})
+                cmt_source_get_property(${_source} CMT_SOURCE_GENERATED STORED_SOURCE_GENERATED)
+                if (NOT STORED_SOURCE_GENERATED)
+                    list(APPEND _FILTERED_SOURCES ${_source})
+                endif()
+            else()
+                list(APPEND _FILTERED_SOURCES ${_source})
+            endif()
+        endforeach()
+    endmacro()
 
-# ! cmt_count_sources
-# Counts the number of source files
-# 
-# cmt_count_sources(
-#   [RESULT <result variable>]
-#   source1, source2 ...
-# )
-#
-# \output RESULT The variable to store the result in
-function(cmt_count_sources RESULT)
-    cmt_parse_arguments(ARGS "" "" "" ${ARGN})
-    set(result 0)
-    foreach(SOURCE_FILE ${ARGS_UNPARSED_ARGUMENTS})
-        if("${SOURCE_FILE}" MATCHES \\.\(c|C|cc|cp|cpp|CPP|c\\+\\+|cxx|i|ii\)$)
-            math(EXPR result "${result} + 1")
-        endif()
-    endforeach()
-    set(${RESULT} ${result} PARENT_SCOPE)
-endfunction()
+    __cmt_append_sources(C_SOURCES)
+    __cmt_append_sources(CXX_SOURCES)
 
-function (cmt_get_target_command_attach_point TARGET ATTACH_POINT_RETURN)
-    # Figure out if this target is linkable. If it is a UTILITY target then we need to run the checks at the PRE_BUILD stage.
-    set (_ATTACH_POINT PRE_LINK)
-    get_property (TARGET_TYPE TARGET ${TARGET} PROPERTY TYPE)
-    if (TARGET_TYPE STREQUAL "UTILITY")
-        set (_ATTACH_POINT PRE_BUILD)
+    if (NOT ${ARGS_SKIP_HEADERS})
+        __cmt_append_sources(HEADERS)
     endif()
 
-    set (${ATTACH_POINT_RETURN} ${_ATTACH_POINT} PARENT_SCOPE)
+    set(${RETURN_SOURCES} ${_FILTERED_SOURCES} PARENT_SCOPE)
 endfunction()

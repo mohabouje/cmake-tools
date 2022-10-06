@@ -118,7 +118,7 @@ function(cmt_target_generate_clang_format TARGET)
 		cmt_fatal("${TARGET_NAME} already exists")
 	endif()
 
-    cmt_strip_extraneous_sources(${TARGET} FORMAT_TARGET_SOURCES)
+    cmt_target_sources(${TARGET} FORMAT_TARGET_SOURCES)
 	add_custom_target(
 		${TARGET_NAME}
 		COMMAND "${EXECUTABLE}" -style=${ARGS_STYLE} -i ${FORMAT_TARGET_SOURCES}

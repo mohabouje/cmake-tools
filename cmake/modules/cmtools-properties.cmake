@@ -163,6 +163,81 @@ function (cmt_target_append_property TARGET PROPERTY)
     endforeach()
 endfunction()
 
+# ! cmt_target_is_linkable
+# Figure out if this target is linkable.
+#
+function (cmt_target_is_linkable TARGET LINKABLE_RETURN)
+    cmt_ensure_target(${TARGET})
+    cmt_target_get_property(${TARGET} TYPE TYPE_STORED)
+    if (TYPE_STORED STREQUAL "UTILITY")
+        set (${LINKABLE_RETURN} FALSE PARENT_SCOPE)
+    else()
+        set (${LINKABLE_RETURN} TRUE PARENT_SCOPE)
+    endif()
+endfunction()
+
+# ! cmt_target_get_attach_point
+# Figure out if this target is linkable.
+# If it is a UTILITY target then we need to run the checks at the PRE_BUILD stage.
+# If it is a STATIC or SHARED target then we need to run the checks at the PRE_LINK stage.
+#
+function (cmt_target_get_attach_point TARGET ATTACH_POINT_RETURN)
+    cmt_ensure_target(${TARGET})
+    cmt_target_is_linkable(${TARGET} LINKABLE)
+    if (LINKABLE)
+        set (${ATTACH_POINT_RETURN} PRE_LINK PARENT_SCOPE)
+    else()
+        set (${ATTACH_POINT_RETURN} PRE_BUILD PARENT_SCOPE)
+    endif()
+endfunction()
+
+# ! cmt_source_set_property
+#
+# \input  SOURCE The source file to interact with
+# \input  PROPERTY The property to get
+# \output PROPERTY_VALUE The value of the property
+# \option UNIQUE If set, the property will be not overwritten and an error will be raised
+#
+function (cmt_source_set_property SOURCE PROPERTY PROPERTY_VALUE)
+    cmt_parse_arguments(ARGS "UNIQUE" "" "" ${ARGN})
+    cmt_source_get_property (${SOURCE} ${PROPERTY} STORED_PROPERTY)
+    if (DEFINED STORED_PROPERTY AND ${ARGS_UNIQUE})
+        cmt_fatal("The property ${PROPERTY} is already defined for source ${SOURCE} (value ${STORED_PROPERTY})")
+    endif()
+    set_property (SOURCE ${SOURCE} PROPERTY ${PROPERTY}  ${PROPERTY_VALUE})
+endfunction()
+
+
+# ! cmt_source_get_property
+#
+# \input  SOURCE The source file to interact with
+# \input  PROPERTY The property to get
+# \output PROPERTY_VALUE The value of the property
+# \option REQUIRED If set, an error will be raised if the property is not defined
+#
+function (cmt_source_get_property SOURCE PROPERTY PROPERTY_VALUE)
+    cmt_parse_arguments(ARGS "REQUIRED" "" "" ${ARGN})
+    get_property (STORED_PROPERTY SOURCE ${SOURCE} PROPERTY ${PROPERTY})
+    if (NOT DEFINED STORED_PROPERTY AND ${ARGS_REQUIRED})
+        cmt_fatal("The property ${PROPERTY} is not defined for source ${SOURCE}.")
+    endif()
+
+    set(${PROPERTY_VALUE} ${STORED_PROPERTY} PARENT_SCOPE)
+endfunction()
+
+
+# ! cmt_source_set_properties
+#
+# Add a set of properties to a target
+#
+# \input  SOURCE The source file to interact with
+# \unparsed  List of properties to set [PROPERTY_NAME, PROPERTY_VALUE]
+#
+function (cmt_source_set_properties SOURCE)
+    cmt_parse_arguments(ARGS "" "" "" ${ARGN})
+    set_target_properties (${SOURCE} PROPERTIES ${ARGS_UNPARSED_ARGUMENTS})
+endfunction()
+
 # Get all propreties that cmake supports
 if(NOT CMAKE_PROPERTY_LIST)
     execute_process(COMMAND cmake --help-property-list OUTPUT_VARIABLE CMAKE_PROPERTY_LIST)

@@ -116,7 +116,7 @@ function(cmt_target_generate_lizard TARGET)
     endif()
 
     cmt_find_lizard(LIZARD_EXECUTABLE)
-    cmt_strip_extraneous_sources(${TARGET} SOURCES)
+    cmt_target_sources(${TARGET} SOURCES)
 
     set(ALL_ARGS)
 	foreach(ARG ${ARGS_ADDITIONAL_ARGS})

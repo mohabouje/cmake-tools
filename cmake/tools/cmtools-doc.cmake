@@ -24,7 +24,6 @@
 
 include_guard(GLOBAL)
 
-include(FindDoxygen)
 
 # Functions summary:
 # - cmt_find_dot
@@ -242,7 +241,8 @@ function(cmt_generate_doxygen_documentation TARGET)
     if (DEFINED ARGS_MAN)
         set(DOXYGEN_GENERATE_MAN YES)
     endif()
-    
+
+    include(FindDoxygen)
     doxygen_add_docs(
         ${TARGET}
         ${ARGS_SOURCE_DIR}
