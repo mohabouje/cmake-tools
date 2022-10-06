@@ -9,14 +9,8 @@ cmt_cxx_declare_sources(TARGET_SOURCES
 )
 
 cmt_cxx_static_library(example_lib
+    DISABLE_STATIC_ANALYSIS
     SOURCES ${TARGET_SOURCES}
     HEADERS ${TARGET_HEADERS}
     INCLUDE_DIRECTORIES ${CMAKE_CURRENT_LIST_DIR}
 )
-
-# Compiler flags
-cmt_target_enable_all_warnings(example_lib)
-cmt_target_enable_effective_cxx_warnings(example_lib)
-cmt_target_enable_generation_header_dependencies(example_lib)
-cmt_target_enable_warnings_as_errors(example_lib)
-cmt_target_configure_compiler_optimization_options(example_lib)

@@ -90,14 +90,11 @@ endfunction()
 # cmt_enable_cpplint()
 #
 macro(cmt_enable_cpplint)
-    cmt_ensure_target(${TARGET})
-
-    if (CMT_ENABLE_IWYU)
+    if (CMT_ENABLE_CPPLINT)
         cmt_find_cpplint(EXECUTABLE)
         set(CMAKE_CXX_CPPLINT ${EXECUTABLE})
         set(CMAKE_C_CPPLINT ${EXECUTABLE})
     endif()
-
 endmacro()
 
 # ! cmt_target_enable_cpplint
@@ -117,8 +114,8 @@ function(cmt_target_enable_cpplint TARGET)
     endif()
 
     cmt_find_cpplint(EXECUTABLE)
-    set_property(TARGET ${TARGET} PROPERTY CMAKE_CXX_CPPLINT ${EXECUTABLE})
-    set_property(TARGET ${TARGET} PROPERTY CMAKE_C_CPPLINT ${EXECUTABLE})
+    cmt_target_set_property(${TARGET} CXX_CPPLINT ${EXECUTABLE})
+    cmt_target_set_property(${TARGET} C_CPPLINT ${EXECUTABLE})
 endfunction()
 
 # ! cmt_target_generate_cpplint

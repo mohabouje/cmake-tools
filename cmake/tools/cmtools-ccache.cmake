@@ -90,14 +90,11 @@ endfunction()
 # cmt_enable_ccache()
 #
 macro(cmt_enable_ccache)
-    cmt_ensure_target(${TARGET})
-
-    if (CMT_ENABLE_IWYU)
+    if (CMT_ENABLE_CCACHE)
         cmt_find_ccache(EXECUTABLE)
         set(C_COMPILER_LAUNCHER ${EXECUTABLE})
         set(CXX_COMPILER_LAUNCHER ${EXECUTABLE})
     endif()
-
 endmacro()
 
 # ! cmt_target_use_ccache
@@ -117,8 +114,8 @@ function(cmt_target_enable_ccache TARGET)
     endif()
     
     cmt_find_ccache(EXECUTABLE)
-    set_target_properties(${TARGET} PROPERTIES C_COMPILER_LAUNCHER "${EXECUTABLE}")
-    set_target_properties(${TARGET} PROPERTIES CXX_COMPILER_LAUNCHER "${EXECUTABLE}")
+    cmt_target_set_property(${TARGET} C_COMPILER_LAUNCHER ${EXECUTABLE})
+    cmt_target_set_property(${TARGET} CXX_COMPILER_LAUNCHER ${EXECUTABLE})
 endfunction()
 
 

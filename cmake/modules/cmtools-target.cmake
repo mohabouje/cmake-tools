@@ -930,6 +930,28 @@ function(cmt_target_enable_warnings_as_errors TARGET)
 	endif()
 endfunction()
 
+# ! cmt_target_disable_warnings_as_errors Treats all compiler warnings as errors for the target
+#
+# cmt_target_disable_warnings_as_errors(
+#   TARGET
+# )
+#
+# \input TARGET Target to configure
+#
+function(cmt_target_disable_warnings_as_errors TARGET)
+	cmt_ensure_target(${TARGET})
+	cmt_define_compiler()
+	if (CMT_COMPILER MATCHES "CLANG")
+		cmt_target_add_compiler_option(${TARGET} -Wno-error)
+	elseif (CMT_COMPILER MATCHES "GNU")
+		cmt_target_add_compiler_option(${TARGET} -Wno-error)
+	elseif (CMT_COMPILER MATCHES "MSVC")
+		cmt_error("Not implemented for MSVC")
+	else()
+		cmt_warn("Unsupported compiler (${CMAKE_CXX_COMPILER_ID}), warnings not enabled for target ${TARGET}")
+	endif()
+endfunction()
+
 # ! cmt_target_enable_all_warnings Enable all warnings for the major compilers in the target
 #
 # cmt_target_enable_all_warnings(
@@ -1113,17 +1135,17 @@ function(cmt_target_print_compiler_options TARGET)
     cmt_parse_arguments(ARGS "" "" "CONFIG" ${ARGN})
     cmt_ensure_target(${TARGET})
 
-	cmt_debug("Target ${TARGET} Compiler Options:")
+	cmt_log("Target ${TARGET} Compiler Options:")
 	macro(cmt_print_list title list)
-		cmt_status("  > ${title}:")
+		cmt_log("  > ${title}:")
 		foreach(element ${${list}})
-			cmt_debug("    - ${element}")
+			cmt_log("    - ${element}")
 		endforeach()
 	endmacro()
 
 
-	get_target_property(COMPILE_DEFINITIONS ${TARGET} COMPILE_DEFINITIONS)
-	get_target_property(COMPILE_OPTIONS ${TARGET} COMPILE_OPTIONS)
+	cmt_target_get_property(${TARGET} COMPILE_DEFINITIONS COMPILE_DEFINITIONS)
+	cmt_target_get_property(${TARGET} COMPILE_OPTIONS COMPILE_OPTIONS)
 	cmt_print_list("COMPILE_DEFINITIONS" COMPILE_DEFINITIONS)
 	cmt_print_list("COMPILE_OPTIONS" COMPILE_OPTIONS)
 endfunction()
@@ -1144,31 +1166,31 @@ function(cmt_target_print_linker_options TARGET)
     cmt_parse_arguments(ARGS "" "" "CONFIG" ${ARGN})
     cmt_ensure_target(${TARGET}) 
 
-	cmt_debug("Target ${TARGET} Linker Options:")
+	cmt_log("Target ${TARGET} Linker Options:")
 	macro(cmt_print_list title list)
 		if (NOT ${list})
 			return()
 		endif()
 
-		cmt_status("  > ${title}:")
+		cmt_log("  > ${title}:")
 		foreach(element ${${list}})
-			cmt_debug("    - ${element}")
+			cmt_log("    - ${element}")
 		endforeach()
 	endmacro()
 
-	get_target_property(LINK_OPTIONS ${TARGET} LINK_OPTIONS)
-	get_target_property(LINK_FLAGS ${TARGET} LINK_FLAGS)
+	cmt_target_get_property(${TARGET} LINK_OPTIONS LINK_OPTIONS)
+	cmt_target_get_property(${TARGET} LINK_FLAGS LINK_OPTIONS)
 	cmt_print_list("LINK_OPTIONS" LINK_OPTIONS)
 	cmt_print_list("LINK_FLAGS" LINK_FLAGS)
     if(NOT DEFINED ARGS_CONFIG)
         string(TOUPPER ${CMAKE_BUILD_TYPE} config)
-        get_target_property(LINK_FLAGS_${config} ${TARGET} LINK_FLAGS_${config})
+		cmt_target_get_property(${TARGET} LINK_FLAGS_${config} LINK_FLAGS_${config})
 		cmt_print_list("LINK_FLAGS_${config}" LINK_FLAGS_${config})
     else()
         foreach(config ${ARGS_CONFIG})
             cmt_ensure_config(${config})
             string(TOUPPER ${config} config)
-			get_target_property(LINK_FLAGS_${config} ${TARGET} LINK_FLAGS_${config})
+			cmt_target_get_property( ${TARGET} LINK_FLAGS_${config} LINK_FLAGS_${config})
 			cmt_print_list("LINK_FLAGS_${config}" LINK_FLAGS_${config})
         endforeach()
     endif()

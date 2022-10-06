@@ -89,14 +89,11 @@ endfunction()
 # cmt_enable_cppcheck()
 #
 macro(cmt_enable_cppcheck)
-    cmt_ensure_target(${TARGET})
-
-    if (CMT_ENABLE_IWYU)
+    if (CMT_ENABLE_CPPCHECK)
         cmt_find_cppcheck(EXECUTABLE)
         set(CMAKE_CXX_CPPCHECK ${EXECUTABLE})
         set(CMAKE_C_CPPCHECK ${EXECUTABLE})
     endif()
-
 endmacro()
 
 # ! cmt_target_enable_cppcheck
@@ -115,8 +112,8 @@ function(cmt_target_enable_cppcheck TARGET)
     endif()
 
     cmt_find_cppcheck(EXECUTABLE)
-    set_property(TARGET ${TARGET} PROPERTY CMAKE_CXX_CPPCHECK ${EXECUTABLE})
-    set_property(TARGET ${TARGET} PROPERTY CMAKE_C_CPPCHECK ${EXECUTABLE})
+    cmt_target_set_property(${TARGET} CXX_CPPCHECK ${EXECUTABLE})
+    cmt_target_set_property(${TARGET} C_CPPCHECK ${EXECUTABLE})
 endfunction()
 
 # ! cmt_target_generate_cppcheck

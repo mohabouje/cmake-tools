@@ -251,6 +251,15 @@ endfunction()
 # This function creates a target with the specified name and properties
 #
 # __cmt_cxx_add_target(
+#   <DISABLE_STATIC_ANALYSIS>
+#   <DISABLE_CPPLINT>
+#   <DISABLE_CPPCHECK>
+#   <DISABLE_CLANG_TIDY>
+#   <DISABLE_IWYU>
+#   <DISABLE_CCACHE>
+#   <DISABLE_COTIRE>
+#   <DISABLE_WARNINGS_AS_ERRORS>
+#   <DISABLE_LTO>
 #   TARGET_NAME
 #   [TYPE type]
 #   [PREFIX <prefix>]
@@ -280,7 +289,11 @@ endfunction()
 # \group INCLUDE_DIRECTORIES A map include directories
 #
 function(__cmt_cxx_add_target NAME TYPE DOMAIN GROUP)
-    cmt_parse_arguments(ARGS "" "" "HEADERS;SOURCES;DEFINITIONS;LINK_OPTIONS;COMPILE_OPTIONS;INCLUDE_DIRECTORIES;DEPENDENCIES;PACKAGES" ${ARGN})
+    cmt_parse_arguments(ARGS
+            "DISABLE_STATIC_ANALYSIS;DISABLE_CPPLINT;DISABLE_CLANG_TIDY;DISABLE_CPPCHECK;DISABLE_IWYU;DISABLE_CCACHE;DISABLE_COTIRE;DISABLE_WARNINGS_AS_ERRORS;DISABLE_LTO"
+            ""
+            "HEADERS;SOURCES;DEFINITIONS;LINK_OPTIONS;COMPILE_OPTIONS;INCLUDE_DIRECTORIES;DEPENDENCIES;PACKAGES"
+            ${ARGN})
     cmt_ensure_choice(TYPE "STATIC;SHARED;INTERFACE;MODULE;EXECUTABLE")
     cmt_ensure_choice(DOMAIN "PUBLIC;PRIVATE;INTERFACE")
     cmt_ensure_choice(GROUP "LIBRARY;EXECUTABLE;BENCHMARK;TEST")
@@ -297,6 +310,46 @@ function(__cmt_cxx_add_target NAME TYPE DOMAIN GROUP)
     cmt_cxx_target_compile_options(${TARGET_NAME} ${ARGS_COMPILE_OPTIONS})
     cmt_cxx_target_link_options(${TARGET_NAME} ${ARGS_LINK_OPTIONS})
     cmt_cxx_target_set_properties(${TARGET_NAME} ${TYPE} ${DOMAIN} ${GROUP})
+
+    cmt_target_enable_all_warnings(${TARGET_NAME})
+    cmt_target_enable_effective_cxx_warnings(${TARGET_NAME})
+    cmt_target_configure_compiler_optimization_options(${TARGET_NAME})
+
+
+    if (NOT ${ARGS_DISABLE_CPPLINT} AND NOT ${ARGS_DISABLE_STATIC_ANALYSIS})
+        cmt_target_enable_cpplint(${TARGET_NAME})
+    endif ()
+
+    if (NOT ${ARGS_DISABLE_CLANG_TIDY} AND NOT ${ARGS_DISABLE_STATIC_ANALYSIS})
+        cmt_target_enable_clang_tidy(${TARGET_NAME})
+    endif ()
+
+    if (NOT ${ARGS_DISABLE_CPPCHECK} AND NOT ${ARGS_DISABLE_STATIC_ANALYSIS})
+        cmt_target_enable_cppcheck(${TARGET_NAME})
+    endif ()
+
+    if (NOT ${ARGS_DISABLE_IWYU} AND NOT ${ARGS_DISABLE_STATIC_ANALYSIS})
+        cmt_target_enable_iwyu(${TARGET_NAME})
+    endif ()
+
+    if (NOT ${ARGS_DISABLE_CCACHE})
+        cmt_target_enable_ccache(${TARGET_NAME})
+    endif ()
+
+    if (NOT ${ARGS_DISABLE_LTO})
+        cmt_target_enable_lto(${TARGET_NAME})
+    endif ()
+
+    if (NOT ${ARGS_DISABLE_COTIRE})
+        # TODO: add an option to create cotire without mirroring but disabling the original target
+        # cmt_target_enable_cotire(${TARGET_NAME})
+    endif ()
+
+    if (NOT ${ARGS_DISABLE_WARNINGS_AS_ERRORS})
+        cmt_target_enable_warnings_as_errors(${TARGET_NAME})
+    else()
+        cmt_target_disable_warnings_as_errors(${TARGET_NAME})
+    endif ()
 
     string(TOLOWER ${GROUP} GROUP_LOWER)
     string(TOLOWER ${DOMAIN} DOMAIN_LOWER)
@@ -337,11 +390,10 @@ function(cmt_cxx_benchmark NAME)
     cmt_default_argument(ARGS DOMAIN "PRIVATE")
     cmt_forward_arguments(ARGS "" "PREFIX" "HEADERS;SOURCES;DEFINITIONS;LINK_OPTIONS;COMPILE_OPTIONS;INCLUDE_DIRECTORIES;DEPENDENCIES;PACKAGES" FORWARD_ARGS)
     __cmt_cxx_add_target(${NAME} EXECUTABLE ${ARGS_DOMAIN} BENCHMARK ${FORWARD_ARGS})
-
-    cmt_target_configure_compiler_optimization_options(${NAME})
     if (NOT ${CMAKE_BUILD_TYPE} STREQUAL "Release")
         cmt_log("Benchmark ${NAME} was built as ${CMAKE_BUILD_TYPE}. Timings may be affected.")
     endif()
+    cmt_target_register_in_group(${NAME} "benchmark")
 endfunction()
 
 function(cmt_cxx_test NAME)

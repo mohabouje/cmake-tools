@@ -101,7 +101,7 @@ endfunction()
 #
 function (cmt_target_set_property TARGET PROPERTY PROPERTY_VALUE)
     cmt_parse_arguments(ARGS "UNIQUE" "" "" ${ARGN})
-    get_target_property (STORED_PROPERTY ${TARGET} ${PROPERTY})
+    cmt_target_get_property (${TARGET} ${PROPERTY} STORED_PROPERTY)
     if (DEFINED STORED_PROPERTY AND ${ARGS_UNIQUE})
         cmt_fatal("The property ${PROPERTY} is already defined for target ${TARGET} (value ${STORED_PROPERTY})")
     endif()
