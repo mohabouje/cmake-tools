@@ -1177,7 +1177,7 @@ function (cmt_target_generated_sources TARGET RETURN_SOURCES)
 	cmt_ensure_target(${TARGET})
 	get_target_property (TARGET_SOURCES ${TARGET} SOURCES)
 
-	list(_GENERATED_SOURCES)
+	set(_GENERATED_SOURCES)
 	macro(__cmt_append_sources _sources)
 		foreach(_source ${${_sources}})
 			cmt_source_get_property(${_source} CMT_SOURCE_GENERATED STORED_SOURCE_GENERATED)

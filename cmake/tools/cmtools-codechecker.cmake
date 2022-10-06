@@ -79,7 +79,7 @@ function (cmt_find_codechecker EXECUTABLE)
                                       CODECHECKER_EXECUTABLE
                                       CODECHECKER_VERSION)
     cmt_cache_set_tool(CODECHECKER ${CODECHECKER_EXECUTABLE} ${CODECHECKER_VERSION})
-    set (EXECUTABLE ${CODECHECKER_EXECUTABLE} PARENT_SCOPE)
+    set (${EXECUTABLE} ${CODECHECKER_EXECUTABLE} PARENT_SCOPE)
 endfunction()
 
 # Functions summary:
@@ -139,7 +139,7 @@ function(cmt_target_generate_codechecker TARGET)
 
 	file(WRITE "${TARGET_DIR}/skipfile" ${SKIP})
 
-    set(TARGET_NAME "${TARGET}-${ARGS_SUFFIX}")
+    set(TARGET_NAME "${TARGET}_${ARGS_SUFFIX}")
 	add_custom_target( ${TARGET_NAME}
 		DEPENDS "${TARGET_DIR}/skipfile"
 		COMMAND ${EXECUTABLE} analyze

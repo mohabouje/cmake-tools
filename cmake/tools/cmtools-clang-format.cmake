@@ -80,13 +80,50 @@ function (cmt_find_clang_format EXECUTABLE)
 								      CLANG_FORMAT_VERSION)
 
     cmt_cache_set_tool(CLANG_FORMAT ${CLANG_FORMAT_EXECUTABLE} ${CLANG_FORMAT_VERSION})
-    set (EXECUTABLE ${CLANG_FORMAT_EXECUTABLE} PARENT_SCOPE)
+    set (${EXECUTABLE} ${CLANG_FORMAT_EXECUTABLE} PARENT_SCOPE)
+endfunction()
+
+# ! cmt_target_enable_clang_format
+# Enables a PRE_BUILD step to format the source code of the target using clang-format.
+# The generated target lunch clang-format on all the target sources with the specified style
+# in the specified working directory (${CMAKE_CURRENT_SOURCE_DIR} by default}).
+#
+# cmt_target_generate_clang_format(
+#   TARGET
+#   [STYLE <style>] ('file' style by default)
+#   [WORKING_DIRECTORY <work_dir>] (${PROJECT_SOURCE_DIR} by default}).
+# )
+#
+# \param:TARGET TARGET The target to configure
+# \param:STYLE STYLE The clang-format style (file, LLVM, Google, Chromium, Mozilla, WebKit)
+# \param:WORKING_DIRECTORY WORKING_DIRECTORY The clang-format working directory
+#
+function(cmt_target_enable_clang_format TARGET)
+    cmt_parse_arguments(ARGS "" "STYLE;WORKING_DIRECTORY" "" ${ARGN})
+    cmt_default_argument(ARGS STYLE "file")
+    cmt_default_argument(ARGS WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+    cmt_ensure_target(${TARGET})
+
+    if (NOT CMT_ENABLE_CLANG_FORMAT)
+        return()
+    endif()
+
+    cmt_find_clang_format(CLANG_FORMAT_EXECUTABLE)
+
+    set(TARGET_NAME "${TARGET}_${ARGS_SUFFIX}")
+    if (TARGET ${TARGET_NAME})
+        cmt_fatal("${TARGET_NAME} already exists")
+    endif()
+
+    set(CLANG_FORMAT_COMMAND ${CLANG_FORMAT_EXECUTABLE} -style=${ARGS_STYLE} -i @SOURCES@)
+    cmt_forward_arguments(ARGS "" "WORKING_DIRECTORY" "DEPENDENCIES" FORWARD_ARGS)
+    cmt_target_custom_command_for_tool(${TARGET} "clang-format" PRE_BUILD COMMAND ${CLANG_FORMAT_COMMAND} ${FORWARD_ARGS})
 endfunction()
 
 
 # ! cmt_target_generate_clang_format
 # Generate a format target for the target (clang-format-${TARGET}).
-# The generated target lanch clang-format on all the target sources with the specified style 
+# The generated target lunch clang-format on all the target sources with the specified style
 # in the specified working directory (${CMAKE_CURRENT_SOURCE_DIR} by default}).
 #
 # cmt_target_generate_clang_format(
@@ -100,8 +137,8 @@ endfunction()
 # \param:WORKING_DIRECTORY WORKING_DIRECTORY The clang-format working directory
 #
 function(cmt_target_generate_clang_format TARGET)
-    cmt_parse_arguments(ARGS "ALL;DEFAULT;" "STYLE;WORKING_DIRECTORY;GLOBAL;SUFFIX" "" ${ARGN})
-    cmt_default_argument(ARGS STYLE "LLVM")
+    cmt_parse_arguments(ARGS "ALL;DEFAULT;" "STYLE;WORKING_DIRECTORY;GLOBAL;SUFFIX" "ADDITIONAL_FILES;DEPENDENCIES" ${ARGN})
+    cmt_default_argument(ARGS STYLE "file")
     cmt_default_argument(ARGS WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
     cmt_default_argument(ARGS SUFFIX "clang-format")
     cmt_default_argument(ARGS GLOBAL "clang-format")
@@ -111,29 +148,14 @@ function(cmt_target_generate_clang_format TARGET)
     	return()
 	endif()
 
-	cmt_find_clang_format(EXECUTABLE)
+	cmt_find_clang_format(CLANG_FORMAT_EXECUTABLE)
 
-	set(TARGET_NAME "${TARGET}-${ARGS_SUFFIX}")
+	set(TARGET_NAME "${TARGET}_${ARGS_SUFFIX}")
 	if (TARGET ${TARGET_NAME})
 		cmt_fatal("${TARGET_NAME} already exists")
 	endif()
 
-    cmt_target_sources(${TARGET} FORMAT_TARGET_SOURCES)
-	add_custom_target(
-		${TARGET_NAME}
-		COMMAND "${EXECUTABLE}" -style=${ARGS_STYLE} -i ${FORMAT_TARGET_SOURCES}
-		WORKING_DIRECTORY "${ARGS_WORKING_DIRECTORY}"
-        COMMENT "Formatting ${TARGET} sources with clang-format"
-		VERBATIM
-	)
-
-    cmt_target_wire_dependencies(${TARGET} ${ARGS_SUFFIX})
-    cmt_forward_arguments(ARGS "ALL;DEFAULT" "" "" REGISTER_ARGS)
-    cmt_target_register_in_group(${TARGET_NAME} ${ARGS_GLOBAL} ${REGISTER_ARGS})
-    cmt_target_set_ide_directory(${TARGET_NAME} "Format")
-
-    add_custom_command( TARGET ${TARGET_NAME} POST_BUILD
-        COMMAND ;
-        COMMENT "Formatting of files with clang-format for target ${TARGET} completed."
-    )
+    set(CLANG_FORMAT_COMMAND ${CLANG_FORMAT_EXECUTABLE} -style=${ARGS_STYLE} -i @SOURCES@ ${ARGS_ADDITIONAL_FILES})
+    cmt_forward_arguments(ARGS "ALL;DEFAULT" "SUFFIX;GLOBAL;WORKING_DIRECTORY" "ADDITIONAL_FILES;DEPENDENCIES" FORWARDED_ARGS)
+    cmt_target_custom_target_for_tool(${TARGET} "clang-format" COMMAND ${CLANG_FORMAT_COMMAND} ${FORWARDED_ARGS})
 endfunction()

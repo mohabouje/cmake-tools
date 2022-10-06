@@ -88,7 +88,7 @@ function (cmt_find_dot EXECUTABLE)
                                       DOT_EXECUTABLE
                                       DOT_VERSION)
     cmt_cache_set_tool(DOT ${DOT_EXECUTABLE} ${DOT_VERSION})
-    set (EXECUTABLE ${DOT_EXECUTABLE} PARENT_SCOPE)
+    set (${EXECUTABLE} ${DOT_EXECUTABLE} PARENT_SCOPE)
 endfunction()
 
 # ! cmt_find_doxygen
@@ -139,7 +139,7 @@ function (cmt_find_doxygen EXECUTABLE)
                                       DOXYGEN_EXECUTABLE
                                       DOXYGEN_VERSION)
     cmt_cache_set_tool(DOXYGEN ${DOXYGEN_EXECUTABLE} ${DOXYGEN_VERSION})
-    set (EXECUTABLE ${DOXYGEN_EXECUTABLE} PARENT_SCOPE)
+    set (${EXECUTABLE} ${DOXYGEN_EXECUTABLE} PARENT_SCOPE)
 endfunction()
 
 # ! cmt_find_latex
@@ -196,7 +196,7 @@ function (cmt_find_latex EXECUTABLE)
                                       LATEX_VERSION)
 
     cmt_cache_set_tool(LATEX ${LATEX_EXECUTABLE} ${LATEX_VERSION})
-    set (EXECUTABLE ${LATEX_EXECUTABLE} PARENT_SCOPE)
+    set (${EXECUTABLE} ${LATEX_EXECUTABLE} PARENT_SCOPE)
 endfunction()
 
 

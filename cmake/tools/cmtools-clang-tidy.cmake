@@ -84,7 +84,7 @@ function (cmt_find_clang_tidy EXECUTABLE)
                                       CLANG_TIDY_VERSION)
 
     cmt_cache_set_tool(CLANG_TIDY ${CLANG_TIDY_EXECUTABLE} ${CLANG_TIDY_VERSION})
-    set (EXECUTABLE ${CLANG_TIDY_EXECUTABLE} PARENT_SCOPE)
+    set (${EXECUTABLE} ${CLANG_TIDY_EXECUTABLE} PARENT_SCOPE)
 endfunction()
 
 # ! cmt_target_generate_clang_tidy
@@ -146,7 +146,7 @@ function(cmt_target_generate_clang_tidy TARGET)
 
     cmt_find_clang_tidy(EXECUTABLE)
 
-    set(TARGET_NAME ${TARGET}-${ARGS_SUFFIX})
+    set(TARGET_NAME ${TARGET}_${ARGS_SUFFIX})
     cmt_target_create_mirror(${TARGET} ${ARGS_SUFFIX})
     cmt_target_enable_clang_tidy(${TARGET_NAME})
     cmt_forward_arguments(ARGS "ALL;DEFAULT" "" "" REGISTER_ARGS)

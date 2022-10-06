@@ -65,24 +65,64 @@ function (cmt_find_lizard EXECUTABLE)
         "The 'lizard' executable was not found in any search or system paths.\n"
         "Please adjust LIZARD_SEARCH_PATHS to the installation prefix of the 'lizard' executable or install lizard")
 
-    # if (LIZARD_EXECUTABLE)
-    #     set (LIZARD_VERSION_HEADER "")
-    #     cmt_find_tool_extract_version("${LIZARD_EXECUTABLE}"
-    #                                   LIZARD_VERSION
-    #                                   VERSION_ARG -V
-    #                                   VERSION_HEADER
-    #                                   "${LIZARD_VERSION_HEADER}"
-    #                                   VERSION_END_TOKEN "\n")
-    # endif()
+     if (LIZARD_EXECUTABLE)
+         cmt_find_tool_extract_version("${LIZARD_EXECUTABLE}"
+                                       LIZARD_VERSION
+                                       VERSION_ARG --version)
+     endif()
 
-    set(LIZARD_VERSION "Unknown")
     cmt_check_and_report_tool_version(lizard
                                       "${LIZARD_VERSION}"
                                       REQUIRED_VARS
                                       LIZARD_EXECUTABLE
                                       LIZARD_VERSION)
     cmt_cache_set_tool(LIZARD ${LIZARD_EXECUTABLE} ${LIZARD_VERSION})
-    set (EXECUTABLE ${LIZARD_EXECUTABLE} PARENT_SCOPE)
+    set (${EXECUTABLE} ${LIZARD_EXECUTABLE} PARENT_SCOPE)
+endfunction()
+
+# ! cmt_target_enable_lizard
+# Add a PRE_BUILD step to run lizard on the target.
+#
+# cmt_target_enable_lizard(
+#   TARGET
+#   <WARNING>
+#   [ADDITIONAL_FILES <file> ...]
+#   [ADDITIONAL_ARGS <arg> ...]
+# )
+#
+# \input TARGET The target to add the PRE_BUILD step.
+# \option WARNING If set the results from lizard will be treated as warnings.
+# \group ADDITIONAL_FILES Additional files to be added to the lizard target.
+# \group ADDITIONAL_ARGS Additional arguments to be passed to the lizard target.
+#
+function(cmt_target_enable_lizard TARGET)
+    cmt_parse_arguments(ARGS "WARNING" "WORKING_DIRECTORY" "ADDITIONAL_ARGS;ADDITIONAL_FILES;DEPENDENCIES" ${ARGN})
+    cmt_default_argument(ARGS SUFFIX "lizard")
+    cmt_default_argument(ARGS GLOBAL "lizard")
+    cmt_default_argument(ARGS WORKING_DIRECTORY "${CMAKE_PROJECT_SOURCE_DIR}")
+    cmt_ensure_target(${TARGET})
+
+    if (NOT CMT_ENABLE_LIZARD)
+        return()
+    endif()
+
+    cmt_find_lizard(LIZARD_EXECUTABLE)
+    cmt_target_sources(${TARGET} SOURCES)
+
+    set(ALL_ARGS)
+    foreach(ARG ${ARGS_ADDITIONAL_ARGS})
+        list(APPEND ALL_ARGS ${ARG} )
+    endforeach()
+
+    if (${WARNING})
+        set( LIZARD_ERROR 0 )
+    else()
+        set( LIZARD_ERROR 1 )
+    endif()
+
+    set(LIZARD_COMMAND ${LIZARD_EXECUTABLE} ${ALL_ARGS} --languages cpp --sort cyclomatic_complexity --warnings_only ${ARGS_ADDITIONAL_FILES} @SOURCES@ || exit ${LIZARD_ERROR})
+    cmt_forward_arguments(ARGS "" "WORKING_DIRECTORY" "DEPENDENCIES" FORWARD_ARGS)
+    cmt_target_custom_command_for_tool(${TARGET} "lizard" PRE_BUILD COMMAND ${LIZARD_COMMAND} ${FORWARD_ARGS})
 endfunction()
 
 # ! cmt_target_generate_lizard
@@ -99,16 +139,17 @@ endfunction()
 # )
 #
 # \input TARGET The target to generate the lizard target for.
-# \option STATIC_ERROR The error to be thrown if the target is not found.
+# \option WARNING If set the results from lizard will be treated as warnings.
 # \param SUFFIX The suffix of the target. Default: lizard
 # \param GLOBAL The global target to which the target will be added. Default: lizard
 # \group ADDITIONAL_FILES Additional files to be added to the lizard target.
 # \group ADDITIONAL_ARGS Additional arguments to be passed to the lizard target.
 #
 function(cmt_target_generate_lizard TARGET)
-	cmt_parse_arguments(ARGS "STATIC_ERROR;ALL;DEFAULT" "SUFFIX;GLOBAL" "ADITIONAL_FILES;ADDITIONAL_ARGS" ${ARGN})
+	cmt_parse_arguments(ARGS "WARNING;ALL;DEFAULT" "SUFFIX;GLOBAL;WORKING_DIRECTORY" "ADDITIONAL_ARGS;DEPENDENCIES" ${ARGN})
     cmt_default_argument(ARGS SUFFIX "lizard")
     cmt_default_argument(ARGS GLOBAL "lizard")
+    cmt_default_argument(ARGS WORKING_DIRECTORY "${CMAKE_PROJECT_SOURCE_DIR}")
     cmt_ensure_target(${TARGET})
     
     if (NOT CMT_ENABLE_LIZARD)
@@ -123,32 +164,14 @@ function(cmt_target_generate_lizard TARGET)
 		list(APPEND ALL_ARGS ${ARG} )
 	endforeach()
 
-	if (DEFINED ARGS_STATIC_ERROR )
-		set( LIZARD_ERROR 1 )
-	else()
+	if (${ARGS_WARNING})
 		set( LIZARD_ERROR 0 )
+	else()
+		set( LIZARD_ERROR 1 )
 	endif()
 
-    set(TARGET_NAME "${TARGET}-${ARGS_SUFFIX}")
-	if (TARGET ${TARGET_NAME})
-		cmt_fatal("${TARGET_NAME} already exists")
-	endif()
-
-    add_custom_target(
-        ${TARGET_NAME}
-        SOURCES ${SOURCES} ${ARGS_ADDITIONAL_FILES}
-        COMMENT "Running lizard on ${TARGET}"
-        COMMAND ${LIZARD_EXECUTABLE} ${ALL_ARGS} ${SOURCES} ${ARGS_ADDITIONAL_FILES} || exit ${LIZARD_ERROR}
-    )
-
-    add_dependencies( ${TARGET_NAME} ${TARGET})
-    add_custom_command( TARGET ${TARGET_NAME} POST_BUILD
-      COMMAND ;
-      COMMENT "Lizard checks for target ${TARGET} completed."
-    )
-    cmt_target_wire_dependencies(${TARGET} ${ARGS_SUFFIX})
-    cmt_forward_arguments(ARGS "ALL;DEFAULT" "" "" REGISTER_ARGS)
-    cmt_target_register_in_group(${TARGET_NAME} ${ARGS_GLOBAL} ${REGISTER_ARGS})
-
+    set(LIZARD_COMMAND ${LIZARD_EXECUTABLE} ${ALL_ARGS} --languages cpp --sort cyclomatic_complexity --warnings_only ${ARGS_ADDITIONAL_FILES} @SOURCES@ || exit ${LIZARD_ERROR})
+    cmt_forward_arguments(ARGS "WARNING;ALL;DEFAULT" "SUFFIX;GLOBAL;WORKING_DIRECTORY" "ADDITIONAL_ARGS;DEPENDENCIES" FORWARDED_ARGS)
+    cmt_target_custom_target_for_tool(${TARGET} "lizard" COMMAND ${LIZARD_COMMAND} ${FORWARDED_ARGS})
 endfunction()
 

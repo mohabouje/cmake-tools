@@ -81,7 +81,7 @@ function (cmt_find_iwyu EXECUTABLE)
                                       IWYU_EXECUTABLE
                                       IWYU_VERSION)
     cmt_cache_set_tool(IWYU ${IWYU_EXECUTABLE} ${IWYU_VERSION})
-    set (EXECUTABLE ${IWYU_EXECUTABLE} PARENT_SCOPE)
+    set (${EXECUTABLE} ${IWYU_EXECUTABLE} PARENT_SCOPE)
 endfunction()
 
 # ! cmt_target_generate_iwyu\
@@ -140,7 +140,7 @@ function(cmt_target_generate_iwyu TARGET)
 
     cmt_find_iwyu(EXECUTABLE)
 
-    set(TARGET_NAME ${TARGET}-${ARGS_SUFFIX})
+    set(TARGET_NAME ${TARGET}_${ARGS_SUFFIX})
     cmt_target_create_mirror(${TARGET} ${ARGS_SUFFIX})
     cmt_target_enable_iwyu(${TARGET_NAME})
     cmt_forward_arguments(ARGS "ALL;DEFAULT" "" "" REGISTER_ARGS)

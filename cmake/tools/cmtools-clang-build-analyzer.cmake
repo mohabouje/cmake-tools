@@ -82,7 +82,7 @@ function (cmt_find_clang_build_analyzer EXECUTABLE)
                                       CLANG_BUILD_ANALYZER_VERSION)
 
     cmt_cache_set_tool(CLANG_BUILD_ANALYZER ${CLANG_BUILD_ANALYZER_EXECUTABLE} ${CLANG_BUILD_ANALYZER_VERSION})
-    set (EXECUTABLE ${CLANG_BUILD_ANALYZER_EXECUTABLE} PARENT_SCOPE)
+    set (${EXECUTABLE} ${CLANG_BUILD_ANALYZER_EXECUTABLE} PARENT_SCOPE)
 endfunction()
 
 # ! cmt_target_generate_clang_build_analyzer
@@ -112,7 +112,7 @@ function(cmt_target_generate_clang_build_analyzer TARGET)
 
     cmt_find_clang_build_analyzer(CLANG_BUILD_ANALYZER_EXECUTABLE)
 
-    set(TARGET_NAME "${TARGET}-${ARGS_SUFFIX}")
+    set(TARGET_NAME "${TARGET}_${ARGS_SUFFIX}")
     set(TARGET_DIR "${ARGS_BINARY_DIR}/CMakeFiles/${TARGET}_build_analyzer.dir" )
 
     target_compile_options(${TARGET} PRIVATE -ftime-trace)

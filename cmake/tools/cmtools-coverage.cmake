@@ -77,7 +77,7 @@ function (cmt_find_lcov EXECUTABLE)
                                       REQUIRED_VARS
                                       LCOV_EXECUTABLE
                                       LCOV_VERSION)
-    set (EXECUTABLE ${LCOV_EXECUTABLE} PARENT_SCOPE)
+    set (${EXECUTABLE} ${LCOV_EXECUTABLE} PARENT_SCOPE)
     cmt_cache_set_tool(LCOV ${LCOV_EXECUTABLE} ${LCOV_VERSION})
 endfunction()
 
@@ -134,7 +134,7 @@ function (cmt_find_genhtml EXECUTABLE)
                                       GENHTML_EXECUTABLE
                                       GENHTML_VERSION)
     cmt_cache_set_tool(GENHTML ${GENHTML_EXECUTABLE} ${GENHTML_VERSION})
-    set (EXECUTABLE ${GENHTML_EXECUTABLE} PARENT_SCOPE)
+    set (${EXECUTABLE} ${GENHTML_EXECUTABLE} PARENT_SCOPE)
 endfunction()
 
 # ! cmt_find_llvm_cov
@@ -190,7 +190,7 @@ function (cmt_find_llvm_cov EXECUTABLE)
                                       LLVM_COV_EXECUTABLE
                                       LLVM_COV_VERSION)
     cmt_cache_set_tool(LLVM_COV ${LLVM_COV_EXECUTABLE} ${LLVM_COV_VERSION})
-    set (EXECUTABLE ${LLVM_COV_EXECUTABLE} PARENT_SCOPE)
+    set (${EXECUTABLE} ${LLVM_COV_EXECUTABLE} PARENT_SCOPE)
 endfunction()
 
 # ! cmt_find_llvm_profdata
@@ -246,7 +246,7 @@ function (cmt_find_llvm_profdata EXECUTABLE)
                                       LLVM_PROFDATA_EXECUTABLE
                                       LLVM_PROFDATA_VERSION)
     cmt_cache_set_tool(LLVM_PROFDATA ${LLVM_PROFDATA_EXECUTABLE} ${LLVM_PROFDATA_VERSION})
-    set (EXECUTABLE ${LLVM_PROFDATA_EXECUTABLE} PARENT_SCOPE)
+    set (${EXECUTABLE} ${LLVM_PROFDATA_EXECUTABLE} PARENT_SCOPE)
 endfunction()
 
 # ! cmt_target_generate_coverage

@@ -81,7 +81,7 @@ function (cmt_find_cpplint EXECUTABLE)
                                       CPPLINT_EXECUTABLE
                                       CPPLINT_VERSION)
     cmt_cache_set_tool(CPPLINT ${CPPLINT_EXECUTABLE} ${CPPLINT_VERSION})
-    set (EXECUTABLE ${CPPLINT_EXECUTABLE} PARENT_SCOPE)
+    set (${EXECUTABLE} ${CPPLINT_EXECUTABLE} PARENT_SCOPE)
 endfunction()
 
 # ! cmt_target_generate_cpplint
@@ -139,7 +139,7 @@ function(cmt_target_generate_cpplint TARGET)
 
     cmt_find_cpplint(EXECUTABLE)
 
-    set(TARGET_NAME ${TARGET}-${ARGS_SUFFIX})
+    set(TARGET_NAME ${TARGET}_${ARGS_SUFFIX})
     cmt_target_create_mirror(${TARGET} ${ARGS_SUFFIX})
     cmt_target_enable_cpplint(${TARGET_NAME})
     cmt_forward_arguments(ARGS "ALL;DEFAULT" "" "" REGISTER_ARGS)

@@ -80,7 +80,7 @@ function (cmt_find_cppcheck EXECUTABLE)
                                       CPPCHECK_EXECUTABLE
                                       CPPCHECK_VERSION)
     cmt_cache_set_tool(CPPCHECK ${CPPCHECK_EXECUTABLE} ${CPPCHECK_VERSION})
-    set (EXECUTABLE ${CPPCHECK_EXECUTABLE} PARENT_SCOPE)
+    set (${EXECUTABLE} ${CPPCHECK_EXECUTABLE} PARENT_SCOPE)
 endfunction()
 
 # ! cmt_target_generate_cppcheck
@@ -137,7 +137,7 @@ function(cmt_target_generate_cppcheck TARGET)
 
     cmt_find_cppcheck(EXECUTABLE)
 
-    set(TARGET_NAME ${TARGET}-${ARGS_SUFFIX})
+    set(TARGET_NAME ${TARGET}_${ARGS_SUFFIX})
     cmt_target_create_mirror(${TARGET} ${ARGS_SUFFIX})
     cmt_target_enable_cppcheck(${TARGET_NAME})
     cmt_forward_arguments(ARGS "ALL;DEFAULT" "" "" REGISTER_ARGS)

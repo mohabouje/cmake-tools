@@ -81,7 +81,7 @@ function (cmt_find_ccache EXECUTABLE)
                                       CCACHE_VERSION)
 
     cmt_cache_set_tool(CCACHE ${CCACHE_EXECUTABLE} ${CCACHE_VERSION})
-    set (EXECUTABLE ${CCACHE_EXECUTABLE} PARENT_SCOPE)
+    set (${EXECUTABLE} ${CCACHE_EXECUTABLE} PARENT_SCOPE)
 endfunction()
 
 # ! cmt_target_generate_ccache\
@@ -140,7 +140,7 @@ function(cmt_target_generate_ccache TARGET)
 
     cmt_find_ccache(EXECUTABLE)
 
-    set(TARGET_NAME ${TARGET}-${ARGS_SUFFIX})
+    set(TARGET_NAME ${TARGET}_${ARGS_SUFFIX})
     cmt_target_create_mirror(${TARGET} ${ARGS_SUFFIX})
     cmt_target_enable_ccache(${TARGET_NAME})
 

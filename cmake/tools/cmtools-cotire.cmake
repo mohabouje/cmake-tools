@@ -87,7 +87,7 @@ function(cmt_target_generate_cotire TARGET)
         set_source_files_properties(${EXCLUDE_FILE} PROPERTIES COTIRE_EXCLUDED TRUE)
     endforeach()
     
-    set(UNITY_TARGET ${TARGET}-${ARGS_SUFFIX})
+    set(UNITY_TARGET ${TARGET}_${ARGS_SUFFIX})
     if (TARGET ${UNITY_TARGET})
         cmt_warning("Target ${UNITY_TARGET} already exists")
         return()

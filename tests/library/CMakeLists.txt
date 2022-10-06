@@ -20,6 +20,11 @@ cmt_cxx_library(example_static
     HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/example.hpp
     INCLUDE_DIRECTORIES ${CMAKE_CURRENT_LIST_DIR}
 )
+cmt_target_enable_lizard(example_static)
+cmt_target_enable_clang_format(example_static)
+
+cmt_target_generate_lizard(example_static)
+cmt_target_generate_clang_format(example_static)
 
 cmt_cxx_bridge_library(example_alias
     DISABLE_STATIC_ANALYSIS
