@@ -238,6 +238,7 @@ endmacro()
 #   TARGET
 #   <option1> <option2>...
 #   [LANG <lang>]
+#   [OS <os>]
 #   [COMPILER <compiler>]
 #   [CONFIG <config1> <config2>...]
 # )
@@ -245,11 +246,12 @@ endmacro()
 # \input TARGET Target to add flag
 # \input List of compiler flags to add
 # \param LANG Language of the flag (C|CXX)
+# \param OS Operating system to check the flag (WINDOWS|LINUX|MACOS)
 # \param COMPILER Compiler to check the flag (GCC|CLANG|MSVC)
 # \group CONFIG Configs for the property to change (Debug Release RelWithDebInfo MinSizeRel)
 #
 function(cmt_target_add_compiler_options TARGET)
-    cmt_parse_arguments(ARGS "" "LANG;COMPILER" "CONFIG" ${ARGN})
+    cmt_parse_arguments(ARGS "" "LANG;COMPILER;OS" "CONFIG" ${ARGN})
     cmt_ensure_targets(${TARGET}) 
 
 	# TODO: use arguments forwarding instead of complex parsing
@@ -260,7 +262,14 @@ function(cmt_target_add_compiler_options TARGET)
         if (NOT ${CMT_COMPILER} STREQUAL ${ARGS_COMPILER})
             return()
         endif()
-    endif()
+	endif()
+
+	If (DEFINED ARGS_OS)
+		cmt_define_os()
+		if (NOT ${CMT_OS} STREQUAL ${ARGS_OS})
+			return()
+		endif()
+	endif()
 
 	if (DEFINED ARGS_LANG)
 	    cmt_ensure_lang(${ARGS_LANG})
@@ -336,27 +345,35 @@ endmacro()
 #   OPTION
 #   [LANG <lang>]
 #   [COMPILER <compiler>]
+#   [OS <os>]
 #   [CONFIG <config1> <config2>...]
 # )
 #
 # \input TARGET Target to add flag
 # \input Linker flag to add
 # \param LANG Language of the flag (C|CXX)
+# \param OS The operative system to check the flag (WINDOWS|LINUX|MACOS)
 # \param COMPILER Compiler to check the flag (GCC|CLANG|MSVC)
 # \group CONFIG Configs for the property to change (Debug Release RelWithDebInfo MinSizeRel)
 #
 function(cmt_target_add_linker_option TARGET OPTION)
-    cmt_parse_arguments(ARGS "" "LANG;COMPILER" "CONFIG" ${ARGN})
+    cmt_parse_arguments(ARGS "" "LANG;COMPILER;OS" "CONFIG" ${ARGN})
     cmt_ensure_target(${TARGET}) 
-
     if (DEFINED ARGS_COMPILER)
         cmt_define_compiler()
         if (NOT ${CMT_COMPILER} STREQUAL ${ARGS_COMPILER})
             return()
         endif()
-    endif()
+	endif()
 
-	if (DEFINED ARGS_LANG)
+	If (DEFINED ARGS_OS)
+		cmt_define_os()
+		if (NOT ${CMT_OS} STREQUAL ${ARGS_OS})
+			return()
+		endif()
+	endif()
+
+	if (ARGS_LANG)
 	    cmt_ensure_lang(${ARGS_LANG})
 		set(LANGUAGES ${ARGS_LANG})
 	else()

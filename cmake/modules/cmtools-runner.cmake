@@ -60,7 +60,12 @@ function (cmt_target_custom_command_for_tool TARGET TOOL_NAME)
     cmt_forward_arguments(ARGS "SKIP_GENERATED;SKIP_HEADERS" "" "" TARGET_SOURCES_ARGS)
     cmt_target_sources(${TARGET} FILTERED_SOURCES ${TARGET_SOURCE_ARGS})
 
-    cmt_forward_arguments(ARGS "PRE_BUILD;PRED_LINK;POST_BUILD" "" "" ADD_CUSTOM_COMMAND_ARGS)
+    cmt_target_get_property(${TARGET} TYPE TYPE_LOADED)
+    if (TYPE_LOADED STREQUAL "INTERFACE_LIBRARY")
+        return()
+    endif()
+
+        cmt_forward_arguments(ARGS "PRE_BUILD;PRED_LINK;POST_BUILD" "" "" ADD_CUSTOM_COMMAND_ARGS)
     if (${ARGS_SINGLE_FILE})
         foreach (SOURCE ${FILTERED_SOURCES})
             string (CONFIGURE "${ARGS_COMMAND}" CONFIGURED_COMMAND @ONLY)

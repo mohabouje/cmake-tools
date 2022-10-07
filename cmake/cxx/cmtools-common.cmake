@@ -253,7 +253,7 @@ endfunction()
 
 macro(cmt_cxx_target_ensure_linker_options TARGET)
     cmt_parse_arguments(ARGS "" "" "INTERFACE;PUBLIC;PRIVATE" ${ARGN})
-    macro(cmt_cxx_ensure_linker_option FLAGS)
+    macro(__cmt_cxx_ensure_linker_option FLAGS)
         foreach(FLAG ${${FLAGS}})
             cmt_check_linker_option(RESULT OPTION ${FLAG} LANG CXX)
             if (NOT RESULT)

@@ -337,17 +337,16 @@ function (cmt_conan_import_package PACKAGE_NAME)
         endif()
     endif()
 
+    cmt_forward_arguments(ARGS "REQUIRED" "" "COMPONENTS" FIND_PACKAGE)
+    cmt_logger_set_scoped_context("WARNING" "CONAN")
+    find_package(${PACKAGE_NAME} ${FIND_PACKAGE})
+    cmt_logger_discard_scoped_context()
+
     cmt_cache_get_package(${PACKAGE_NAME} PACKAGE_FOUND PACKAGE_COMPONENT)
     if (${PACKAGE_FOUND})
         cmt_debug("Skipping importing ${PACKAGE_NAME} because it is already imported")
         return()
     endif()
-
-    cmt_forward_arguments(ARGS "REQUIRED" "" "COMPONENTS" FIND_PACKAGE)
-
-    cmt_logger_set_scoped_context("WARNING" "CONAN")
-    find_package(${PACKAGE_NAME} ${FIND_PACKAGE})
-    cmt_logger_discard_scoped_context()
 
     __cmt_conan_collect_components(${PACKAGE_NAME} PACKAGE_COMPONENTS)
     cmt_log("Imported components [${PACKAGE_COMPONENTS}] from conan package ${PACKAGE_NAME}")

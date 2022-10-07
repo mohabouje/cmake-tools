@@ -23,7 +23,6 @@
 ##################################################################################
 
 include_guard(GLOBAL)
-include(GoogleTest)
 
 # ! cmt_cxx_google_test
 # Creates a new Google Test executable.
@@ -55,6 +54,9 @@ function(cmt_cxx_google_test NAME)
     cmt_cxx_target_set_packages(${NAME} PRIVATE gtest)
     cmt_cxx_target_set_compile_options(${NAME} PRIVATE -DGTEST_LINKED_AS_SHARED_LIBRARY)
     cmt_target_add_compiler_options(${NAME} -Wno-global-constructors COMPILER CLANG)
+
+    enable_testing()
+    include(GoogleTest)
     gtest_discover_tests(${NAME})
     add_test(NAME ${NAME} COMMAND ${NAME})
 endfunction()

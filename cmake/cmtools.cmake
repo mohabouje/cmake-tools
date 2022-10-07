@@ -28,6 +28,7 @@ include (FetchContent)
 # Default value for some variables
 set(CMT_DEFAULT_BUILD_TYPE "Debug" CACHE STRING "Choose the type of build." FORCE)
 
+option(CMT_ENABLE_STATIC_ANALYSIS 		"Enable the different static analyzer in all targets" 					OFF)
 option(CMT_ENABLE_CCACHE                "Enable the integration of ccache into the build system"                ON)
 option(CMT_ENABLE_CLANG_BUILD_ANALYZER  "Enable the integration of clang-tidy into the build system"            OFF)
 option(CMT_ENABLE_CLANG_FORMAT          "Enable the integration of clang-format into the build system"          ON)
