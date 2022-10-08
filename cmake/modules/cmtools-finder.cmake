@@ -100,7 +100,7 @@ endfunction()
 # \group PATH_SUFFIXES Suffixes on each installation root (eg, bin)
 function (cmt_find_tool_executable EXECUTABLE_TO_FIND PATH_RETURN)
     cmt_parse_arguments (FIND_TOOL_EXECUTABLE "" "" "CUSTOM_PATHS;PATH_SUFFIXES" ${ARGN})
-
+    cmt_default_argument(FIND_TOOL_EXECUTABLE CUSTOM_PATHS "/usr;/usr/local;/opt/homebrew")
     unset (PATH_TO_EXECUTABLE CACHE)
     if (FIND_TOOL_EXECUTABLE_CUSTOM_PATHS)
         set (PATHS ${FIND_TOOL_EXECUTABLE_CUSTOM_PATHS})

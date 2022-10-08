@@ -1,3 +1,4 @@
+
 ##################################################################################
 # MIT License                                                                    #
 #                                                                                #
@@ -24,82 +25,42 @@
 
 include_guard(GLOBAL)
 
-# Functions summary:
-# - cmt_ensure_choice
-# - cmt_ensure_target
+# ! cmt_yacg_configure
+# Generate all protocols from the standard folder
+#
+# cmt_yacg_configure()
+#
+function(cmt_yacg_configure)
+    cmt_parse_arguments(ARGS "" "SCHEMA;INSTALL_DIR" "" ${ARGN})
+    cmt_default_argument(ARGS SCHEMA "${PROJECT_SOURCE_DIR}/schema")
+    cmt_default_argument(ARGS INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}/.yacg")
 
+    cmt_log("Generating protocols from ${ARGS_SCHEMA} to ${ARGS_INSTALL_DIR}")
 
-# ! cmt_ensure_choice
-# This function check if the variable contain one of the choices
-#
-# cmt_ensure_choice(
-#   VARIABLE
-#   [OPTIONS option, ...]
-# )
-#
-# \input VARIABLE The variable to check
-# \group OPTIONS List of choices
-#
-function(cmt_ensure_choice VARIABLE)
-    cmt_parse_arguments (ARGS "" "" "" ${ARGN})
-    list(FIND ARGS_UNPARSED_ARGUMENTS ${VARIABLE} INDEX)
-    if (INDEX EQUAL -1)
-        message(FATAL_ERROR "The variable ${VARIABLE} must be one of the following values: ${ARGS_UNPARSED_ARGUMENTS}")
+    find_package(PythonInterp REQUIRED)
+    execute_process(COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/yacg/yacg.py --schema-path ${ARGS_SCHEMA} --root-path ${ARGS_INSTALL_DIR}
+            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+            RESULT_VARIABLE EXECUTION_RETURN_CODE
+            OUTPUT_VARIABLE EXECUTION_OUTPUT)
+    if(NOT ${EXECUTION_RETURN_CODE} EQUAL 0)
+        file(GLOB_RECURSE YACG_FILES ${PROJECT_SOURCE_DIR}/yacgdeps/*)
+        file (REMOVE ${YACG_FILES})
+        cmt_fatal("YACG failed with code ${EXECUTION_RETURN_CODE}: ${YACG_OUTPUT}")
     endif()
-endfunction()
 
-
-# ! cmt_ensure_target : Checks if the list of targets exist and are valid
-#
-# cmt_ensure_target(TARGET)
-#
-# \input TARGET Target to check
-#
-function(cmt_ensure_target TARGET)
-    if(NOT TARGET ${TARGET})
-        cmt_fatal("${TARGET} is not a valid target.")
-    endif()
-endfunction()
-
-# ! cmt_ensure_not_target
-# Checks if the list of targets exist and throw an error if it does
-#
-# cmt_ensure_target(TARGET)
-#
-# \input TARGET Target to check
-#
-function(cmt_ensure_not_target TARGET)
-    if(TARGET ${TARGET})
-        cmt_fatal("${TARGET} already exist.")
-    endif()
-endfunction()
-
-#! cmt_ensure_config
-# Checks if the configuration is valid
-#
-# The following variables are checked:
-# - Debug
-# - Release
-# - RelWithDebInfo
-# - MinSizeRel
-#
-# cmt_ensure_config(BUILD_TYPE)
-#
-# \input BUILD_TYPE The build type to check
-#
-function(cmt_ensure_config BUILD_TYPE)
-    cmt_ensure_choice(${BUILD_TYPE} Debug Release RelWithDebInfo MinSizeRel)
-endfunction()
-
-#! cmt_ensure_lang Checks if the language is valid
-#
-# The following variables are checked:
-# - C
-# - CXX
-#
-# cmt_ensure_lang(LANGUAGE)
-#
-# \input LANGUAGE The language to check
-function(cmt_ensure_lang LANGUAGE)
-    cmt_ensure_choice(${LANGUAGE} C CXX)
+    macro(subdirlist result curdir)
+        file(GLOB children RELATIVE ${curdir} ${curdir}/*)
+        set(dirlist "")
+        foreach(child ${children})
+            if(IS_DIRECTORY ${curdir}/${child})
+                list(APPEND dirlist ${child})
+            endif()
+        endforeach()
+        set(${result} ${dirlist})
+    endmacro()
+    
+    subdirlist(YACG_DEPENDENCIES  ${PROJECT_SOURCE_DIR}/yacgdeps)
+    foreach(dependency ${YACG_DEPENDENCIES})
+        add_subdirectory(${ARGS_INSTALL_DIR}/${dependency})
+    endforeach()
 endfunction()

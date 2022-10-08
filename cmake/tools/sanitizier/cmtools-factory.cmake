@@ -125,8 +125,8 @@ endfunction()
 #
 function(cmt_target_generate_sanitizer TARGET)
     cmt_parse_arguments(ARGS "ALL;DEFAULT;${CMT_SANITIZER_AVAILABLE}" "SUFFIX;GLOBAL" "CONFIG" ${ARGN})
-    cmt_default_argument(ARGS SUFFIX "cpplint")
-    cmt_default_argument(ARGS GLOBAL "cpplint")
+    cmt_default_argument(ARGS SUFFIX "sanitizer")
+    cmt_default_argument(ARGS GLOBAL "sanitizer")
     cmt_ensure_target(${TARGET})
 
     if (NOT CMT_ENABLE_SANITIZER)
