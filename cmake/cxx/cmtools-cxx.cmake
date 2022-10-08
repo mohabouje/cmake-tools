@@ -154,7 +154,8 @@ set(CMT_CXX_DISABLE_OPTIONS
         DISABLE_WARNINGS_AS_ERRORS
         DISABLE_LTO
         DISABLE_LIZARD
-        DISABLE_CLANG_FORMAT)
+        DISABLE_CLANG_FORMAT
+        DISABLE_SANITIZER)
 set(CMT_CXX_MAPPED_OPTIONS
         HEADERS
         SOURCES
@@ -163,7 +164,8 @@ set(CMT_CXX_MAPPED_OPTIONS
         COMPILE_OPTIONS
         INCLUDE_DIRECTORIES
         DEPENDENCIES
-        PACKAGES)
+        PACKAGES
+        SANITIZER)
 mark_as_advanced(CMT_CXX_DISABLE_OPTIONS CMT_CXX_MAPPED_OPTIONS)
 
 # ! __cmt_cxx_add_target
@@ -179,6 +181,7 @@ mark_as_advanced(CMT_CXX_DISABLE_OPTIONS CMT_CXX_MAPPED_OPTIONS)
 #   <DISABLE_COTIRE>
 #   <DISABLE_WARNINGS_AS_ERRORS>
 #   <DISABLE_LTO>
+#   <DISABLE_SANITIZER>
 #   TARGET_NAME
 #   [TYPE type]
 #   [PREFIX <prefix>]
@@ -233,50 +236,43 @@ function(__cmt_cxx_add_target NAME TYPE DOMAIN GROUP)
     cmt_target_enable_compiler_optimizations(${TARGET_NAME})
     cmt_target_enable_debug_symbols(${TARGET_NAME})
 
-    if (${CMT_ENABLE_STATIC_ANALYSIS} AND NOT ${ARGS_DISABLE_STATIC_ANALYSIS})
-        if (NOT ${ARGS_DISABLE_CPPLINT})
-            cmt_debug("Enable cpplint for target ${TARGET_NAME}")
-            cmt_target_enable_cpplint(${TARGET_NAME})
-        endif ()
+    if (NOT ${ARGS_DISABLE_CPPLINT})
+        cmt_target_enable_cpplint(${TARGET_NAME})
+    endif ()
 
-        if (NOT ${ARGS_DISABLE_CLANG_TIDY})
-            cmt_debug("Enable clang-tidy for target ${TARGET_NAME}")
-            cmt_target_enable_clang_tidy(${TARGET_NAME})
-        endif ()
+    if (NOT ${ARGS_DISABLE_CLANG_TIDY})
+        cmt_target_enable_clang_tidy(${TARGET_NAME})
+    endif ()
 
-        if (NOT ${ARGS_DISABLE_CPPCHECK})
-            cmt_debug("Enable cppcheck for target ${TARGET_NAME}")
-            cmt_target_enable_cppcheck(${TARGET_NAME})
-        endif ()
+    if (NOT ${ARGS_DISABLE_CPPCHECK})
+        cmt_target_enable_cppcheck(${TARGET_NAME})
+    endif ()
 
-        if (NOT ${ARGS_DISABLE_IWYU})
-            cmt_debug("Enable include-what-you-use for target ${TARGET_NAME}")
-            cmt_target_enable_iwyu(${TARGET_NAME})
-        endif ()
+    if (NOT ${ARGS_DISABLE_IWYU})
+        cmt_target_enable_iwyu(${TARGET_NAME})
+    endif ()
 
-        if (NOT ${ARGS_DISABLE_IWYU})
-            cmt_debug("Enable include-what-you-use for target ${TARGET_NAME}")
-            cmt_target_enable_iwyu(${TARGET_NAME})
-        endif ()
-
-        if (NOT ${ARGS_DISABLE_LIZARD})
-            cmt_debug("Enable lizard for target ${TARGET_NAME}")
-            cmt_target_enable_lizard(${TARGET_NAME})
-        endif ()
+    if (NOT ${ARGS_DISABLE_LIZARD})
+        cmt_target_enable_lizard(${TARGET_NAME})
     endif ()
 
     if (NOT ${ARGS_DISABLE_CLANG_FORMAT})
-        cmt_debug("Enable clang-format for target ${TARGET_NAME}")
         cmt_target_enable_clang_format(${TARGET_NAME})
     endif ()
 
     if (NOT ${ARGS_DISABLE_CCACHE})
-        cmt_target_enable_ccache(${TARGET_NAME})
+        cmt_target_enable_compiler_cache(${TARGET_NAME})
     endif ()
 
     if (NOT ${ARGS_DISABLE_LTO})
         cmt_target_enable_lto(${TARGET_NAME})
     endif ()
+
+    if (NOT ${ARGS_DISABLE_SANITIZER})
+        foreach(SANITIZER ${ARGS_SANITIZERS})
+            cmt_target_enable_sanitizer(${TARGET_NAME} ${SANITIZER})
+        endforeach()
+    endif()
 
     if (NOT ${ARGS_DISABLE_COTIRE})
         # TODO: add an option to create cotire without mirroring but disabling the original target

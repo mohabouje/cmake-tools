@@ -102,6 +102,10 @@ function(cmt_target_enable_lizard TARGET)
     cmt_default_argument(ARGS WORKING_DIRECTORY "${CMAKE_PROJECT_SOURCE_DIR}")
     cmt_ensure_target(${TARGET})
 
+    if (NOT CMT_ENABLE_STATIC_ANALYSIS )
+        return()
+    endif()
+
     if (NOT CMT_ENABLE_LIZARD)
         return()
     endif()
@@ -123,6 +127,7 @@ function(cmt_target_enable_lizard TARGET)
     set(LIZARD_COMMAND ${LIZARD_EXECUTABLE} ${ALL_ARGS} --languages cpp --sort cyclomatic_complexity --warnings_only ${ARGS_ADDITIONAL_FILES} @SOURCES@ || exit ${LIZARD_ERROR})
     cmt_forward_arguments(ARGS "" "WORKING_DIRECTORY" "DEPENDENCIES" FORWARD_ARGS)
     cmt_target_custom_command_for_tool(${TARGET} "lizard" PRE_BUILD COMMAND ${LIZARD_COMMAND} ${FORWARD_ARGS})
+    cmt_log("Enable lizard checks for target ${TARGET}")
 endfunction()
 
 # ! cmt_target_generate_lizard
@@ -151,7 +156,11 @@ function(cmt_target_generate_lizard TARGET)
     cmt_default_argument(ARGS GLOBAL "lizard")
     cmt_default_argument(ARGS WORKING_DIRECTORY "${CMAKE_PROJECT_SOURCE_DIR}")
     cmt_ensure_target(${TARGET})
-    
+
+    if (NOT CMT_ENABLE_STATIC_ANALYSIS )
+        return()
+    endif()
+
     if (NOT CMT_ENABLE_LIZARD)
         return()
     endif()

@@ -107,9 +107,9 @@ function(cmt_target_generate_cotire TARGET)
     set_target_properties(${TEMPORAL_TARGET} PROPERTIES COTIRE_UNITY_TARGET_NAME ${UNITY_TARGET})
 
     cmt_forward_arguments(ARGS "" "" "LANGUAGES" COTIRE_ARGS)
-    cmt_logger_set_scoped_context(STATUS COTIRE)
+    cmt_logger_set_scoped_context(STATUS cotire)
     cotire (${TEMPORAL_TARGET} ${COTIRE_ARGS} CONFIGURATIONS ${CMAKE_BUILD_TYPE})
-    cmt_logger_discard_scoped_context()
+    cmt_logger_reset_scoped_context()
     cmt_ensure_target(${UNITY_TARGET})
 
 

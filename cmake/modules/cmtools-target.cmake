@@ -1057,6 +1057,11 @@ endfunction()
 function(cmt_target_enable_lto TARGET)
     cmt_parse_arguments(LTO "REQUIRED" "" "" ${ARGN})
     cmt_ensure_target(${TARGET})
+
+	if (NOT CMT_ENABLE_LTO)
+		return()
+	endif()
+
     check_ipo_supported(RESULT IPO_RESULT OUTPUT IPO_OUTPUT LANGUAGES CXX)
     if (IPO_RESULT)
         set_property(TARGET ${TARGET} PROPERTY INTERPROCEDURAL_OPTIMIZATION ON)

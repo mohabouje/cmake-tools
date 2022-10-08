@@ -190,7 +190,7 @@ macro (cmt_check_and_report_tool_version PREFIX VERSION)
                                        REQUIRED_VARS
                                        ${_PSQ_CHECK_${PREFIX}_REQUIRED_VARS}
                                        VERSION_VAR VERSION)
-    cmt_logger_discard_scoped_context()
+    cmt_logger_reset_scoped_context()
     if (${PREFIX}_FOUND)
         foreach (VARIABLE ${_PSQ_CHECK_${PREFIX}_REQUIRED_VARS})
             set (${VARIABLE} ${${VARIABLE}} CACHE STRING "" FORCE PARENT_SCOPE)

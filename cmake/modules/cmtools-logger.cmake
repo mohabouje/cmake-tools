@@ -25,54 +25,81 @@
 include_guard(GLOBAL)
 
 set(CMT_DEFAULT_LOG_LEVEL "STATUS" CACHE STRING "Default log level" FORCE)
-set(CMT_DEFAULT_LOG_PREFIX "CMT" CACHE STRING "Set the logger level" FORCE)
-mark_as_advanced(CMT_DEFAULT_LOG_LEVEL CMT_DEFAULT_LOG_PREFIX)
+set(CMT_DEFAULT_LOG_PREFIX "cmt" CACHE STRING "Set the logger level" FORCE)
+set(CMT_SUPPORTED_LOG_LEVELS
+        DEPRECATION
+        STATUS
+        VERBOSE
+        NOTICE
+        DEBUG
+        TRACE
+        WARNING
+        SEND_ERROR
+        FATAL_ERROR
+        ERROR
+        AUTHOR_WARNING
+        CHECK_START
+        CHECK_PASS
+        CHECK_FAIL
+        OFF)
+mark_as_advanced(CMT_DEFAULT_LOG_LEVEL CMT_DEFAULT_LOG_PREFIX CMT_SUPPORTED_LOG_LEVELS)
+set_property(GLOBAL PROPERTY CMT_LOG_LEVEL_GLOBAL ${CMT_DEFAULT_LOG_LEVEL})
+set_property(GLOBAL PROPERTY CMT_LOG_PREFIX_GLOBAL ${CMT_DEFAULT_LOG_PREFIX})
+set_property(GLOBAL PROPERTY CMT_LOG_LEVEL_SCOPED ${CMT_DEFAULT_LOG_LEVEL})
+set_property(GLOBAL PROPERTY CMT_LOG_PREFIX_SCOPED ${CMT_DEFAULT_LOG_PREFIX})
 
-function (cmt_logger_setup)
-    cmt_set_global_property(CMT_LOG_LEVEL ${CMT_DEFAULT_LOG_LEVEL})
-    cmt_set_global_property(CMT_LOG_PREFIX ${CMT_DEFAULT_LOG_PREFIX})
-endfunction()
-
-function(cmt_logger_set_scoped_level LEVEL)
-    cmt_ensure_choice(${LEVEL} "DEPRECATION" "STATUS" "VERBOSE" "NOTICE" "DEBUG" "TRACE" "WARNING" "SEND_ERROR" "FATAL_ERROR" "OFF")
-    set(CMT_LOG_LEVEL ${LEVEL} PARENT_SCOPE)
-endfunction()
-
-function(cmt_logger_set_scoped_context LEVEL PREFIX)
-    cmt_ensure_choice(${LEVEL} "DEPRECATION" "STATUS" "VERBOSE" "NOTICE" "DEBUG" "TRACE" "WARNING" "SEND_ERROR" "FATAL_ERROR" "OFF")
-    set(CMT_LOG_LEVEL ${LEVEL} PARENT_SCOPE)
-    set(CMT_LOG_PREFIX ${PREFIX} PARENT_SCOPE)
-endfunction()
-
-function(cmt_logger_get_scoped_context LEVEL PREFIX)
-    set(${LEVEL} ${STORED_LOG_LEVEL} PARENT_SCOPE)
-    set(${PREFIX} ${STORED_LOG_PREFIX} PARENT_SCOPE)
-endfunction()
-
-function(cmt_logger_discard_scoped_context)
-    unset(CMT_LOG_LEVEL PARENT_SCOPE)
-    unset(CMT_LOG_PREFIX PARENT_SCOPE)
-endfunction()
-
-function(cmt_logger_get_context LEVEL PREFIX)
-    cmt_get_global_property(CMT_LOG_LEVEL STORED_LOG_LEVEL)
-    cmt_get_global_property(CMT_LOG_PREFIX STORED_LOG_PREFIX)
-    set(${LEVEL} ${STORED_LOG_LEVEL} PARENT_SCOPE)
-    set(${PREFIX} ${STORED_LOG_PREFIX} PARENT_SCOPE)
-endfunction()
-
-function(cmt_logger_set_context LEVEL PREFIX)
-    cmt_ensure_choice(${LEVEL} "DEPRECATION" "STATUS" "VERBOSE" "NOTICE" "DEBUG" "TRACE" "WARNING" "SEND_ERROR" "FATAL_ERROR" "OFF")
-    cmt_set_global_property(CMT_LOG_LEVEL ${LEVEL})
-    cmt_set_global_property(CMT_LOG_PREFIX ${PREFIX})
+function (cmt_logger_set_prefix PREFIX)
+    cmt_set_global_property(CMT_LOG_PREFIX_GLOBAL ${PREFIX})
+    cmt_set_global_property(CMT_LOG_PREFIX_SCOPED ${PREFIX})
 endfunction()
 
 function(cmt_logger_set_level LEVEL)
-    cmt_ensure_choice(${LEVEL} "DEPRECATION" "STATUS" "VERBOSE" "NOTICE" "DEBUG" "TRACE" "WARNING" "SEND_ERROR" "FATAL_ERROR" "OFF")
-    cmt_set_global_property(CMT_LOG_LEVEL ${LEVEL})
+    cmt_ensure_choice(${LEVEL} ${CMT_SUPPORTED_LOG_LEVELS})
+    cmt_set_global_property(CMT_LOG_LEVEL_GLOBAL ${LEVEL})
+    cmt_set_global_property(CMT_LOG_LEVEL_SCOPED ${LEVEL})
 endfunction()
 
-macro (__cmt_logger_level_penalty LEVEL PENALTY)
+function(cmt_logger_set_context LEVEL PREFIX)
+    cmt_ensure_choice(${LEVEL} ${CMT_SUPPORTED_LOG_LEVELS})
+    cmt_set_global_property(CMT_LOG_LEVEL_GLOBAL ${LEVEL})
+    cmt_set_global_property(CMT_LOG_PREFIX_GLOBAL ${PREFIX})
+    cmt_set_global_property(CMT_LOG_LEVEL_SCOPED ${LEVEL})
+    cmt_set_global_property(CMT_LOG_PREFIX_SCOPED ${PREFIX})
+endfunction()
+
+function(cmt_logger_get_context LEVEL PREFIX)
+    cmt_get_global_property(CMT_LOG_LEVEL_GLOBAL LOADED_LEVEL)
+    cmt_get_global_property(CMT_LOG_PREFIX_GLOBAL LOADED_PREFIX)
+    set(${LEVEL} ${LOADED_LEVEL} PARENT_SCOPE)
+    set(${PREFIX} ${LOADED_PREFIX} PARENT_SCOPE)
+endfunction()
+
+function(cmt_logger_set_scoped_level LEVEL)
+    cmt_ensure_choice(${LEVEL} ${CMT_SUPPORTED_LOG_LEVELS})
+    cmt_set_global_property(CMT_LOG_LEVEL_SCOPED ${LEVEL})
+endfunction()
+
+function(cmt_logger_set_scoped_context LEVEL PREFIX)
+    cmt_ensure_choice(${LEVEL} ${CMT_SUPPORTED_LOG_LEVELS})
+    cmt_set_global_property(CMT_LOG_LEVEL_SCOPED ${LEVEL})
+    cmt_set_global_property(CMT_LOG_PREFIX_SCOPED ${PREFIX})
+endfunction()
+
+function(cmt_logger_get_scoped_context LEVEL PREFIX)
+    cmt_get_global_property(CMT_LOG_LEVEL_SCOPED LOADED_LEVEL REQUIRED)
+    cmt_get_global_property(CMT_LOG_PREFIX_SCOPED LOADED_PREFIX REQUIRED)
+    set(${LEVEL} ${LOADED_LEVEL} PARENT_SCOPE)
+    set(${PREFIX} ${LOADED_PREFIX} PARENT_SCOPE)
+endfunction()
+
+function(cmt_logger_reset_scoped_context)
+    cmt_get_global_property(CMT_LOG_LEVEL_GLOBAL LOADED_LEVEL REQUIRED)
+    cmt_get_global_property(CMT_LOG_PREFIX_GLOBAL LOADED_PREFIX REQUIRED)
+    cmt_set_global_property(CMT_LOG_LEVEL_SCOPED ${LOADED_LEVEL})
+    cmt_set_global_property(CMT_LOG_PREFIX_SCOPED ${LOADED_PREFIX})
+endfunction()
+
+macro (cmt_logger_level_penalty LEVEL PENALTY)
     if (${LEVEL} STREQUAL "VERBOSE")
         set(${PENALTY} 0)
     elseif (${LEVEL} STREQUAL "DEBUG")
@@ -100,40 +127,18 @@ macro (__cmt_logger_level_penalty LEVEL PENALTY)
     endif ()
 endmacro()
 
-function (__cmt_logger_get_current_context LEVEL PREFIX)
-    macro(__cmt_variable_or_property VARNAME STORED_VALUE)
-        if (DEFINED ${VARNAME} AND NOT ${VARNAME} STREQUAL "")
-            set(${STORED_VALUE} ${${VARNAME}})
-        else ()
-            cmt_get_global_property(${VARNAME} PROPERTY_VALUE)
-            set(${STORED_VALUE} ${PROPERTY_VALUE})
-        endif ()
-    endmacro()
-
-    __cmt_variable_or_property(CMT_LOG_LEVEL STORED_LOG_LEVEL_RETRIEVED)
-    __cmt_variable_or_property(CMT_LOG_PREFIX STORED_LOG_PREFIX_RETRIEVED)
-    set(${LEVEL} ${STORED_LOG_LEVEL_RETRIEVED} PARENT_SCOPE)
-    set(${PREFIX} ${STORED_LOG_PREFIX_RETRIEVED} PARENT_SCOPE)
-endfunction()
-
-
 function(message)
     cmake_parse_arguments(ARGS "" "PREFIX" "" ${ARGN})
-
-    # Check that value is part of possible log levels
-    set(SUPPORTED_LEVELS "DEPRECATION" "STATUS" "VERBOSE" "NOTICE" "DEBUG" "TRACE"
-            "WARNING" "SEND_ERROR" "FATAL_ERROR" "ERROR" "AUTHOR_WARNING" "CHECK_START"
-            "CHECK_PASS" "CHECK_FAIL" "OFF")
-    list(FIND SUPPORTED_LEVELS ${ARGV0} LEVEL_INDEX)
+    list(FIND CMT_SUPPORTED_LOG_LEVELS ${ARGV0} LEVEL_INDEX)
     if (LEVEL_INDEX EQUAL -1)
         _message(WARNING "Invalid log level: ${ARGN}")
         return()
     endif()
 
-    __cmt_logger_level_penalty(${ARGV0} LEVEL_PENALTY)
-    __cmt_logger_get_current_context(CURRENT_LEVEL CURRENT_PREFIX)
-    __cmt_logger_level_penalty(CURRENT_LEVEL CURRENT_PENALTY)
-    if (CURRENT_PENALTY GREATER LEVEL_PENALTY)
+    cmt_logger_get_scoped_context(SCOPED_LEVEL SCOPED_PREFIX)
+    cmt_logger_level_penalty(${ARGV0} ARGUMENT_LEVEL_PENALTY)
+    cmt_logger_level_penalty(${SCOPED_LEVEL} SCOPED_LEVEL_PENALTY)
+    if (SCOPED_LEVEL_PENALTY GREATER ARGUMENT_LEVEL_PENALTY)
         return()
     endif ()
 
@@ -141,7 +146,7 @@ function(message)
     if (ARGS_PREFIX)
         set(PREFIX "${NOW} ${ARGS_PREFIX}")
     else ()
-        set(PREFIX "${NOW} ${CURRENT_PREFIX}")
+        set(PREFIX "${NOW} ${SCOPED_PREFIX}")
     endif ()
 
     _message(${ARGV0} "${PREFIX} ${ARGV1}")

@@ -211,6 +211,10 @@ function(cmt_generate_doxygen_documentation TARGET)
     cmt_default_argument(ARGS PROJECT_NUMBER ${PROJECT_VERSION})
     cmt_default_argument(ARGS PROJECT_DESCRIPTION ${PROJECT_DESCRIPTION})
 
+    if (NOT CMT_ENABLE_DOCUMENTATION)
+        return()
+    endif()
+
     if (NOT CMT_ENABLE_DOXYGEN)
         return()
     endif()
@@ -270,6 +274,10 @@ macro(cmt_generate_dependency_graph TARGET)
 
     if (TARGET ${TARGET})
         cmt_fatal("Target ${TARGET} already exists")
+    endif()
+
+    if (NOT CMT_ENABLE_DEPENDENCY_GRAPH)
+        return()
     endif()
 
     if (NOT CMT_ENABLE_GRAPHVIZ)

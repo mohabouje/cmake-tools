@@ -144,6 +144,10 @@ function(cmt_target_generate_clang_format TARGET)
     cmt_default_argument(ARGS GLOBAL "clang-format")
     cmt_ensure_target(${TARGET}) 
 
+    if (NOT CMT_ENABLE_CODE_FORMATTING)
+        return()
+    endif()
+
 	if (NOT CMT_ENABLE_CLANG_FORMAT)
     	return()
 	endif()

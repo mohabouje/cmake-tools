@@ -114,81 +114,15 @@ function(cmt_target_generate_codechecker TARGET)
     cmt_default_argument(ARGS SUFFIX "codechecker")
     cmt_default_argument(ARGS GLOBAL "codechecker")
     cmt_ensure_target(${TARGET})
-    
+
+	if (NOT CMT_ENABLE_STATIC_ANALYSIS )
+		return()
+	endif()
+
     if (NOT CMT_ENABLE_CODECHECKER)
         return()
     endif()
 
     cmt_find_codechecker(EXECUTABLE)
-
-	if (DEFINED ARGS_CTU)
-		set(CTU_ARG --ctu)
-	endif()
-
-	set(TARGET_DIR "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${TARGET_NAME}.dir")
-
-	if (CODECHECKER_ADDITIONAL_OPTIONAL_REPORTS)
-		set(ARE_OPTIONAL_REPORTS "true")
-	else()
-		set(ARE_OPTIONAL_REPORTS "false")
-	endif()
-
-	foreach(LINE ${CODECHECKER_SKIP})
-		list(APPEND SKIP "${LINE}\n")
-	endforeach()
-
-	file(WRITE "${TARGET_DIR}/skipfile" ${SKIP})
-
-    set(TARGET_NAME "${TARGET}_${ARGS_SUFFIX}")
-	add_custom_target( ${TARGET_NAME}
-		DEPENDS "${TARGET_DIR}/skipfile"
-		COMMAND ${EXECUTABLE} analyze
-			-i "${TARGET_DIR}/skipfile"
-			-o "${TARGET_DIR}/codechecker_reports"
-			${CTU_ARG}
-			${CODECHECKER_ARGS}
-		COMMENT "Run CodeChecker analyzers, generate report"
-		)
-
-	if (CMT_ENABLE_CODECHECKER_REPORT)
-		foreach( REPORT_DIR ${CODECHECKER_ADDITIONAL_OPTIONAL_REPORTS} )
-			add_custom_command( TARGET ${TARGET_NAME}
-				POST_BUILD
-				COMMAND
-					${TEST_COMMAND} -d ${REPORT_DIR}
-					&& ${CMAKE_COMMAND} -E copy_directory
-						${CODECHECKER_ADDITIONAL_OPTIONAL_REPORTS}
-						"${TARGET_DIR}/codechecker_reports"
-					|| ${CMAKE_COMMAND} -E true
-				)
-		endforeach()
-	endif()
-
-	add_custom_command( TARGET ${TARGET_NAME}
-		POST_BUILD
-		COMMAND ${EXECUTABLE} parse
-			-o "${TARGET_DIR}/html"
-			--trim-path-prefix "${CMAKE_SOURCE_DIR}"
-			-e html
-			# TODO Would very simplify but does not seems to work properly (bug?)
-#			${CODECHECKER_ADDITIONAL_OPTIONAL_REPORTS}
-			"${TARGET_DIR}/codechecker_reports"
-			|| ${CMAKE_COMMAND} -E true
-		)
-
-	add_custom_command( TARGET ${TARGET_NAME}
-		POST_BUILD
-		COMMENT "${TARGET_DIR}/html/index.html"
-		)
-
-	set_property(
-		TARGET ${TARGET_NAME}
-		PROPERTY
-		ADDITIONAL_CLEAN_FILES
-			"${TARGET_DIR}/codechecker_reports"
-			"${TARGET_DIR}/html"
-		)
-    cmt_target_wire_dependencies(${TARGET} ${ARGS_SUFFIX})
-	cmt_forward_arguments(ARGS "ALL;DEFAULT" "" "" REGISTER_ARGS)
-	cmt_target_register_in_group(${TARGET_NAME} ${ARGS_GLOBAL} ${REGISTER_ARGS})
+	cmt_fatal("Not implemented")
 endfunction()

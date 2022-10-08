@@ -106,7 +106,7 @@ function(cmt_target_generate_clang_build_analyzer TARGET)
     endif()
 
     cmt_define_compiler()
-    if (NOT ${CMT_COMPILER} STREQUAL "CLANG")
+    if (NOT ${CMT_COMPILER} STREQUAL "../llvm_tooling")
         return()
     endif()
 

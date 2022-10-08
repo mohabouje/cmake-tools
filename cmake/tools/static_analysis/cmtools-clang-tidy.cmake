@@ -25,123 +25,142 @@
 include_guard(GLOBAL)
 
 # Functions summary:
-# - cmt_target_use_cpplint
+# - cmt_find_clang_tidy
+# - cmt_target_generate_clang_tidy
+# - cmt_target_enable_clang_tidy
 
-# ! cmt_find_cpplint
-# Try to find the cpplint executable.
+# ! cmt_find_clang_tidy
+# Try to find the clang-tidy executable.
 # If the executable is not found, the function will throw an error.
 #
-# cmt_find_cpplint(
+# cmt_find_clang_tidy(
 #   EXECUTABLE
 # )
 #
-# \output EXECUTABLE The path to the cpplint executable.
+# \output EXECUTABLE The path to the clang-tidy executable.
+# \output CLANG_TIDY_FOUND - True if the executable is found, false otherwise.
 # \param BIN_SUBDIR - The subdirectory where the executable is located.
 # \group NAMES - The name of the executable.
 #
-function (cmt_find_cpplint EXECUTABLE)
+function (cmt_find_clang_tidy EXECUTABLE)
     cmt_parse_arguments(ARGS "" "BIN_SUBDIR" "NAMES" ${ARGN})
-    cmt_default_argument(ARGS NAMES "cpplint;")
+    cmt_default_argument(ARGS NAMES "clang-tidy;")
     cmt_default_argument(ARGS BIN_SUBDIR bin)
 
-    cmt_cache_get_tool(CPPLINT EXECUTABLE_FOUND EXECUTABLE_PATH EXECUTABLE_VERSION)
+    cmt_cache_get_tool(CLANG_TIDY EXECUTABLE_FOUND EXECUTABLE_PATH EXECUTABLE_VERSION)
     if (${EXECUTABLE_FOUND})
         set(${EXECUTABLE} ${EXECUTABLE_PATH} PARENT_SCOPE)
         return()
     endif()
 
-
-    foreach (CPPLINT_EXECUTABLE_NAME ${ARGS_NAMES})
-         cmt_find_tool_executable (${CPPLINT_EXECUTABLE_NAME}
-                                  CPPLINT_EXECUTABLE
-                                  PATHS ${CPPLINT_SEARCH_PATHS}
+    foreach (CLANG_TIDY_EXECUTABLE_NAME ${ARGS_NAMES})
+         cmt_find_tool_executable (${CLANG_TIDY_EXECUTABLE_NAME}
+                                  CLANG_TIDY_EXECUTABLE
+                                  PATHS ${CLANG_TIDY_SEARCH_PATHS}
                                   PATH_SUFFIXES "${ARGS_BIN_SUBDIR}")
-        if (CPPLINT_EXECUTABLE)
+        if (CLANG_TIDY_EXECUTABLE)
             break()
         endif()
     endforeach()
 
-    cmt_report_not_found_if_not_quiet (cpplint CPPLINT_EXECUTABLE
-        "The 'cpplint' executable was not found in any search or system paths.\n"
-        "Please adjust CPPLINT_SEARCH_PATHS to the installation prefix of the 'cpplint' executable or install cpplint")
+    cmt_report_not_found_if_not_quiet (clang-tidy CLANG_TIDY_EXECUTABLE
+        "The 'clang-tidy' executable was not found in any search or system paths.\n"
+        "Please adjust CLANG_TIDY_SEARCH_PATHS to the installation prefix of the 'clang-tidy' executable or install clang-tidy")
 
-    if (CPPLINT_EXECUTABLE)
-        set (CPPLINT_VERSION_HEADER "Cpplint fork (https://github.com/cpplint/cpplint)\ncpplint ")
-        cmt_find_tool_extract_version("${CPPLINT_EXECUTABLE}"
-                                      CPPLINT_VERSION
+    if (CLANG_TIDY_EXECUTABLE)
+        set (CLANG_TIDY_VERSION_HEADER "LLVM version ")
+        cmt_find_tool_extract_version("${CLANG_TIDY_EXECUTABLE}"
+                                      CLANG_TIDY_VERSION
                                       VERSION_ARG --version
                                       VERSION_HEADER
-                                      "${CPPLINT_VERSION_HEADER}"
+                                      "${CLANG_TIDY_VERSION_HEADER}"
                                       VERSION_END_TOKEN "\n")
     endif()
 
-    cmt_check_and_report_tool_version(cpplint
-                                      "${CPPLINT_VERSION}"
+    cmt_check_and_report_tool_version(clang-tidy
+                                      "${CLANG_TIDY_VERSION}"
                                       REQUIRED_VARS
-                                      CPPLINT_EXECUTABLE
-                                      CPPLINT_VERSION)
-    cmt_cache_set_tool(CPPLINT ${CPPLINT_EXECUTABLE} ${CPPLINT_VERSION})
-    set (${EXECUTABLE} ${CPPLINT_EXECUTABLE} PARENT_SCOPE)
+                                      CLANG_TIDY_EXECUTABLE
+                                      CLANG_TIDY_VERSION)
+
+    cmt_cache_set_tool(CLANG_TIDY ${CLANG_TIDY_EXECUTABLE} ${CLANG_TIDY_VERSION})
+    set (${EXECUTABLE} ${CLANG_TIDY_EXECUTABLE} PARENT_SCOPE)
 endfunction()
 
-# ! cmt_target_generate_cpplint
+# ! cmt_target_generate_clang_tidy
 # Enable include-what-you-use in all targets.
 #
-# cmt_enable_cpplint()
+# cmt_enable_clang_tidy()
 #
-macro(cmt_enable_cpplint)
-    if (CMT_ENABLE_CPPLINT)
-        cmt_find_cpplint(EXECUTABLE)
-        set(CMAKE_CXX_CPPLINT ${EXECUTABLE})
-        set(CMAKE_C_CPPLINT ${EXECUTABLE})
-    endif()
-endmacro()
-
-# ! cmt_target_enable_cpplint
-# Enable include-what-you-use checks on the given target
-#
-# cmt_target_enable_cpplint(
-#   TARGET
-# )
-#
-# \input TARGET The target to enable the cpplint checks
-#
-function(cmt_target_enable_cpplint TARGET)
-    cmt_ensure_target(${TARGET})
-
-    if (NOT CMT_ENABLE_CPPLINT)
+function(cmt_enable_clang_tidy)
+    if (NOT CMT_ENABLE_STATIC_ANALYSIS )
         return()
     endif()
 
-    cmt_find_cpplint(EXECUTABLE)
-    cmt_target_set_property(${TARGET} CXX_CPPLINT ${EXECUTABLE})
-    cmt_target_set_property(${TARGET} C_CPPLINT ${EXECUTABLE})
+    if (NOT CMT_ENABLE_CLANG_TIDY)
+        return()
+    endif()
+
+    cmt_find_clang_tidy(EXECUTABLE)
+    set(CMAKE_CXX_INCLUDE_CLANG_TIDY ${EXECUTABLE} PARENT_SCOPE)
+    set(CMAKE_C_INCLUDE_CLANG_TIDY ${EXECUTABLE} PARENT_SCOPE)
 endfunction()
 
-# ! cmt_target_generate_cpplint
-# Generates a new target that compiles with cpplint
+
+# ! cmt_target_enable_clang_tidy
+# Enable clang-tidy checks on the given target
 #
-# cmt_target_generate_cpplint(
+# cmt_target_use_clang_tidy(
+#   TARGET
+# )
+#
+# \input TARGET The target to enable clang-tidy checks for.
+#
+function(cmt_target_enable_clang_tidy TARGET)
+    cmt_ensure_target(${TARGET})
+
+    if (NOT CMT_ENABLE_STATIC_ANALYSIS)
+        return()
+    endif()
+
+    if (NOT CMT_ENABLE_CLANG_TIDY)
+        return()
+    endif()
+
+    cmt_find_clang_tidy(EXECUTABLE)
+    set_property(TARGET ${TARGET} PROPERTY CMAKE_CXX_INCLUDE_CLANG_TIDY ${EXECUTABLE})
+    set_property(TARGET ${TARGET} PROPERTY CMAKE_C_INCLUDE_CLANG_TIDY ${EXECUTABLE})
+    cmt_log("Enable clang-tidy checks for target ${TARGET}")
+endfunction()
+
+# ! cmt_target_generate_clang_tidy
+# Generates a new target that compiles with clang_tidy
+#
+# cmt_target_generate_clang_tidy(
 #   TARGET
 # )
 #
 # \input TARGET The target to configure
 #
-function(cmt_target_generate_cpplint TARGET)
-    cmt_parse_arguments(ARGS "ALL;DEFAULT;" "SUFFIX;GLOBAL" "" ${ARGN})
-    cmt_default_argument(ARGS SUFFIX "cpplint")
-    cmt_default_argument(ARGS GLOBAL "cpplint")
+function(cmt_target_generate_clang_tidy TARGET)
+    cmt_parse_arguments(ARGS "ALL;DEFAULT" "SUFFIX;GLOBAL" "" ${ARGN})
+    cmt_default_argument(ARGS SUFFIX "clang-tidy")
+    cmt_default_argument(ARGS GLOBAL "clang-tidy")
     cmt_ensure_target(${TARGET})
-    
-    if (NOT CMT_ENABLE_CCACHE)
+
+    if (NOT CMT_ENABLE_STATIC_ANALYSIS)
         return()
     endif()
 
-    cmt_find_cpplint(EXECUTABLE)
+    if (NOT CMT_ENABLE_CLANG_TIDY)
+        return()
+    endif()
+
+    cmt_find_clang_tidy(EXECUTABLE)
 
     set(TARGET_NAME ${TARGET}_${ARGS_SUFFIX})
     cmt_target_create_mirror(${TARGET} ${ARGS_SUFFIX})
-    cmt_target_enable_cpplint(${TARGET_NAME})
+    cmt_target_enable_clang_tidy(${TARGET_NAME})
     cmt_forward_arguments(ARGS "ALL;DEFAULT" "" "" REGISTER_ARGS)
     cmt_target_register_in_group(${TARGET_NAME} ${ARGS_GLOBAL} ${REGISTER_ARGS})
 endfunction()

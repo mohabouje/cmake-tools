@@ -25,33 +25,4 @@
 include_guard(GLOBAL)
 
 
-# Functions summary:
-# - cmt_target_add_precompiled_headers
-
-# ! cmt_target_add_precompiled_headers 
-# Adds precompiled headers to the target.
-#
-# cmt_target_add_precompiled_headers(
-#   <FORCEINCLUDE>
-#   TARGET
-#   [HEADERS <header1> <header2> ...]
-# )
-#
-# \input TARGET The target to configure
-# \group HEADERS The list of headers to include
-# \option FORCEINCLUDE Force the inclusion of the headers
-#
-function(cmt_target_add_precompiled_headers TARGET)
-    cmt_parse_arguments(ARGS "FORCEINCLUDE" "" "HEADERS" ${ARGN})
-    cmt_required_arguments(ARGS "" "" "HEADERS")
-    cmt_ensure_targets(${TARGET}) 
-
-    if (NOT CMT_ENABLE_PRECOMPILED_HEADERS)
-        return()
-    endif()
-
-    cmt_forward_arguments(ARGS "FORCEINCLUDE" "" "" ADD_PRECOMPILED_HEADER)
-    foreach (HEADER ${ARGS_HEADERS})
-        add_precompiled_header(${TARGET} ${HEADER} ${ADD_PRECOMPILED_HEADER})
-    endforeach()
-endfunction()
+option(CMT_ENABLE_SANITIZERS    "Enable the integration of sanitizers into the build system"    ON)
