@@ -25,12 +25,12 @@
 include_guard(GLOBAL)
 
 # Options to control the integration of compiler cache
-option(CMT_ENABLE_COMPILER_CACHE        "Enable the usage of compiler cache to speed up the compilation"    ON)
-option(CMT_ENABLE_CCACHE                "Enable the integration of ccache into the build system"            ON)
-option(CMT_ENABLE_SCCACHE               "Enable the integration of sccache into the build system"           ON)
+option(CMT_ENABLE_COMPILER_CACHE        "Enable the usage of compiler cache to speed up the compilation"    OFF)
+option(CMT_ENABLE_CCACHE                "Enable the integration of ccache into the build system"            OFF)
+option(CMT_ENABLE_SCCACHE               "Enable the integration of sccache into the build system"           OFF)
 option(CMT_ENABLE_CLANG_BUILD_ANALYZER  "Enable the integration of clang-build-analyzer into targets"       OFF)
 
 # Options to control the integration with cotire
-option(CMT_ENABLE_COTIRE                "Enable the integration of cotire into the build system"            ON)
-option(CMT_ENABLE_PRECOMPILED_HEADERS   "Enable the usage of pre-compiled headers"                          ON)
-option(CMT_ENABLE_UNITY_BUILDS          "Enable unity builds optimization"                                  ON)
+option(CMT_ENABLE_COTIRE                "Enable the integration of cotire into the build system"            OFF)
+option(CMT_ENABLE_PRECOMPILED_HEADERS   "Enable the usage of pre-compiled headers"                          OFF)
+option(CMT_ENABLE_UNITY_BUILDS          "Enable unity builds optimization"                                  OFF)

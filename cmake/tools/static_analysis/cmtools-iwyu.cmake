@@ -129,7 +129,7 @@ function(cmt_target_enable_iwyu TARGET)
     cmt_find_iwyu(EXECUTABLE)
     cmt_target_set_property(${TARGET} CXX_INCLUDE_WHAT_YOU_USE ${EXECUTABLE})
     cmt_target_set_property(${TARGET} C_INCLUDE_WHAT_YOU_USE ${EXECUTABLE})
-    cmt_log("Enable include-what-you-use checks on target ${TARGET}")
+    cmt_debug("Enable include-what-you-use checks on target ${TARGET}")
 endfunction()
 
 # ! cmt_target_generate_iwyu

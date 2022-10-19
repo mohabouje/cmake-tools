@@ -26,7 +26,7 @@ include_guard(GLOBAL)
 include (FetchContent)
 
 # Global options to control the build system
-option(CMT_ENABLE_LTO                   	"Enable the integration of lto into the build system"	ON)
+option(CMT_ENABLE_LTO                   	"Enable the integration of lto into the build system"	OFF)
 option(CMT_ENABLE_COMPILER_OPTION_CHECKS    "Enable checks in compiler options"     				ON)
 option(CMT_ENABLE_LINKER_OPTION_CHECKS      "Enable checks in linker options"       				ON)
 

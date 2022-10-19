@@ -110,7 +110,7 @@ endmacro()
 #
 function (cmt_pkg_import_package PACKAGE_NAME)
     cmt_pkg_get_backend(PACKAGE_MANAGER)
-    cmake_language(EVAL CODE "cmt_{PACKAGE_MANAGER}_import_package(${PACKAGE_NAME} ${ARGN}")
+    cmake_language(EVAL CODE "cmt_${PACKAGE_MANAGER}_import_package(${PACKAGE_NAME} ${ARGN})")
 endfunction()
 
 # ! cmt_pkg_import_packages
@@ -135,7 +135,7 @@ endfunction()
 #
 function (cmt_pkg_import_packages)
     cmt_pkg_get_backend(PACKAGE_MANAGER)
-    cmake_language(EVAL CODE "cmt_{PACKAGE_MANAGER}_import_packages(${ARGS_UNPARSED_ARGUMENTS} ${ARGN}")
+    cmake_language(EVAL CODE "cmt_${PACKAGE_MANAGER}_import_packages(${ARGS_UNPARSED_ARGUMENTS} ${ARGN})")
 endfunction()
 
 # ! cmt_pkg_link_package

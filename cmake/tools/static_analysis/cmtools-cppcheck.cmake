@@ -125,7 +125,7 @@ function(cmt_target_enable_cppcheck TARGET)
     cmt_find_cppcheck(EXECUTABLE)
     cmt_target_set_property(${TARGET} CXX_CPPCHECK ${EXECUTABLE})
     cmt_target_set_property(${TARGET} C_CPPCHECK ${EXECUTABLE})
-    cmt_log("Enable cppcheck checks for target ${TARGET}")
+    cmt_debug("Enable cppcheck checks for target ${TARGET}")
 endfunction()
 
 # ! cmt_target_generate_cppcheck

@@ -126,7 +126,7 @@ function(cmt_target_enable_cpplint TARGET)
     cmt_find_cpplint(EXECUTABLE)
     cmt_target_set_property(${TARGET} CXX_CPPLINT ${EXECUTABLE})
     cmt_target_set_property(${TARGET} C_CPPLINT ${EXECUTABLE})
-    cmt_log("Enable cpplint checks on target ${TARGET}")
+    cmt_debug("Enable cpplint checks on target ${TARGET}")
 endfunction()
 
 # ! cmt_target_generate_cpplint

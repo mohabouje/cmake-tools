@@ -95,6 +95,11 @@ macro(cmt_cxx_target_set_compile_options TARGET)
     __cmt_cxx_target_feature(${TARGET} target_compile_options ${ARGN})
 endmacro()
 
+macro(cmt_cxx_target_set_generated_dependencies TARGET)
+    cmt_cxx_target_ensure_compiler_options(${TARGET} ${ARGN})
+    __cmt_cxx_target_feature(${TARGET} cmt_codegenerator_link ${ARGN})
+endmacro()
+
 macro(cmt_cxx_target_set_link_options TARGET)
     cmt_cxx_target_ensure_linker_options(${TARGET} ${ARGN})
     __cmt_cxx_target_feature(${TARGET} target_link_options ${ARGN})
@@ -143,6 +148,10 @@ function(cmt_cxx_declare_linker_options MAP_NAME)
     __cmt_cxx_map_argument(${MAP_NAME} ${ARGN})
 endfunction()
 
+function(cmt_cxx_declare_include_directories MAP_NAME)
+    __cmt_cxx_map_argument(${MAP_NAME} ${ARGN})
+endfunction()
+
 set(CMT_CXX_DISABLE_OPTIONS
         DISABLE_STATIC_ANALYSIS
         DISABLE_CPPLINT
@@ -164,6 +173,7 @@ set(CMT_CXX_MAPPED_OPTIONS
         COMPILE_OPTIONS
         INCLUDE_DIRECTORIES
         DEPENDENCIES
+        GENERATED_DEPENDENCIES
         PACKAGES
         SANITIZER)
 mark_as_advanced(CMT_CXX_DISABLE_OPTIONS CMT_CXX_MAPPED_OPTIONS)
@@ -212,7 +222,7 @@ mark_as_advanced(CMT_CXX_DISABLE_OPTIONS CMT_CXX_MAPPED_OPTIONS)
 #
 function(__cmt_cxx_add_target NAME TYPE DOMAIN GROUP)
     cmt_parse_arguments(ARGS "${CMT_CXX_DISABLE_OPTIONS}" "" "${CMT_CXX_MAPPED_OPTIONS}" ${ARGN})
-    cmt_ensure_choice(${TYPE} "STATIC;SHARED;INTERFACE;MODULE;EXECUTABLE;BRIDGE")
+    cmt_ensure_choice(${TYPE} "STATIC;SHARED;INTERFACE;MODULE;EXECUTABLE;BRIDGE;OBJECT")
     cmt_ensure_choice(${DOMAIN} "PUBLIC;PRIVATE;INTERFACE")
     cmt_ensure_choice(${GROUP} "LIBRARY;EXECUTABLE;BENCHMARK;TEST")
 
@@ -229,6 +239,8 @@ function(__cmt_cxx_add_target NAME TYPE DOMAIN GROUP)
     cmt_cxx_target_set_definitions(${TARGET_NAME} ${ARGS_DEFINITIONS})
     cmt_cxx_target_set_compile_options(${TARGET_NAME} ${ARGS_COMPILE_OPTIONS})
     cmt_cxx_target_set_link_options(${TARGET_NAME} ${ARGS_LINK_OPTIONS})
+    cmt_cxx_target_set_generated_dependencies(${TARGET_NAME} ${ARGS_GENERATED_DEPENDENCIES})
+    cmt_cxx_target_set_dependencies(${TARGET_NAME} ${ARGS_GENERATED_DEPENDENCIES})
     cmt_cxx_target_set_properties(${TARGET_NAME} ${TYPE} ${DOMAIN} ${GROUP})
 
     cmt_target_enable_all_warnings(${TARGET_NAME})
@@ -289,7 +301,7 @@ function(__cmt_cxx_add_target NAME TYPE DOMAIN GROUP)
         string(TOLOWER ${GROUP} GROUP_LOWER)
         string(TOLOWER ${DOMAIN} DOMAIN_LOWER)
         string(TOLOWER ${TYPE} TYPE_LOWER)
-        cmt_log("Found ${GROUP_LOWER}: ${TARGET_NAME} (${DOMAIN_LOWER} ${TYPE_LOWER})")
+        cmt_debug("Found ${GROUP_LOWER}: ${TARGET_NAME} (${DOMAIN_LOWER} ${TYPE_LOWER})")
     endif ()
 endfunction()
 

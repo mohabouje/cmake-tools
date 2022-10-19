@@ -27,12 +27,12 @@ include_guard(GLOBAL)
 include(CMakeDependentOption)
 
 option(CMT_ENABLE_STATIC_ANALYSIS 		"Enable the different static analyzer in all targets" 					OFF)
-option(CMT_ENABLE_CLANG_TIDY            "Enable the integration of clang-tidy into the build system"            ON)
-option(CMT_ENABLE_CODECHECKER           "Enable the integration of codechecker into the build system"           ON)
-option(CMT_ENABLE_CPPCHECK              "Enable the integration of cppcheck into the build system"              ON)
-option(CMT_ENABLE_CPPLINT               "Enable the integration of cppcheck into the build system"              ON)
-option(CMT_ENABLE_IWYU                  "Enable the integration of include-what-you-use into the build system"  ON)
-option(CMT_ENABLE_LIZARD                "Enable the integration of lizard into the build system"                ON)
+option(CMT_ENABLE_CLANG_TIDY            "Enable the integration of clang-tidy into the build system"            OFF)
+option(CMT_ENABLE_CODECHECKER           "Enable the integration of codechecker into the build system"           OFF)
+option(CMT_ENABLE_CPPCHECK              "Enable the integration of cppcheck into the build system"              OFF)
+option(CMT_ENABLE_CPPLINT               "Enable the integration of cppcheck into the build system"              OFF)
+option(CMT_ENABLE_IWYU                  "Enable the integration of include-what-you-use into the build system"  OFF)
+option(CMT_ENABLE_LIZARD                "Enable the integration of lizard into the build system"                OFF)
 
 
 
