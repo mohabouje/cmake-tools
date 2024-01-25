@@ -37,7 +37,7 @@ include_guard(GLOBAL)
 # \param BIN_SUBDIR - The subdirectory where the executable is located.
 # \group NAMES - The name of the executable.
 #
-function (cmt_find_conan EXECUTABLE)
+function(cmt_find_conan EXECUTABLE)
     cmt_parse_arguments(ARGS "" "BIN_SUBDIR" "NAMES" ${ARGN})
     cmt_default_argument(ARGS NAMES "conan;")
     cmt_default_argument(ARGS BIN_SUBDIR bin)
@@ -46,31 +46,31 @@ function (cmt_find_conan EXECUTABLE)
     if (${EXECUTABLE_FOUND})
         set(${EXECUTABLE} ${EXECUTABLE_PATH} PARENT_SCOPE)
         return()
-    endif()
+    endif ()
 
     foreach (CONAN_EXECUTABLE_NAME ${ARGS_NAMES})
-        cmt_find_tool_executable (${CONAN_EXECUTABLE_NAME}
+        cmt_find_tool_executable(${CONAN_EXECUTABLE_NAME}
                 CONAN_EXECUTABLE
                 PATHS ${CONAN_SEARCH_PATHS}
                 PATH_SUFFIXES "${ARGS_BIN_SUBDIR}")
         if (CONAN_EXECUTABLE)
             break()
-        endif()
-    endforeach()
+        endif ()
+    endforeach ()
 
-    cmt_report_not_found_if_not_quiet (clang-tidy CONAN_EXECUTABLE
+    cmt_report_not_found_if_not_quiet(clang-tidy CONAN_EXECUTABLE
             "The 'clang-tidy' executable was not found in any search or system paths.\n"
             "Please adjust CONAN_SEARCH_PATHS to the installation prefix of the 'clang-tidy' executable or install clang-tidy")
 
     if (CONAN_EXECUTABLE)
-        set (CONAN_VERSION_HEADER "Conan version ")
+        set(CONAN_VERSION_HEADER "Conan version ")
         cmt_find_tool_extract_version("${CONAN_EXECUTABLE}"
                 CONAN_VERSION
                 VERSION_ARG --version
                 VERSION_HEADER
                 "${CONAN_VERSION_HEADER}"
                 VERSION_END_TOKEN "\n")
-    endif()
+    endif ()
 
     cmt_check_and_report_tool_version(clang-tidy
             "${CONAN_VERSION}"
@@ -79,7 +79,7 @@ function (cmt_find_conan EXECUTABLE)
             CONAN_VERSION)
 
     cmt_cache_set_tool(CONAN ${CONAN_EXECUTABLE} ${CONAN_VERSION})
-    set (${EXECUTABLE} ${CONAN_EXECUTABLE} PARENT_SCOPE)
+    set(${EXECUTABLE} ${CONAN_EXECUTABLE} PARENT_SCOPE)
 endfunction()
 
 function(__cmt_conan_normalize_compiler INPUT OUTPUT)
@@ -87,9 +87,9 @@ function(__cmt_conan_normalize_compiler INPUT OUTPUT)
     if (LOWER_INPUT MATCHES "clang")
         if (CMAKE_CXX_COMPILER_ID MATCHES "AppleClang")
             set(${OUTPUT} "apple-clang" PARENT_SCOPE)
-        else()
+        else ()
             set(${OUTPUT} "clang" PARENT_SCOPE)
-        endif()
+        endif ()
     elseif (LOWER_INPUT MATCHES "gcc")
         set(${OUTPUT} "gcc" PARENT_SCOPE)
     elseif (LOWER_INPUT MATCHES "msvc")
@@ -108,6 +108,11 @@ function(__cmt_conan_normalize_libcxx INPUT OUTPUT)
     else ()
         cmt_fatal("The libcxx '${INPUT}' is not supported by conan")
     endif ()
+endfunction()
+
+function(__cmt_conan_normalize_cppstd INPUT OUTPUT)
+    string(TOLOWER "${INPUT}" LOWER_INPUT)
+    set(${OUTPUT} "${INPUT}" PARENT_SCOPE)
 endfunction()
 
 function(__cmt_conan_normalize_architecture INPUT OUTPUT)
@@ -156,6 +161,13 @@ endfunction()
 
 function(__cmt_conan_normalizer_compiler_version INPUT OUTPUT)
     string(REPLACE "." ";" TEMPORAL_LIST ${INPUT})
+    list(LENGTH TEMPORAL_LIST TEMPORAL_LIST_LENGTH)
+    if (${TEMPORAL_LIST_LENGTH} EQUAL 1)
+        list(GET TEMPORAL_LIST 0 MAJOR)
+        set(${OUTPUT} "${MAJOR}" PARENT_SCOPE)
+        return()
+    endif ()
+
     list(GET TEMPORAL_LIST 0 MAJOR)
     list(GET TEMPORAL_LIST 1 MINOR)
     set(${OUTPUT} "${MAJOR}.${MINOR}" PARENT_SCOPE)
@@ -165,16 +177,16 @@ function(__cmt_conan_collect_components PACKAGE_NAME PACKAGE_COMPONENTS)
 
     set(PACKAGE_COMPONENT_LIST "")
     if (${PACKAGE_NAME}_COMPONENT_NAMES)
-        foreach(COMPONENT_NAME ${${PACKAGE_NAME}_COMPONENT_NAMES})
+        foreach (COMPONENT_NAME ${${PACKAGE_NAME}_COMPONENT_NAMES})
             list(APPEND PACKAGE_COMPONENT_LIST ${COMPONENT_NAME})
-        endforeach()
-    endif()
+        endforeach ()
+    endif ()
 
     if (${PACKAGE_NAME}_LIBRARIES)
-        foreach(COMPONENT_NAME ${${PACKAGE_NAME}_LIBRARIES})
+        foreach (COMPONENT_NAME ${${PACKAGE_NAME}_LIBRARIES})
             list(APPEND PACKAGE_COMPONENT_LIST ${COMPONENT_NAME})
-        endforeach()
-    endif()
+        endforeach ()
+    endif ()
 
     string(TOLOWER ${PACKAGE_NAME} PACKAGE_NAME_LOWER)
     set(LOWER_CANDIDATE "${PACKAGE_NAME_LOWER}::${PACKAGE_NAME_LOWER}")
@@ -182,8 +194,8 @@ function(__cmt_conan_collect_components PACKAGE_NAME PACKAGE_COMPONENTS)
         list(FIND PACKAGE_COMPONENT_LIST ${UPPER_CANDIDATE} INDEX)
         if (${INDEX} EQUAL -1)
             list(APPEND PACKAGE_COMPONENT_LIST ${UPPER_CANDIDATE})
-        endif()
-    endif()
+        endif ()
+    endif ()
 
     string(TOUPPER ${PACKAGE_NAME} PACKAGE_NAME_UPPER)
     set(UPPER_CANDIDATE "${PACKAGE_NAME_UPPER}::${PACKAGE_NAME_UPPER}")
@@ -191,8 +203,8 @@ function(__cmt_conan_collect_components PACKAGE_NAME PACKAGE_COMPONENTS)
         list(FIND PACKAGE_COMPONENT_LIST ${UPPER_CANDIDATE} INDEX)
         if (${INDEX} EQUAL -1)
             list(APPEND PACKAGE_COMPONENT_LIST ${UPPER_CANDIDATE})
-        endif()
-    endif()
+        endif ()
+    endif ()
 
     set(${PACKAGE_COMPONENTS} ${PACKAGE_COMPONENT_LIST} PARENT_SCOPE)
 endfunction()
@@ -222,7 +234,7 @@ endfunction()
 # \param    WORKING_DIR Directory where the pkg install command will be executed (default: ${CMAKE_SOURCE_DIR})
 
 function(cmt_conan_install TOOLCHAIN_FILE)
-    cmt_parse_arguments(ARGS "" "ARCHITECTURE;OS;COMPILER;COMPILER_VERSION;COMPILER_LIBCXX;BUILD_TYPE;INSTALL_DIR;WORKING_DIR" "" ${ARGN})
+    cmt_parse_arguments(ARGS "" "ARCHITECTURE;OS;COMPILER;COMPILER_VERSION;COMPILER_LIBCXX;COMPILER_LIBSTD;BUILD_TYPE;INSTALL_DIR;WORKING_DIR" "" ${ARGN})
 
     cmt_define_standard_cxx_library()
     cmt_define_os()
@@ -233,6 +245,7 @@ function(cmt_conan_install TOOLCHAIN_FILE)
     cmt_default_argument(ARGS ARCHITECTURE ${CMT_ARCHITECTURE})
     cmt_default_argument(ARGS OS ${CMT_OS})
     cmt_default_argument(ARGS COMPILER ${CMT_COMPILER})
+    cmt_default_argument(ARGS COMPILER_LIBSTD ${CMAKE_CXX_STANDARD})
     cmt_default_argument(ARGS COMPILER_LIBCXX ${CMT_CXX_STANDARD_LIB})
     cmt_default_argument(ARGS COMPILER_VERSION ${CMT_CXX_COMPILER_VERSION})
     cmt_default_argument(ARGS INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/conan)
@@ -254,6 +267,9 @@ function(cmt_conan_install TOOLCHAIN_FILE)
     __cmt_conan_normalize_libcxx(${ARGS_COMPILER_LIBCXX} COMPILER_LIBCXX)
     list(APPEND ARGS_CONAN_INSTALL_ARGS "-s" "compiler.libcxx=${COMPILER_LIBCXX}")
 
+    __cmt_conan_normalize_cppstd(${ARGS_COMPILER_LIBSTD} COMPILER_LIBSTD)
+    list(APPEND ARGS_CONAN_INSTALL_ARGS "-s" "compiler.cppstd=${COMPILER_LIBSTD}")
+
     __cmt_conan_normalizer_compiler_version(${ARGS_COMPILER_VERSION} COMPILER_VERSION)
     list(APPEND ARGS_CONAN_INSTALL_ARGS "-s" "compiler.version=${COMPILER_VERSION}")
 
@@ -267,9 +283,9 @@ function(cmt_conan_install TOOLCHAIN_FILE)
             RESULT_VARIABLE EXECUTION_RETURN_CODE
             OUTPUT_VARIABLE EXECUTION_OUTPUT)
 
-    if(NOT ${EXECUTION_RETURN_CODE} EQUAL 0)
+    if (NOT ${EXECUTION_RETURN_CODE} EQUAL 0)
         cmt_fatal("Conan install failed with code ${EXECUTION_RETURN_CODE}: ${EXECUTION_OUTPUT}")
-    endif()
+    endif ()
     set(${TOOLCHAIN_FILE} ${ARGS_INSTALL_DIR}/conan_toolchain.cmake PARENT_SCOPE)
     cmt_logger_reset_scoped_context()
 endfunction()
@@ -302,7 +318,7 @@ endmacro()
 # \param    CONFIG Build type to use for the conan install command (default: CMAKE_BUILD_TYPE)
 # \group    COMPONENTS The components to import from the package
 #
-function (cmt_conan_import_package PACKAGE_NAME)
+function(cmt_conan_import_package PACKAGE_NAME)
     cmt_parse_arguments(ARGS "REQUIRED" "OS;ARCHITECTURE;COMPILER;CONFIG" "COMPONENTS" ${ARGN})
 
     cmt_define_os()
@@ -310,32 +326,32 @@ function (cmt_conan_import_package PACKAGE_NAME)
         cmt_ensure_argument_choice(ARGS OS LINUX MACOS WINDOWS ANDROID IOS)
         if (NOT ${CMT_OS} STREQUAL ${ARGS_OS})
             return()
-        endif()
-    endif()
+        endif ()
+    endif ()
 
     cmt_define_compiler()
     if (DEFINED ARGS_COMPILER)
-        cmt_ensure_argument_choice(ARGS COMPILER  GCC ../clang MVSC)
+        cmt_ensure_argument_choice(ARGS COMPILER GCC ../clang MVSC)
         if (NOT ${CMT_COMPILER} STREQUAL ${ARGS_COMPILER})
             return()
-        endif()
-    endif()
+        endif ()
+    endif ()
 
     cmt_define_architecture()
     if (DEFINED ARGS_ARCHITECTURE)
         cmt_ensure_argument_choice(ARGS ARCHITECTURE X86 ARM32 ARM64)
         if (NOT ${CMT_ARCHITECTURE} STREQUAL ${ARGS_ARCHITECTURE})
             return()
-        endif()
-    endif()
+        endif ()
+    endif ()
 
     if (DEFINED ARGS_CONFIG)
         cmt_ensure_argument_choice(ARGS CONFIG Debug Release RelWithDebInfo MinSizeRel)
         string(TOUPPER ${ARGS_CONFIG} ARGS_CONFIG)
         if (NOT ${CMAKE_BUILD_TYPE} STREQUAL ${ARGS_CONFIG})
             return()
-        endif()
-    endif()
+        endif ()
+    endif ()
 
     cmt_forward_arguments(ARGS "REQUIRED" "" "COMPONENTS" FIND_PACKAGE)
     cmt_logger_set_scoped_context(WARNING conan)
@@ -346,7 +362,7 @@ function (cmt_conan_import_package PACKAGE_NAME)
     if (${PACKAGE_FOUND})
         cmt_debug("Skipping importing ${PACKAGE_NAME} because it is already imported")
         return()
-    endif()
+    endif ()
 
     __cmt_conan_collect_components(${PACKAGE_NAME} PACKAGE_COMPONENTS)
     cmt_debug("Imported components [${PACKAGE_COMPONENTS}] from conan package ${PACKAGE_NAME}")
@@ -374,12 +390,12 @@ endfunction()
 # \param    CONFIG Build type to use for the conan install command (default: CMAKE_BUILD_TYPE)
 # \group    COMPONENTS The components to import from the package
 #
-function (cmt_conan_import_packages)
+function(cmt_conan_import_packages)
     cmt_parse_arguments(ARGS "REQUIRED" "OS;ARCHITECTURE;COMPILER;CONFIG" "" ${ARGN})
     cmt_forward_arguments(ARGS "REQUIRED" "OS;ARCHITECTURE;COMPILER;CONFIG" "" FORWARDED_ARGS)
     foreach (PACKAGE_NAME ${ARGS_UNPARSED_ARGUMENTS})
         cmt_conan_import_package(${PACKAGE_NAME} ${FORWARDED_ARGS})
-    endforeach()
+    endforeach ()
 endfunction()
 
 # ! cmt_conan_link_package
@@ -437,11 +453,11 @@ function(cmt_conan_link_packages TARGET)
     cmt_parse_arguments(ARGS "REQUIRED" "OS;COMPILER;ARCHITECTURE;CONFIG" "" ${ARGN})
     cmt_ensure_target(${TARGET})
     cmt_forward_arguments(ARGS "REQUIRED" "OS;COMPILER;ARCHITECTURE;CONFIG" "" FORWARDED_ARGS)
-    foreach(PACKAGE_NAME ${ARGS_UNPARSED_ARGUMENTS})
+    foreach (PACKAGE_NAME ${ARGS_UNPARSED_ARGUMENTS})
         cmt_conan_import_package(${PACKAGE_NAME} ${FORWARDED_ARGS})
         cmt_cache_get_package(${PACKAGE_NAME} _ PACKAGE_COMPONENT)
         target_link_libraries(${TARGET} ${PACKAGE_COMPONENT})
-    endforeach()
+    endforeach ()
 endfunction()
 
 # ! cmt_conan_list_components
