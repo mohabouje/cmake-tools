@@ -50,7 +50,7 @@ mark_as_advanced(CMT_DEFAULT_BUILD_TYPE)
 # \input BUILD_TYPE The default build type
 #
 macro(cmt_set_build_type BUILD_TYPE)
-	cmt_ensure_choice(${BUILD_TYP} Debug Release RelWithDebInfo MinSizeRel Coverage)
+	cmt_ensure_choice(${BUILD_TYPE} Debug Release RelWithDebInfo MinSizeRel Coverage)
 	set(CMAKE_BUILD_TYPE ${BUILD_TYPE} CACHE STRING "Choose the type of build." FORCE)
 endmacro()
 
