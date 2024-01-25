@@ -259,7 +259,7 @@ function(cmt_conan_install TOOLCHAIN_FILE)
 
     list(APPEND ARGS_CONAN_INSTALL_ARGS "-s" "build_type=${ARGS_BUILD_TYPE}")
     list(APPEND ARGS_CONAN_INSTALL_ARGS "--build=missing")
-    list(APPEND ARGS_CONAN_INSTALL_ARGS "--install-folder=${ARGS_INSTALL_DIR}")
+    list(APPEND ARGS_CONAN_INSTALL_ARGS "--output-folder=${ARGS_INSTALL_DIR}")
 
     cmt_log("Installing conan dependencies...")
     cmt_logger_set_scoped_context(WARNING conan)
